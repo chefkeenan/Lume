@@ -46,6 +46,9 @@ INSTALLED_APPS = [
     'bookingkelas',
     'catalog',
     'cart',
+    'checkout',
+    'user',
+    'admin',
 ]
 
 MIDDLEWARE = [
