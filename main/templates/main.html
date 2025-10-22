@@ -1,51 +1,109 @@
-{% load humanize %}
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>Catalog – Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 16px; }
-    .card { border: 1px solid #eee; border-radius: 12px; padding: 12px; }
-    .thumb { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; background:#f6f6f6; }
-    .name { font-weight: 600; margin: 8px 0 6px; font-size: 14px; line-height: 1.3; }
-    .price { font-weight: 700; }
-    .muted { color: #666; font-size: 12px; }
-    .badge { display:inline-block; padding:2px 8px; border-radius: 999px; font-size:12px; }
-    .ok { background:#e6ffed; color:#057a12; }
-    .no { background:#ffeaea; color:#a30000; }
-  </style>
-</head>
-<body>
-  <h1>Produk ({{ products|length }})</h1>
-  <div class="grid">
-    {% for p in products %}
-      <div class="card">
-        {% if p.thumbnail %}
-          <img class="thumb" src="{{ p.thumbnail }}" alt="{{ p.product_name }}">
-        {% else %}
-          <div class="thumb"></div>
-        {% endif %}
+{% extends "base.html" %}
+{% load static humanize %}
 
-        <div class="name">{{ p.product_name }}</div>
-        <div class="price">Rp {{ p.price|intcomma }}</div>
-        <div class="muted">
-          Stok: {{ p.stock }} ·
-          {% if p.inStock %}
-            <span class="badge ok">Ready</span>
-          {% else %}
-            <span class="badge no">Habis</span>
-          {% endif %}
-        </div>
-        {% if p.description %}
-          <p class="muted">{{ p.description|truncatechars:120 }}</p>
-        {% endif %}
-      </div>
-    {% empty %}
-      <p>Belum ada produk.</p>
-    {% endfor %}
+{% block content %}
+
+<!-- Hero -->
+<section class="relative">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(0,0,0,0.25),transparent_60%)]"></div>
+  <div class="relative mx-auto max-w-7xl px-6 py-24 text-center sm:py-28">
+    <p class="mb-4 text-sm font-medium tracking-widest" style="color:var(--primary);">WELCOME TO LUME</p>
+    <h1 class="mx-auto max-w-4xl text-5xl font-extrabold leading-[1.05] text-white sm:text-7xl">
+      Transform<br class="hidden sm:block"/>Your Body
+    </h1>
+    <p class="mx-auto mt-6 max-w-2xl text-lg text-white/85">
+      Experience premium pilates classes and curated wellness products designed to elevate your practice
+    </p>
+    <div class="mt-10 flex items-center justify-center gap-4">
+      <a href="/classes/" class="btn-primary rounded-2xl px-5 py-3 text-sm font-medium shadow">Explore Classes</a>
+      <a href="#produk" class="btn-ghost rounded-2xl px-5 py-3 text-sm font-medium">Shop Products</a>
+    </div>
   </div>
-</body>
-</html>
+</section>
+
+<!-- Product Grid -->
+<section id="produk" class="py-12 sm:py-16">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="mb-6">
+      <h2 class="text-4xl font-bold tracking-tight">Premium Products</h2>
+      <p class="mt-2 text-base" style="color:var(--muted-foreground)">
+        Discover our carefully curated selection of pilates and wellness products to enhance your practice
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+      {% for p in products %}
+      <article class="theme-card rounded-3xl border border-theme shadow-sm">
+        <div class="overflow-hidden rounded-t-3xl">
+          <div class="relative">
+            <a href="{% url 'catalog:detail' p.id %}">
+              <img
+                src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/960/640' }}"
+                alt="{{ p.product_name }}"
+                class="h-64 w-full object-cover"
+                onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/960/640';"
+              />
+            </a>
+            {% if not p.inStock %}
+            <div class="absolute inset-0 grid place-items-center bg-black/40">
+              <span class="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800">Out of Stock</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="px-6 pb-6 pt-5">
+          <h3 class="text-lg font-semibold">
+            <a href="{% url 'catalog:detail' p.id %}" class="hover:underline">
+              {{ p.product_name }}
+            </a>
+          </h3>
+          {% if p.description %}
+            <p class="mt-1" style="color:var(--muted-foreground)">{{ p.description|truncatechars:90 }}</p>
+          {% endif %}
+          <p class="mt-4 text-2xl font-semibold" style="color:var(--primary)">Rp{{ p.price|intcomma }}</p>
+            <div class="mt-5 flex gap-2">
+              <!-- Tombol Detail di kiri -->
+              <a href="{% url 'catalog:detail' p.id %}"
+                class="inline-flex flex-1 items-center justify-center rounded-xl border border-theme px-4 py-3 text-sm font-medium theme-card hover:opacity-90">
+                Detail
+              </a>
+
+              <!-- Add to Cart di kanan -->
+              {% if user.is_authenticated %}
+                <form method="post" action="{% url 'cart:add' p.id %}" class="flex-1">
+                  {% csrf_token %}
+                  <button type="submit"
+                          class="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
+                    Add to Cart
+                  </button>
+                </form>
+              {% else %}
+                <a href="/user/login/"
+                  class="btn-primary inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
+                  Add to Cart
+                </a>
+              {% endif %}
+            </div>
+        </div>
+      </article>
+      {% empty %}
+        <p style="color:var(--muted-foreground)">Belum ada produk.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-theme">
+  <div class="mx-auto max-w-7xl px-6 py-8 text-sm" style="color:var(--muted-foreground)">
+    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
+      <p>© {% now "Y" %} Lume. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <a href="#" class="hover:opacity-80">Kebijakan Privasi</a>
+        <a href="#" class="hover:opacity-80">Syarat & Ketentuan</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% endblock %}
