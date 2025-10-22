@@ -4,5 +4,7 @@ from . import views
 app_name = "bookingkelas"
 
 urlpatterns = [
-    path('class/<int:session_id>/', views.class_session_detail, name='class_session_detail'),
+    path("", views.catalog, name="catalog"),
+    path("json/", views.sessions_json, name="sessions_json"),
+    path("add/", views.add_session, name="add_session"),
 ]
