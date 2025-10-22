@@ -3,11 +3,9 @@ from django.forms import ModelForm
 from django.utils.html import strip_tags
 from bookingkelas.models import ClassSessions, WEEKDAYS
 
-WEEKDAY_CHOICES = [(str(day[0]), day[1]) for day in WEEKDAYS]
-
 class SessionsForm(ModelForm):
     days = forms.MultipleChoiceField(
-        choices=WEEKDAY_CHOICES,
+        choices=WEEKDAYS,
         required=False,
         widget=forms.CheckboxSelectMultiple,
         help_text="Pilih hari jika kategori 'Daily'.",

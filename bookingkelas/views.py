@@ -4,49 +4,88 @@ from .models import ClassSessions, WEEKDAYS
 from .forms import SessionsForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse
 from decimal import Decimal
 from .models import Booking
+import re
 
 def _weekday_map():
-    """
-    Kembalikan mapping key -> name dari WEEKDAYS model.
-    Contoh: {'mon': 'Monday', 'tue': 'Tuesday', ...}
-    """
     return dict(WEEKDAYS)
 
+def _base_title(title):
+    m = re.match(r"^(.*?)(?:\s*-\s*(mon|tue|wed|thur|fri|sat))?$", title, flags=re.I)
+    if m:
+        return m.group(1).strip()
+    return title
+
 def catalog(request):
-    """
-    Tampilkan katalog semua kelas.
-    Mengirimkan sessions sebagai list of dict: setiap item berisi object 'obj'
-    dan 'days_names' (list nama hari yang readable).
-    """
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
 
-    sessions = []
+    category_filter = request.GET.get("category")
+    if category_filter and category_filter != "all":
+        qs = qs.filter(category__iexact=category_filter)
+
+    groups = {}
     for s in qs:
+        base = _base_title(s.title)
+        key = (base, s.time, s.category)
+
+        
         days = s.days if s.days else []
-        # pastikan semua key jadi string sebelum lookup
-        try:
-            days_names = [weekday_map.get(str(d), str(d)) for d in days]
-        except Exception:
-            days_names = [str(d) for d in days]
-        sessions.append({
-            "obj": s,
-            "days_names": days_names
+        days_names = []
+        for d in days:
+            days_names.append(weekday_map.get(str(d), str(d)))
+
+        if key not in groups:
+            groups[key] = {
+                "base_title": base,
+                "category": s.category,
+                "instructor": s.instructor,
+                "time": s.time,
+                "room": s.room,
+                "price": s.price,
+                "capacity_max": s.capacity_max,
+                "days_keys": set(days),      
+                "days_names": set(days_names),
+                "instances": [s],           
+            }
+        else:
+            groups[key]["instances"].append(s)
+            groups[key]["days_keys"].update(days)
+            groups[key]["days_names"].update(days_names)
+  
+    grouped_sessions = []
+    for (base, time, category), info in groups.items():
+        grouped_sessions.append({
+            "base_title": info["base_title"],
+            "category": info["category"],
+            "instructor": info["instructor"],
+            "time": info["time"],
+            "room": info["room"],
+            "price": info["price"],
+            "capacity_max": info["capacity_max"],
+            "days_keys": sorted(list(info["days_keys"])),
+            "days_names": sorted(list(info["days_names"])),
+            "instances": info["instances"],  
         })
 
-    context = {"sessions": sessions}
-    return render(request, "bookingkelas/show_class.html", context)
+    daily_seen = set()
+    filtered_sessions = []
+    for s in grouped_sessions:
+        if s["category"].lower() == "daily":
+            base = s["base_title"]
+            if base not in daily_seen:
+                filtered_sessions.append(s)
+                daily_seen.add(base)
+        else:
+            filtered_sessions.append(s)
+
+    grouped_sessions = sorted(filtered_sessions, key=lambda x: (x["category"], x["time"], x["base_title"]))
+
+    return render(request, "bookingkelas/show_class.html", {"sessions": grouped_sessions})
 
 
 def sessions_json(request):
-    """
-    Kembalikan JSON berisi semua session.
-    days tetap disimpan dalam bentuk aslinya (list of keys), dan days_names
-    berisi nama hari yang sudah di-convert.
-    """
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
 
@@ -79,28 +118,17 @@ def sessions_json(request):
 
 
 def add_session(request):
-    """
-    Tambah session:
-    - Jika POST: validasi form, ambil field days (bisa dari form.cleaned_data atau request.POST.getlist)
-      lalu set ke instance.days dan simpan.
-    - Jika GET: tampilkan form.
-    Setelah sukses, redirect ke katalog.
-    """
     if request.method == "POST":
         form = SessionsForm(request.POST)
         if form.is_valid():
-            # Save instance without commit agar kita bisa set days
             instance = form.save(commit=False)
 
-            # Ambil days dari form.cleaned_data jika ada
             days = []
             if "days" in form.cleaned_data:
                 days = form.cleaned_data.get("days") or []
             else:
-                # fallback: ambil dari POST (mis. ketika form manual mengirim checkbox list)
                 days = request.POST.getlist("days")
 
-            # normalisasi: simpan sebagai list of str
             try:
                 instance.days = [str(d) for d in days]
             except Exception:
@@ -108,7 +136,6 @@ def add_session(request):
 
             instance.save()
             return redirect("bookingkelas:catalog")
-        # jika form invalid, akan jatuh ke render ulang dengan errors
     else:
         form = SessionsForm()
 
@@ -116,10 +143,6 @@ def add_session(request):
 
 @login_required
 def book_class(request, session_id):
-    """
-    Jika kelas 'weekly', langsung buat booking dan redirect ke checkout.
-    Jika kelas 'daily', tampilkan form untuk pilih hari dulu.
-    """
     session = get_object_or_404(ClassSessions, id=session_id)
 
     if session.is_full:
@@ -127,23 +150,30 @@ def book_class(request, session_id):
         return redirect("bookingkelas:catalog")
 
     if session.category == "daily":
-        # arahkan ke halaman pilih hari
         return redirect("bookingkelas:choose_day", session_id=session.id)
 
-    # jika weekly, langsung buat booking
+    # Weekly booking langsung
     booking = Booking.objects.create(
         user=request.user,
         session=session,
         price_at_booking=Decimal(session.price),
     )
+
+    # Update kapasitas
+    session.capacity_current += 1
+    session.save()
+
+    messages.success(request, f"Berhasil booking {session.title}.")
     return redirect("checkout:checkout_booking_now", booking_id=booking.id)
+
 
 @login_required
 def choose_day(request, session_id):
-    """
-    Form untuk memilih hari (khusus kelas harian)
-    """
     session = get_object_or_404(ClassSessions, id=session_id)
+
+    if session.is_full:
+        messages.error(request, "Kelas sudah penuh.")
+        return redirect("bookingkelas:catalog")
 
     if request.method == "POST":
         selected_day = request.POST.get("day")
@@ -157,6 +187,33 @@ def choose_day(request, session_id):
             day_selected=selected_day,
             price_at_booking=Decimal(session.price),
         )
+
+        # Update kapasitas
+        session.capacity_current += 1
+        session.save()
+
+        messages.success(request, f"Berhasil booking {session.title} ({selected_day}).")
         return redirect("checkout:checkout_booking_now", booking_id=booking.id)
 
     return render(request, "bookingkelas/choose_day.html", {"session": session, "days": session.days})
+
+
+def class_list(request):
+    classes = ClassSessions.objects.all()
+    return render(request, "bookingkelas/class_list.html", {"classes": classes})
+
+def class_add(request):
+    return redirect("bookingkelas:class_list")
+
+def class_edit(request, pk):
+    kelas = get_object_or_404(ClassSessions, pk=pk)
+    form = SessionsForm(request.POST or None, instance=kelas)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("bookingkelas:class_list")
+    return render(request, "bookingkelas/class_form.html", {"form": form})
+
+def class_delete(request, pk):
+    kelas = get_object_or_404(ClassSessions, pk=pk)
+    kelas.delete()
+    return redirect("bookingkelas:class_list")
