@@ -56,5 +56,4 @@ def add_to_cart(request, product_id):
     # tambahkan ke cart (pakai method kamu di models)
     cart.add(product, qty)
 
-    # redirect ke halaman cart kamu
     return redirect("cart:page")
