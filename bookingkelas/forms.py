@@ -10,6 +10,7 @@ class SessionsForm(ModelForm):
         choices=WEEKDAY_CHOICES,
         required=False,
         widget=forms.CheckboxSelectMultiple,
+        help_text="Pilih hari jika kategori 'Daily'.",
     )
 
     class Meta:
@@ -44,11 +45,8 @@ class SessionsForm(ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        days = self.cleaned_data.get("days", [])
-        try:
-            instance.days = [int(d) for d in days]
-        except Exception:
-            instance.days = []
+        # Simpan sebagai list of string, sesuai model JSONField
+        instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
         if commit:
             instance.save()
         return instance

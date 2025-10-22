@@ -34,7 +34,7 @@ def catalog(request):
         })
 
     context = {"sessions": sessions}
-    return render(request, "show_class.html", context)
+    return render(request, "bookingkelas/show_class.html", context)
 
 
 def sessions_json(request):
