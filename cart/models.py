@@ -3,7 +3,6 @@ from django.conf import settings
 from django.db.models import Sum
 import uuid
 
-
 class Cart(models.Model):
     cart_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(
