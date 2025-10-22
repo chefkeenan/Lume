@@ -1,8 +1,12 @@
-# bookingkelas/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
 from .models import ClassSessions, WEEKDAYS
 from .forms import SessionsForm
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
+from decimal import Decimal
+from .models import Booking
 
 def _weekday_map():
     """
@@ -109,3 +113,50 @@ def add_session(request):
         form = SessionsForm()
 
     return render(request, "add_session.html", {"form": form})
+
+@login_required
+def book_class(request, session_id):
+    """
+    Jika kelas 'weekly', langsung buat booking dan redirect ke checkout.
+    Jika kelas 'daily', tampilkan form untuk pilih hari dulu.
+    """
+    session = get_object_or_404(ClassSessions, id=session_id)
+
+    if session.is_full:
+        messages.error(request, "Kelas sudah penuh.")
+        return redirect("bookingkelas:catalog")
+
+    if session.category == "daily":
+        # arahkan ke halaman pilih hari
+        return redirect("bookingkelas:choose_day", session_id=session.id)
+
+    # jika weekly, langsung buat booking
+    booking = Booking.objects.create(
+        user=request.user,
+        session=session,
+        price_at_booking=Decimal(session.price),
+    )
+    return redirect("checkout:checkout_booking_now", booking_id=booking.id)
+
+@login_required
+def choose_day(request, session_id):
+    """
+    Form untuk memilih hari (khusus kelas harian)
+    """
+    session = get_object_or_404(ClassSessions, id=session_id)
+
+    if request.method == "POST":
+        selected_day = request.POST.get("day")
+        if not selected_day:
+            messages.error(request, "Pilih satu hari terlebih dahulu.")
+            return redirect("bookingkelas:choose_day", session_id=session.id)
+
+        booking = Booking.objects.create(
+            user=request.user,
+            session=session,
+            day_selected=selected_day,
+            price_at_booking=Decimal(session.price),
+        )
+        return redirect("checkout:checkout_booking_now", booking_id=booking.id)
+
+    return render(request, "bookingkelas/choose_day.html", {"session": session, "days": session.days})
