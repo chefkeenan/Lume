@@ -1,16 +1,51 @@
-{% extends "base.html" %}
+{% load humanize %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Catalog – Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 16px; }
+    .card { border: 1px solid #eee; border-radius: 12px; padding: 12px; }
+    .thumb { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 8px; background:#f6f6f6; }
+    .name { font-weight: 600; margin: 8px 0 6px; font-size: 14px; line-height: 1.3; }
+    .price { font-weight: 700; }
+    .muted { color: #666; font-size: 12px; }
+    .badge { display:inline-block; padding:2px 8px; border-radius: 999px; font-size:12px; }
+    .ok { background:#e6ffed; color:#057a12; }
+    .no { background:#ffeaea; color:#a30000; }
+  </style>
+</head>
+<body>
+  <h1>Produk ({{ products|length }})</h1>
+  <div class="grid">
+    {% for p in products %}
+      <div class="card">
+        {% if p.thumbnail %}
+          <img class="thumb" src="{{ p.thumbnail }}" alt="{{ p.product_name }}">
+        {% else %}
+          <div class="thumb"></div>
+        {% endif %}
 
-{% block title %}Halaman Utama{% endblock %}
-
-{% block content %}
-  <h1>Produk</h1>
-  {% if products_list %}
-    <ul>
-      {% for p in products_list %}
-        <li>{{ p.name|default:"(tanpa nama)" }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Belum ada produk.</p>
-  {% endif %}
-{% endblock %}
+        <div class="name">{{ p.product_name }}</div>
+        <div class="price">Rp {{ p.price|intcomma }}</div>
+        <div class="muted">
+          Stok: {{ p.stock }} ·
+          {% if p.inStock %}
+            <span class="badge ok">Ready</span>
+          {% else %}
+            <span class="badge no">Habis</span>
+          {% endif %}
+        </div>
+        {% if p.description %}
+          <p class="muted">{{ p.description|truncatechars:120 }}</p>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p>Belum ada produk.</p>
+    {% endfor %}
+  </div>
+</body>
+</html>

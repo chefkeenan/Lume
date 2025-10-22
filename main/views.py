@@ -4,14 +4,5 @@ from catalog.models import Product
 
 #belom kelar
 def show_main(request):
-    filter_type = request.GET.get("filter", "all")  # default 'all'
-
-    if filter_type == "all":
-        products_list = Product.objects.all()
-    else:
-        products_list = Product.objects.filter(user=request.user)
-    context = {
-        'products_list': products_list,
-    }
-
-    return render(request, "main.html", context)
+    products = Product.objects.all()[:50]
+    return render(request, "main.html", {"products": products})
