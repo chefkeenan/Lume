@@ -4,10 +4,14 @@ from . import views
 app_name = "checkout"
 
 urlpatterns = [
-    # CART / PRODUCTS
+    # Produk (Cart)
     path("cart/", views.cart_checkout_page, name="cart_checkout_page"),
     path("cart/create/", views.checkout_cart_create, name="checkout_cart_create"),
 
-    # BOOKING CLASS (single booking -> langsung checkout)
-    path("booking/checkout/<uuid:booking_id>/", views.checkout_booking_now, name="checkout_booking_now"),
+    # Booking (single)
+    path("booking/<uuid:booking_id>/", views.booking_checkout_page, name="booking_checkout_page"),
+    path("booking/<uuid:booking_id>/create/", views.checkout_booking_now, name="checkout_booking_now"),
+
+    # Order Confirmed (dipakai keduanya)
+    path("confirmed/", views.order_confirmed, name="order_confirmed"),
 ]
