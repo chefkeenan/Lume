@@ -44,3 +44,4 @@ class Product(models.Model):
             + quote(no_scheme, safe="")
             + "&w=1200&h=800&fit=cover&we&il"
         )
+    
