@@ -1,13 +1,12 @@
-# bookingkelas/models.py
 from django.db import models
 
 WEEKDAYS = [
-    (0, 'Monday'),
-    (1, 'Tuesday'),
-    (2, 'Wednesday'),
-    (3, 'Thursday'),
-    (4, 'Friday'),
-    (5, 'Saturday'),
+    ('mon', 'Monday'),
+    ('tue', 'Tuesday'),
+    ('wed', 'Wednesday'),
+    ('thur', 'Thursday'),
+    ('fri', 'Friday'),
+    ('sat', 'Saturday'),
 ]
 
 TIME_SLOTS = [
@@ -33,7 +32,7 @@ class ClassSessions(models.Model):
     days = models.JSONField(default=list, blank=True)
     time = models.CharField(max_length=20, choices=TIME_SLOTS)
     
-    def _str_(self):
+    def __str__(self):
         return f"{self.title} - Rp{self.price:,}"
     
     @property
