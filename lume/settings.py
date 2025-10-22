@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.humanize',
     'django.contrib.messages',
-    "django.contrib.humanize",
     'django.contrib.staticfiles',
     'bookingkelas',
     'catalog',
@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'user',
     'user_admin',
     'main',
-    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
