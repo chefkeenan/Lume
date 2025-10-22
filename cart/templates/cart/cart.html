@@ -1,0 +1,58 @@
+{# cart/templates/cart/cart.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Shopping Cart</h1>
+
+<p>Total items: {{ total_items }}</p>
+
+{% if items %}
+  <ul>
+    {% for it in items %}
+      <li style="display:flex;align-items:center;gap:12px;margin:10px 0;padding:10px;border:1px solid #eee;">
+        {% if it.product.thumbnail %}
+          <img src="{{ it.product.thumbnail }}" alt="{{ it.product.product_name }}"
+               style="width:64px;height:64px;object-fit:cover;border-radius:8px;">
+        {% endif %}
+
+        <div style="flex:1;">
+          <div style="font-weight:600;">{{ it.product.product_name }}</div>
+          <div>Price: ${{ it.product.price|default:0 }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:6px;">
+          <form method="post" action="{% url 'cart:dec' it.id %}">
+            {% csrf_token %}
+            <button type="submit" aria-label="Decrease">−</button>
+          </form>
+
+          <span style="min-width:28px;text-align:center;">{{ it.quantity }}</span>
+
+          <form method="post" action="{% url 'cart:inc' it.id %}">
+            {% csrf_token %}
+            <button type="submit" aria-label="Increase">+</button>
+          </form>
+        </div>
+
+        <form method="post" action="{% url 'cart:remove' it.id %}">
+          {% csrf_token %}
+          <button type="submit" style="margin-left:8px;">Remove</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+
+  {# tombol ke modul checkout temanmu #}
+  <p style="margin-top:16px;">
+    <a href="{% url 'checkout:start' %}" class="btn">Proceed to Checkout</a>
+  </p>
+
+{% else %}
+  <p>Your cart is empty.</p>
+{% endif %}
+
+<p style="margin-top:12px;">
+  <a href="{% url 'catalog:list' %}">← Back to catalog</a>
+</p>
+{% endblock %}
