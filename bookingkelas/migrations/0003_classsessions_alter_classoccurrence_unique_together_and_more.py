@@ -32,20 +32,12 @@ class Migration(migrations.Migration):
             unique_together=None,
         ),
         migrations.RemoveField(
-            model_name='classoccurrence',
-            name='session',
-        ),
-        migrations.RemoveField(
             model_name='classsession',
             name='instructor',
         ),
         migrations.RemoveField(
             model_name='classsession',
             name='room',
-        ),
-        migrations.RemoveField(
-            model_name='schedulerule',
-            name='session',
         ),
         migrations.AlterUniqueTogether(
             name='schedulerule',
