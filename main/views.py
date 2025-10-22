@@ -12,6 +12,11 @@ PRICE_RANGES = [
     ("5m+", "≥ Rp5.000.000",                5_000_000, None),
 ]
 
+def landing_view(request):
+    # opsional: highlight 6 produk terbaru
+    highlights = Product.objects.all().order_by("-id")[:6]
+    return render(request, "main/landing.html", {"highlights": highlights})
+
 def show_main(request):
     qs = Product.objects.all()
 

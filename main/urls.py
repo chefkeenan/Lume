@@ -1,7 +1,10 @@
+# main/urls.py
 from django.urls import path
-from main.views import show_main
-app_name = 'main'
+from . import views
+
+app_name = "main"
 
 urlpatterns = [
-    path('', show_main, name='show_main'),
+    path("", views.landing_view, name="landing"),       # landing page baru
+    path("shop/", views.show_main, name="show_main"),   
 ]

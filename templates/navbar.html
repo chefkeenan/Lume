@@ -1,19 +1,58 @@
-<nav class="theme-navbar sticky top-0 z-40 w-full border-b border-theme/80">
-  <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
-    <a href="/" class="flex items-center gap-2">
-      <span class="flex h-8 w-8 items-center justify-center rounded-full"
-            style="background:var(--primary); color:var(--primary-foreground);">L</span>
-      <span class="text-lg font-semibold">Lume</span>
-    </a>
-    <div class="flex items-center gap-6 text-sm">
-      <a href="/" class="hover:opacity-80">Main Page</a>
-      <a href="/" class="hover:opacity-80">Shop Products</a>
-      <a href="/classes/" class="hover:opacity-80">Book Class</a>
-    </div>
-    {% if user.is_authenticated %}
-      <a href="/user/profile/" class="btn-ghost rounded-xl px-4 py-2 text-sm">Profile</a>
-    {% else %}
-      <a href="/user/login/" class="btn-primary rounded-xl px-4 py-2 text-sm">Login</a>
-    {% endif %}
+{# pastikan context processor 'django.template.context_processors.request' aktif #}
+{# aktifkan url-name di bawah sesuai projectmu, atau pakai '#' dulu #}
+
+{% url 'main:landing' as home_url %}
+{% url 'catalog:index' as products_url %}
+{# placeholder kalau belum ada url-nya: #}
+{% firstof products_url '#' as products_url %}
+{% with classes_url='#' checkouts_url='#' %}
+
+<header class="sticky top-0 z-40 bg-transparent">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
+    <nav class="flex items-center justify-between rounded-[2rem] border border-gray-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+      <!-- Brand -->
+      <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-gray-700">
+        Lume
+      </a>
+
+      <!-- Nav items (teks saja) -->
+      <ul class="flex items-center gap-6 text-sm font-medium text-gray-500">
+        <li>
+          <a href="{{ home_url|default:'/' }}"
+             class="inline-flex items-center gap-2 rounded-lg px-3 py-2 transition
+                    {% if request.path == home_url %}bg-stone-100 text-stone-700{% else %}hover:text-stone-700{% endif %}">
+            Home
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ products_url }}"
+             class="inline-flex items-center gap-2 rounded-lg px-3 py-2 transition hover:text-stone-700
+                    {% if request.path == products_url %}bg-stone-100 text-stone-700{% endif %}">
+            Products
+          </a>
+        </li>
+
+        <li>
+          <span class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed select-none"
+                title="Coming soon">
+            Classes
+          </span>
+        </li>
+
+        <li>
+          <span class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed select-none"
+                title="Coming soon">
+            Checkouts
+          </span>
+        </li>
+      </ul>
+
+      <!-- Right side (kosong dulu / nanti isi ikon) -->
+      <div class="flex items-center gap-4 text-gray-400">
+        <!-- placeholder untuk ikon cart / profile / logout nanti -->
+      </div>
+    </nav>
   </div>
-</nav>
+</header>
+{% endwith %}

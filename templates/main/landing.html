@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Lume — Landing{% endblock %}
+
+{% block content %}
+<!-- HERO full-bleed dengan overlay (mirip desain Figma kamu) -->
+<section class="relative mx-auto max-w-7xl px-6 pt-12">
+  <div class="relative overflow-hidden rounded-[28px]">
+    <!-- Background image -->
+    <style>
+    .hero-bg { background-image: url("{% static 'hero/hero-landing.png' %}"); }
+    </style>
+
+    <div class="h-[420px] sm:h-[520px] lg:h-[620px] bg-center bg-cover hero-bg"></div>
+
+
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.30)_0%,rgba(0,0,0,.20)_50%,rgba(0,0,0,.05)_100%)]"></div>
+    <!-- content -->
+    <div class="absolute inset-0 flex items-center">
+      <div class="p-6 sm:p-10 lg:p-14 text-white max-w-xl">
+        <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight">Find Your Flow with Lume.</h1>
+        <p class="mt-3 opacity-90">Feel stronger, move freely, and thrive with us. Join our Pilates family and discover a space where your body and mind can thrive at their own pace.</p>
+        <div class="mt-6 flex gap-3">
+          <a href="/bookingkelas/" class="btn-primary rounded-xl px-5 py-3 text-white">Book a Class</a>
+          <a href="{% url 'main:show_main' %}" class="btn-ghost rounded-xl px-5 py-3">Shop Products</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="bg-white">
+  <div class="mx-auto max-w-7xl px-6 py-14">
+    <h2 class="text-2xl font-bold">Kenapa Lume?</h2>
+    <p class="mt-2 text-gray-600">Didesain bareng pengguna, agar latihanmu konsisten dan progresif.</p>
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="theme-card rounded-2xl border border-theme p-6">
+        <h3 class="font-semibold">Kurasi Produk</h3>
+        <p class="mt-2 opacity-80">Hanya alat yang teruji kualitas & ergonominya.</p>
+      </div>
+      <div class="theme-card rounded-2xl border border-theme p-6">
+        <h3 class="font-semibold">Booking Kelas Mudah</h3>
+        <p class="mt-2 opacity-80">Jadwalkan kelas dari website, fleksibel & cepat.</p>
+      </div>
+      <div class="theme-card rounded-2xl border border-theme p-6">
+        <h3 class="font-semibold">Dukungan Komunitas</h3>
+        <p class="mt-2 opacity-80">Tips rutin dari instruktur & komunitas Pilates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HIGHLIGHT PRODUCTS -->
+<section class="theme-bg">
+  <div class="mx-auto max-w-7xl px-6 py-14">
+    <div class="flex items-center justify-between">
+      <h2 class="text-2xl font-bold">Produk Unggulan</h2>
+      <a href="{% url 'main:show_main' %}" class="btn-ghost rounded-xl px-4 py-2">Lihat Semua</a>
+    </div>
+
+    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {% for p in highlights %}
+            <a href="{% url 'catalog:detail' p.id %}" class="theme-card rounded-2xl border border-theme p-4 hover:shadow">
+            <img
+                src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/600/400' }}"
+                alt="{{ p.product_name }}"
+                class="h-40 w-full object-cover rounded-xl"
+                onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/600/400';"
+            >
+            <div class="mt-3">
+                <h3 class="font-semibold">{{ p.product_name }}</h3>
+                <p class="text-sm text-gray-600 line-clamp-2">{{ p.description }}</p>
+                <div class="mt-2 font-medium">{{ p.formatted_price }}</div>
+            </div>
+            </a>
+        {% empty %}
+            <div class="col-span-full text-gray-500">Belum ada produk untuk ditampilkan.</div>
+        {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA BOTTOM -->
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-6 py-14 text-center">
+    <h2 class="text-2xl font-bold">Siap mulai rutinitas Pilates yang konsisten?</h2>
+    <p class="mt-2 text-gray-600">Mulai dengan alat dasar atau langsung booking kelas pertamamu.</p>
+    <div class="mt-6 flex items-center justify-center gap-3">
+      <a href="{% url 'main:show_main' %}" class="btn-primary rounded-xl px-5 py-3 text-white">Belanja Sekarang</a>
+      <a href="/bookingkelas/" class="btn-ghost rounded-xl px-5 py-3">Book Kelas</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
