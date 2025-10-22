@@ -63,7 +63,7 @@ class ProductOrderItem(models.Model):
     order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name="items")
 
     # jejak ke Product (opsional; jgn dipakai utk harga saat render)
-    product = models.ForeignKey("catalogue.Product", on_delete=models.SET_NULL, null=True, blank=True)
+    product = models.ForeignKey("catalog.Product", on_delete=models.SET_NULL, null=True, blank=True)
 
     # snapshot data produk saat checkout
     product_name = models.CharField(max_length=200)
