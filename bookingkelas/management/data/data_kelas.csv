@@ -1,0 +1,24 @@
+title,category,instructor,capacity_max,description,price,room,time,day_key
+DAILY 1 (14.00 - 15.30) - mon,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,mon
+DAILY 1 (14.00 - 15.30) - tue,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,tue
+DAILY 1 (14.00 - 15.30) - wed,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,wed
+DAILY 1 (14.00 - 15.30) - thur,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,thur
+DAILY 1 (14.00 - 15.30) - fri,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,fri
+DAILY 1 (14.00 - 15.30) - sat,daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,sat
+
+DAILY 2 (16.00 - 17.30) - mon,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,mon
+DAILY 2 (16.00 - 17.30) - tue,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,tue
+DAILY 2 (16.00 - 17.30) - wed,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,wed
+DAILY 2 (16.00 - 17.30) - thur,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,thur
+DAILY 2 (16.00 - 17.30) - fri,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,fri
+DAILY 2 (16.00 - 17.30) - sat,daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,sat
+
+DAILY 3 (18.00 - 19.30) - mon,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,mon
+DAILY 3 (18.00 - 19.30) - tue,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,tue
+DAILY 3 (18.00 - 19.30) - wed,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,wed
+DAILY 3 (18.00 - 19.30) - thur,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,thur
+DAILY 3 (18.00 - 19.30) - fri,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,fri
+DAILY 3 (18.00 - 19.30) - sat,daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,sat
+
+WEEKLY 1 (Mon, Wed, Fri),weekly,Neila,20,"This class will be held every Monday, Wednesday, and Friday in the afternoon",700000,1B,16.00 - 17.30,mon;wed;fri
+WEEKLY 2 (Tue, Thu, Sat),weekly,Frisha,20,"This class will be held every Tuesday, Thursday, and Saturday in the evening; Saturday class will be held in the afternoon.",700000,1B,"18.00 - 19.30 (Tue/Thu); 14.00 - 15.30 (Sat)",tue;thur;sat
