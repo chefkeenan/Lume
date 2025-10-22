@@ -3,10 +3,14 @@ from .models import Product
 from catalog.forms import ProductForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseRedirect
-from django.core import serializers
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart          
 from catalog.models import Product    
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+from django.utils.html import strip_tags
+import datetime
 
 # Create your views here.
 def product_to_dict(p : Product):
@@ -56,5 +60,42 @@ def add_to_cart(request, product_id):
     # tambahkan ke cart (pakai method kamu di models)
     cart.add(product, qty)
 
-    # redirect ke halaman cart kamu
     return redirect("cart:page")
+
+@login_required(login_url='/login')
+@require_POST
+def update_product_ajax(request, id: int):
+    product = get_object_or_404(Product, pk=id)
+    if product.user_id != request.user.id:
+        return HttpResponseForbidden("You are not allowed to edit this item.")
+
+    name = strip_tags((request.POST.get("name", product.name)).strip())
+    description = strip_tags((request.POST.get("description", product.description)).strip())
+    thumbnail = strip_tags((request.POST.get("thumbnail", product.thumbnail)).strip())
+
+    if (pr := request.POST.get("price")) is not None:
+        try:
+            product.price = int(pr)
+        except ValueError:
+            return JsonResponse({'success': False, 'message': 'Price must be an integer.'}, status=400)
+
+
+    if not name:
+        return JsonResponse({'success': False, 'message': 'Name is required.'}, status=400)
+
+    product.name = name
+    product.description = description
+    product.thumbnail = thumbnail
+    product.save()
+
+    return JsonResponse({'success': True, 'data': product_to_dict(product)})
+
+
+@login_required(login_url='/login')
+@require_POST
+def delete_product_ajax(request, id: int):
+    product = get_object_or_404(Product, pk=id)
+    if product.user_id != request.user.id:
+        return HttpResponseForbidden("You are not allowed to delete this item.")
+    product.delete()
+    return JsonResponse({'success': True, 'id': id})

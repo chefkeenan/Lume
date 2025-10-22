@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Halaman Utama{% endblock %}
+
+{% block content %}
+  <h1>Produk</h1>
+  {% if products_list %}
+    <ul>
+      {% for p in products_list %}
+        <li>{{ p.name|default:"(tanpa nama)" }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Belum ada produk.</p>
+  {% endif %}
+{% endblock %}
