@@ -14,7 +14,6 @@ from decimal import Decimal
 # CART -> CHECKOUT PRODUK (alamat diinput tiap checkout)
 # checkout/views.py (potongan perubahan)
 from decimal import Decimal
-# ...
 
 @login_required
 def cart_checkout_page(request):
