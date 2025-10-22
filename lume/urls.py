@@ -21,8 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("cart/", include("cart.urls")),   
     path("user/", include("user.urls")),
-    path('classes/', include('bookingkelas.urls', namespace='bookingkelas')),
-    path("products/", include(("catalog.urls", "catalog"), namespace="catalog")),
+    path("bookingkelas/", include("bookingkelas.urls", namespace="bookingkelas")),
     path("", include("main.urls")),
 
 ]

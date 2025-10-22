@@ -1,58 +1,52 @@
-# bookingkelas/forms.py
 from django import forms
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-from .models import Booking, ClassSession, ClassOccurrence
+from django.forms import ModelForm
+from django.utils.html import strip_tags
+from bookingkelas.models import ClassSessions, WEEKDAYS
 
-class BookingForm(forms.ModelForm):
-    """Form buat booking kelas umum (daily/weekly)."""
+WEEKDAY_CHOICES = [(str(day[0]), day[1]) for day in WEEKDAYS]
+
+class SessionsForm(ModelForm):
+    days = forms.MultipleChoiceField(
+        choices=WEEKDAY_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Pilih hari jika kategori 'Daily'.",
+    )
+
     class Meta:
-        model = Booking
-        fields = ['occurrence']
-        widgets = {
-            'occurrence': forms.Select(attrs={'class': 'form-select'}),
-        }
+        model = ClassSessions
+        fields = [
+            "title",
+            "category",
+            "instructor",
+            "capacity_max",
+            "capacity_current",
+            "description",
+            "price",
+            "room",
+            "time",
+        ]
 
-    def __init__(self, *args, session: ClassSession = None, **kwargs):
-        """
-        Terima session supaya kita bisa batasi queryset occurrence hanya untuk session tsb.
-        """
-        super().__init__(*args, **kwargs)
-        self.session = session
-        if session:
-            qs = session.occurrences.filter(date__gte=timezone.localdate()).order_by('date', 'start_time')
-            self.fields['occurrence'].queryset = qs
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "")
+        return strip_tags(title).strip()
 
-    def clean_occurrence(self):
-        occ = self.cleaned_data.get('occurrence')
-        if not occ:
-            raise ValidationError("Pilih jadwal terlebih dahulu.")
-        if self.session and occ.session_id != self.session.id:
-            raise ValidationError("Pilihan jadwal tidak valid untuk sesi ini.")
-        if not occ.is_in_future():
-            raise ValidationError("Jadwal sudah lewat.")
-        if occ.available_spots() <= 0:
-            raise ValidationError("Kelas ini sudah penuh.")
-        return occ
-
-
-class PrivateBookingForm(forms.Form):
-    """Form untuk booking private class."""
-    requested_date = forms.DateField(widget=forms.SelectDateWidget)
-    requested_time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}))
+    def clean_description(self):
+        description = self.cleaned_data.get("description", "")
+        return strip_tags(description).strip()
 
     def clean(self):
         cleaned = super().clean()
-        date = cleaned.get('requested_date')
-        time = cleaned.get('requested_time')
-
-        if not date or not time:
-            raise ValidationError("Tanggal dan jam harus diisi.")
-
-        dt = timezone.datetime.combine(date, time)
-        dt = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
-        if dt < timezone.now():
-            raise ValidationError("Tidak bisa booking di masa lalu.")
-
-        cleaned['requested_datetime'] = dt
+        category = cleaned.get("category")
+        days = cleaned.get("days", [])
+        if category == "daily" and not days:
+            self.add_error("days", "Untuk kategori 'Daily', pilih minimal satu hari.")
         return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        # Simpan sebagai list of string, sesuai model JSONField
+        instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
+        if commit:
+            instance.save()
+        return instance
