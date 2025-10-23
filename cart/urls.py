@@ -23,4 +23,6 @@ urlpatterns = [
     # Forms (ModelForm)
     path("item/<int:item_id>/quantity-form/", views.quantity_form, name="qty_form"),
     path("item/<int:item_id>/quantity-form/submit/", views.quantity_form_submit, name="qty_form_submit"),
+    
+    path("add/<uuid:product_id>/", views.add_to_cart, name="add"),
 ]

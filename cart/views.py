@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.http import JsonResponse, HttpResponseBadRequest
-
+from catalog.models import Product
 from .models import Cart, CartItem
 from .forms import CartItemQuantityForm
 from django.views.decorators.http import require_GET, require_POST
@@ -199,3 +200,14 @@ def quantity_form_submit(request, item_id: int):
         "total_items": cart.total_items(),
         "selected_count": cart.items.filter(is_selected=True).count(),
     })
+
+def add_to_cart(request, product_id):
+    """
+    Tambah 1 item ke cart (dipakai tombol 'Add to Cart' di kartu produk).
+    Sederhana: redirect balik ke halaman sebelumnya.
+    """
+    product = get_object_or_404(Product, pk=product_id)
+    cart, _ = Cart.objects.get_or_create(user=request.user)
+    cart.add(product, qty=1)  # is_selected=True by default (di models)
+    messages.success(request, f"'{getattr(product, 'product_name', 'Produk')}' ditambahkan ke cart.")
+    return redirect(request.META.get("HTTP_REFERER") or reverse("cart:page"))
