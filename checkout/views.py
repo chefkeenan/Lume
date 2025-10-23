@@ -12,6 +12,7 @@ from .models import ProductOrder, ProductOrderItem, BookingOrder, BookingOrderIt
 from cart.models import Cart
 from bookingkelas.models import Booking
 
+from decimal import Decimal
 from django.db.models import F
 from catalog.models import Product
 
