@@ -24,5 +24,5 @@ urlpatterns = [
     path("bookingkelas/", include("bookingkelas.urls", namespace="bookingkelas")),
         path("catalog/", include(("catalog.urls", "catalog"), namespace="catalog")),
     path("", include(("main.urls", "main"), namespace="main")),
-
+    path("checkout/", include("checkout.urls")),
 ]
