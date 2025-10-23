@@ -51,7 +51,8 @@
     {% block scripts %}
     {% endblock scripts %}
     {% include "footer.html" %}
-    </body>
     {% block extra_js %}{% endblock %}
+    {% include "login_modal.html" %}
+  <script src="{% static 'js/login-modal.js' %}"></script>
   </body>
 </html>
