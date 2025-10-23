@@ -1,6 +1,0 @@
-title,category,instructor,capacity_max,description,price,room,time,days
-DAILY 1 (14.00 - 15.30),daily,Fiona,20,"This class will be held at 14.00 PM until 15.30 PM",250000,1A,14.00 - 15.30,"mon,tue,wed,thur,fri,sat"
-DAILY 2 (16.00 - 17.30),daily,Vira,20,"This class will be held at 16.00 PM until 17.30 PM",250000,1A,16.00 - 17.30,"mon,tue,wed,thur,fri,sat"
-DAILY 3 (18.00 - 19.30),daily,Keisha,20,"This class will be held at 18.00 PM until 19.30 PM",250000,1A,18.00 - 19.30,"mon,tue,wed,thur,fri,sat"
-WEEKLY 1 (Monday, Wednesday, Friday),weekly,Neila,20,"This class will be held every Monday, Wednesday, and Friday in the afternoon",700000,1B,16.00 - 17.30,"mon,wed,fri"
-WEEKLY 2 (Tuesday, Thursday, Saturday),weekly,Frisha,20,"This class will be held every Tuesday, Thursday, and Saturday in the evening. Saturday class will be held in the afternoon.",700000,1B,"18.00 - 19.30 (Tue/Thu), 14.00 - 15.30 (Sat)","tue,thur,sat"

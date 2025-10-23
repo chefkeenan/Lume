@@ -5,8 +5,7 @@ from django.contrib import messages
 from decimal import Decimal
 from django.db import transaction
 import re
-
-from .models import ClassSessions, WEEKDAYS, Booking
+from .models import ClassSessions, WEEKDAYS, Booking, CATEGORY_CHOICES
 from .forms import SessionsForm
 
 def _weekday_map():
@@ -65,22 +64,12 @@ def catalog(request):
             "capacity_max": info["capacity_max"],
             "days_keys": sorted(list(info["days_keys"])),
             "days_names": sorted(list(info["days_names"])),
-            "instance_id": inst0.id,  # dipakai buat link book/choose-day
+            "instance_id": inst0.id,  
         })
-
-    # buang duplikat daily (punyamu)
-    daily_seen = set()
-    filtered = []
-    for g in grouped_sessions:
-        if g["category"].lower() == "daily":
-            if g["base_title"] not in daily_seen:
-                filtered.append(g); daily_seen.add(g["base_title"])
-        else:
-            filtered.append(g)
-
-    grouped_sessions = sorted(filtered, key=lambda x: (x["category"], x["time"], x["base_title"]))
+    grouped_sessions = sorted(grouped_sessions, key=lambda x: (x["category"], x["time"], x["base_title"]))
     return render(request, "bookingkelas/show_class.html", {"sessions": grouped_sessions})
 
+@login_required(login_url="/user/login/")
 def sessions_json(request):
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
@@ -91,7 +80,7 @@ def sessions_json(request):
             "id": s.id,
             "title": s.title,
             "category": s.category,
-            "category_display": dict((k,v) for k,v in WEEKDAYS).get(s.category, s.category),
+            "category_display": dict(CATEGORY_CHOICES).get(s.category, s.category),
             "instructor": s.instructor,
             "capacity_current": s.capacity_current,
             "capacity_max": s.capacity_max,
@@ -105,6 +94,7 @@ def sessions_json(request):
         })
     return JsonResponse({"sessions": data})
 
+@login_required(login_url="/user/login/")
 def add_session(request):
     if request.method == "POST":
         form = SessionsForm(request.POST)
@@ -141,7 +131,7 @@ def book_class(request, session_id):
     messages.success(request, f"Berhasil booking {s.title}.")
     return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
 
-
+@login_required(login_url="/user/login/")
 def choose_day(request, base_title):
     
     sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
@@ -213,10 +203,12 @@ def choose_day(request, base_title):
     # Kirim s_general untuk judul, dan day_options untuk pilihan radio
     return render(request, "bookingkelas/choose_day.html", {"session": s_general, "day_options": day_options,"base_title_cleaned": base_title_cleaned})
 
+@login_required(login_url="/user/login/")
 def class_list(request):
     classes = ClassSessions.objects.all().order_by("title")
     return render(request, "bookingkelas/class_list.html", {"classes": classes})
 
+@login_required(login_url="/user/login/")
 def class_edit(request, pk):
     kelas = get_object_or_404(ClassSessions, pk=pk)
     form = SessionsForm(request.POST or None, instance=kelas)
@@ -226,6 +218,7 @@ def class_edit(request, pk):
         return redirect("bookingkelas:class_list")
     return render(request, "bookingkelas/class_form.html", {"form": form})
 
+@login_required(login_url="/user/login/")
 def class_delete(request, pk):
     kelas = get_object_or_404(ClassSessions, pk=pk)
     kelas.delete()
