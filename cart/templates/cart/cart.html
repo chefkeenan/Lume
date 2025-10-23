@@ -7,7 +7,7 @@
 
   <!-- Top Nav back to home -->
   <div class="mb-6">
-    <a href="{% url 'home' %}" class="inline-flex items-center gap-2 rounded-full bg-neutral-200/70 px-4 py-2 text-sm hover:bg-neutral-300">
+    <a href="{% url 'main:landing' %}" class="inline-flex items-center gap-2 rounded-full bg-neutral-200/70 px-4 py-2 text-sm hover:bg-neutral-300">
       <span class="inline-block -ml-1">←</span>
       <span>Back to Home</span>
     </a>
@@ -53,7 +53,7 @@
             </button>
           </form>
 
-          <a href="{% url 'catalog:list' %}"
+          <a href="{% url 'main:show_main' %}"
              class="block w-full rounded-lg border border-neutral-300 py-2.5 text-center text-sm hover:bg-neutral-50">
             Continue Shopping
           </a>

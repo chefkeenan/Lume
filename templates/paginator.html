@@ -1,0 +1,31 @@
+{# expects: page_obj, selected_price (opt), order (opt) #}
+{% if page_obj and page_obj.paginator.num_pages > 1 %}
+  <div class="mt-8 flex items-center justify-center gap-1">
+
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+         class="px-3 py-2 rounded-full border">←</a>
+    {% else %}
+      <span class="px-3 py-2 rounded-full border opacity-40 cursor-not-allowed">←</span>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <span class="px-3 py-2 rounded-full bg-[#9AA08F] text-white">{{ num }}</span>
+      {% elif num <= 2 or num > page_obj.paginator.num_pages|add:"-2" or (num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1") %}
+        <a href="?page={{ num }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+           class="px-3 py-2 rounded-full border">{{ num }}</a>
+      {% elif forloop.first or forloop.last %}
+        <span class="px-3 py-2">…</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+         class="px-3 py-2 rounded-full border">→</a>
+    {% else %}
+      <span class="px-3 py-2 rounded-full border opacity-40 cursor-not-allowed">→</span>
+    {% endif %}
+
+  </div>
+{% endif %}
