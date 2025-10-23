@@ -31,11 +31,13 @@
         <div class="text-sm text-[#766E62]">Selection</div>
         <div class="flex items-center gap-2">
           <button id="selectAllBtn"
-                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB]">
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
             Select all
           </button>
           <button id="unselectAllBtn"
-                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB]">
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
             Unselect all
           </button>
         </div>
@@ -144,13 +146,26 @@ document.addEventListener('DOMContentLoaded', () => {
     return await r.json();
   }
 
+  // ===== Helpers =====
+  function setSelectButtonsDisabled(disabled) {
+    const sel = document.getElementById('selectAllBtn');
+    const uns = document.getElementById('unselectAllBtn');
+    if (sel) sel.disabled = !!disabled;
+    if (uns) uns.disabled = !!disabled;
+  }
+
   function toggleEmpty(show){
     const list = document.getElementById('cartItems');
     const empty = document.getElementById('emptyState');
     if (!list || !empty) return;
     empty.style.display = show ? 'block' : 'none';
     list.style.display  = show ? 'none'  : 'block';
-    if (show) setCheckoutDisabled(true);
+    if (show) {
+      setCheckoutDisabled(true);
+      setSelectButtonsDisabled(true);   // ← disable saat kosong
+    } else {
+      setSelectButtonsDisabled(false);  // ← enable saat ada item
+    }
   }
 
   // summary helpers (pakai DOM, bukan data server) 
@@ -177,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTotals(computeSelectedQtyFromDOM());
   }
 
-  // render 
+  // ===== Render =====
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -185,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleEmpty(true);
       return;
     }
-    toggleEmpty(false);
+    toggleEmpty(false);         // auto-enable select buttons
     list.innerHTML = '';
 
     items.forEach(it => {
@@ -228,19 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // select all / unselect all 
+  // ===== Actions: Select all / Unselect all =====
   document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
+    if (document.getElementById('selectAllBtn').disabled) return;
     const out = await postForm("{% url 'cart:select_all' %}");
     if (window.showToast) showToast(out.message || "Selected all items. ✅", out.ok ? "success" : "error");
     await loadCart();
   });
   document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
+    if (document.getElementById('unselectAllBtn').disabled) return;
     const out = await postForm("{% url 'cart:unselect_all' %}");
     if (window.showToast) showToast(out.message || "Unselected all items. ✅", out.ok ? "success" : "error");
     await loadCart();
   });
 
-  // Event Delegation 
+  // ===== Event Delegation untuk item actions =====
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
 
@@ -272,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // decrement (biarin next <= 0, biar server bisa hapus item)
+    // decrement
     if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) - 1;
@@ -294,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Remove 
+    // remove
     if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
       const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
       if (out.ok){
@@ -310,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Checkout 
+  // ===== Checkout =====
   document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
     if (checkoutBtn?.disabled){
       e.preventDefault();
@@ -330,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('selectedItemIds').value = selectedIds.join(',');
   });
 
-  // Init
+  // ===== Init =====
   loadCart();
 });
 </script>

@@ -16,140 +16,113 @@
 
     <div class="absolute inset-0 grid place-items-center">
       <div class="text-center text-white drop-shadow max-w-3xl px-6">
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Premium Products</h1>
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Shop All Products</h1>
         <p class="mt-2 text-white/90">
           Discover our carefully curated selection of pilates and wellness products to enhance your practice
         </p>
         <a href="#grid"
            class="mt-5 inline-flex items-center gap-2 rounded-full border border-white/60 bg-white/15 px-5 py-2 font-semibold hover:bg-white/25">
-          Lihat Lebih Lanjut ↓
+          See More ↓
         </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FILTER & SORT (dropdown) -->
-<section class="relative z-[200] mx-auto max-w-7xl px-6 mt-6">
-  <div class="flex items-center justify-between">
-    <details class="relative">
-      <summary class="list-none inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm cursor-pointer select-none">
-        <span class="font-medium">Filter</span>
-        {% if selected_price %}
+<!-- SEARCH + FILTER BAR -->
+<section class="mx-auto max-w-7xl px-6 mt-10">
+  <form action="{% url 'main:show_main' %}" method="get" class="flex items-center gap-2">
+    {% if order %}<input type="hidden" name="order" value="{{ order }}">{% endif %}
+
+    <!-- Input Search -->
+    <div class="relative flex-1">
+      <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd" d="M13.78 12.72a6 6 0 11.707-.707l3.25 3.25a.5.5 0 01-.707.707l-3.25-3.25zM12.5 8a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0z" clip-rule="evenodd" />
+      </svg>
+      <input
+        id="q" name="q" type="search" value="{{ q|default:'' }}"
+        placeholder="Search"
+        class="w-full rounded-lg border border-stone-300 bg-white py-2.5 pl-9 pr-3 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+      />
+    </div>
+
+    <!-- Dropdown Filter (Price) -->
+    <div>
+      <label for="price" class="sr-only">Filter</label>
+      <div class="relative">
+        <select
+          id="price" name="price"
+          class="appearance-none rounded-lg border border-stone-300 bg-white px-3 py-2.5 pr-8 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+        >
+          <option value="">Filter</option>
           {% for key, label, _lo, _hi in price_ranges %}
-            {% if key == selected_price %}
-              <span class="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-700">{{ label }}</span>
-            {% endif %}
+            <option value="{{ key }}" {% if selected_price == key %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
-        {% else %}
-          <span class="text-stone-500">All Prices</span>
-        {% endif %}
-        <svg class="h-4 w-4 opacity-70" viewBox="0 0 20 20" fill="currentColor"><path d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/></svg>
-      </summary>
-
-      <!-- PANEL -->
-      <div class="absolute z-[999] mt-2 w-56 rounded-xl border border-stone-200 bg-white p-2 shadow-lg pointer-events-auto">
-        <form method="get" class="space-y-1">
-          <button type="submit" name="price" value=""
-                  class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 text-sm {% if not selected_price %}bg-stone-100{% endif %}">
-            All Prices
-          </button>
-          {% for key, label, _lo, _hi in price_ranges %}
-          <button type="submit" name="price" value="{{ key }}"
-                  class="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 text-sm {% if selected_price == key %}bg-stone-100{% endif %}">
-            {{ label }}
-          </button>
-          {% endfor %}
-        </form>
-      </div>
-    </details>
-
-    <div class="flex items-center gap-3">
-      {% if user.is_staff %}
-        <a href="{% url 'catalog:product_add' %}"
-           class="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-stone-100"
-           title="Tambah produk baru">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11 5a1 1 0 1 1 2 0v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5z"/></svg>
-          Add Product
-        </a>
-      {% endif %}
-
-      <form method="get" class="hidden md:block">
-        <select name="order" class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm" onchange="this.form.submit()">
-          <option value="">Urut default</option>
-          <option value="price" {% if order == 'price' %}selected{% endif %}>Harga: Termurah</option>
-          <option value="-price" {% if order == '-price' %}selected{% endif %}>Harga: Termahal</option>
         </select>
-        {% if selected_price %}<input type="hidden" name="price" value="{{ selected_price }}">{% endif %}
-      </form>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+        </svg>
+      </div>
     </div>
-  </div>
-</section>
 
+    <!-- Tombol Search -->
+    <button
+      type="submit"
+      class="rounded-lg bg-[#9AA08F] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95 active:opacity-90"
+    >
+      Search
+    </button>
+  </form>
+</section>
 
 <!-- GRID PRODUK -->
 <section id="grid" class="relative z-0 mx-auto max-w-7xl px-6 py-8">
   <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
     {% for p in page_obj.object_list %}
-      {# file kamu ada di catalog/templates/catalog/product_card.html #}
       {% include "product_card.html" with p=p %}
     {% empty %}
       <p class="col-span-full text-stone-500">Belum ada produk.</p>
     {% endfor %}
   </div>
 
-  {# --- Paginator SAFE tanpa tanda kurung --- #}
-{% if page_obj.paginator.num_pages > 1 %}
+  {% if page_obj.paginator.num_pages > 1 %}
   <div class="mt-8 flex items-center justify-center gap-1">
 
-    {# Prev #}
     {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+      <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
          class="px-3 py-2 rounded-full border">←</a>
     {% else %}
       <span class="px-3 py-2 rounded-full border opacity-40 cursor-not-allowed">←</span>
     {% endif %}
 
-    {# Page numbers: 1, 2, current-1..current+1, last-1, last #}
     {% for num in page_obj.paginator.page_range %}
       {% if num == page_obj.number %}
         <span class="px-3 py-2 rounded-full bg-[#9AA08F] text-white">{{ num }}</span>
-
       {% elif num <= 2 %}
-        <a href="?page={{ num }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+        <a href="?page={{ num }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
            class="px-3 py-2 rounded-full border">{{ num }}</a>
-
       {% elif num >= page_obj.paginator.num_pages|add:"-1" %}
-        <a href="?page={{ num }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+        <a href="?page={{ num }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
            class="px-3 py-2 rounded-full border">{{ num }}</a>
-
       {% elif num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1" %}
-        <a href="?page={{ num }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+        <a href="?page={{ num }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
            class="px-3 py-2 rounded-full border">{{ num }}</a>
-
       {% elif forloop.counter == 3 or num == page_obj.paginator.num_pages|add:"-2" %}
         <span class="px-3 py-2">…</span>
       {% endif %}
     {% endfor %}
 
-    {# Next #}
     {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
+      <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q|urlencode }}{% endif %}{% if selected_price %}&price={{ selected_price }}{% endif %}{% if order %}&order={{ order }}{% endif %}"
          class="px-3 py-2 rounded-full border">→</a>
     {% else %}
       <span class="px-3 py-2 rounded-full border opacity-40 cursor-not-allowed">→</span>
     {% endif %}
-
   </div>
-{% endif %}
-
+  {% endif %}
 </section>
-
-{# ...isi halaman shop kamu... #}
-
 
 <script src="{% static 'catalog/js/helpers.js' %}"></script>
 <script src="{% static 'catalog/js/shop.js' %}"></script>
-
 
 {% endblock %}
