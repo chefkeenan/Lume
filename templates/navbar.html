@@ -2,17 +2,25 @@
 {% url 'main:show_main' as products_url %}
 {% url 'bookingkelas:catalog' as classes_url %}
 
+{# Auth URLs (fallback ke /user/... kalau url name belum ada) #}
+{% url 'login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
+{% url 'logout' as logout_named %}{% firstof logout_named '/user/logout/' as logout_url %}
+{% url 'user:register' as register_named %}{% firstof register_named '/user/register/' as register_url %}
+
+{# Manage (superuser) #}
+{% url 'catalog:product_add' as manage_url %}
+
 <header class="sticky top-0 z-40">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
     <nav class="flex items-center justify-between rounded-2xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+
       <!-- Brand -->
       <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-stone-700">
         Lume
       </a>
 
-      <!-- Links -->
+      <!-- Left links -->
       <ul class="flex items-center gap-2 text-sm font-medium text-stone-600">
-        <!-- Home -->
         <li>
           <a href="{{ home_url|default:'/' }}"
              class="inline-flex items-center rounded-xl px-4 py-2 transition
@@ -25,7 +33,6 @@
           </a>
         </li>
 
-        <!-- Products: aktif di /shop/ atau /catalog/... -->
         <li>
           {% if request.resolver_match and request.resolver_match.url_name == 'show_main' %}
             <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition bg-stone-100 text-stone-800">Products</a>
@@ -36,7 +43,6 @@
           {% endif %}
         </li>
 
-        <!-- Book Class -->
         <li>
           <a href="{{ classes_url }}"
              class="inline-flex items-center rounded-xl px-4 py-2 transition
@@ -49,16 +55,36 @@
           </a>
         </li>
 
-        <!-- Checkouts (placeholder) -->
+        {% if request.user.is_authenticated and request.user.is_superuser %}
         <li>
-          <span class="inline-flex items-center rounded-xl px-4 py-2 text-stone-400 cursor-not-allowed select-none" title="Coming soon">
-            Checkouts
-          </span>
+          <a href="{{ manage_url }}"
+            class="inline-flex items-center rounded-xl px-4 py-2 transition border border-stone-300 hover:bg-stone-50">
+            + Add Product
+          </a>
+
         </li>
+        {% endif %}
       </ul>
 
-      <!-- Right side (placeholder) -->
-      <div class="flex items-center gap-3 text-stone-400"></div>
+      <!-- Right side: auth -->
+      <div class="flex items-center gap-2">
+        {% if request.user.is_authenticated %}
+          <span class="hidden sm:inline text-sm text-stone-600">Hi, <strong>{{ request.user.username }}</strong></span>
+          <form method="post" action="{{ logout_url }}" class="m-0">
+            {% csrf_token %}
+            <button class="inline-flex items-center rounded-xl px-3 py-2 text-sm border border-stone-300 hover:bg-stone-50">
+              Logout
+            </button>
+          </form>
+        {% else %}
+          <a href="{{ login_url }}" class="inline-flex items-center rounded-xl px-3 py-2 text-sm hover:bg-stone-50 border border-stone-300">
+            Login
+          </a>
+          <a href="{{ register_url }}" class="inline-flex items-center rounded-xl px-3 py-2 text-sm text-white bg-stone-900 hover:bg-black">
+            Register
+          </a>
+        {% endif %}
+      </div>
     </nav>
   </div>
 </header>

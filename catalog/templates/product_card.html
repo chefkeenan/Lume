@@ -34,20 +34,18 @@
         Detail
       </a>
 
-      {% if user.is_authenticated %}
-        <form method="post" action="{% url 'cart:add' p.id %}" class="flex-1">
-          {% csrf_token %}
-          <button type="submit"
-                  class="btn-primary inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
-            Add to Cart
-          </button>
-        </form>
-      {% else %}
-        <a href="{% url 'login' %}"
-          class="btn-primary inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
-          Add to Cart
-        </a>
-      {% endif %}
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'cart:add' p.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="qty" value="1">
+        <button type="submit" class="flex-1">Add to cart</button>
+      </form>
+    {% else %}
+      <a href="/user/login/"
+        class="btn-primary inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
+        Add to Cart
+      </a>
+    {% endif %}
 
     </div>
   </div>

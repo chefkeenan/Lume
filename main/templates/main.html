@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static humanize %}
 
+{% include "product_modal.html" %}
+
 {% block title %}Shop — Lume{% endblock %}
 
 {% block content %}
@@ -132,5 +134,12 @@
 {% endif %}
 
 </section>
+
+{# ...isi halaman shop kamu... #}
+
+
+<script src="{% static 'catalog/js/helpers.js' %}"></script>
+<script src="{% static 'catalog/js/shop.js' %}"></script>
+
 
 {% endblock %}
