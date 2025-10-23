@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load humanize %}
 
 {% block content %}
@@ -36,8 +37,7 @@
             <button 
               type="button" 
               class="btn-primary rounded-xl px-4 py-2 text-white btn-open-modal" 
-              data-base-title="{{ s.base_title }}"
-            >
+              data-base-title="{{ s.base_title }}">
               Choose Day
             </button>
           {% else %}
@@ -51,10 +51,9 @@
   </div>
 </div>
 
-
+<!-- MODAL -->
 <div id="classModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
-    
     <div class="flex justify-between items-center border-b p-4">
       <h2 id="modalTitle" class="text-2xl font-bold">Loading...</h2>
       <button id="modalClose" class="text-2xl leading-none">&times;</button>
@@ -62,7 +61,6 @@
 
     <form id="bookingForm" action="{% url 'bookingkelas:book_daily_session' %}" method="POST">
       {% csrf_token %}
-      
       <div class="p-6 space-y-4">
         <div class="text-sm space-y-1">
           <div class="text-gray-500">Instruktur</div>
@@ -92,141 +90,13 @@
         </button>
       </div>
     </form>
-    
   </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
+<script src="{% static 'js/class_modal.js' %}"></script>
 <script>
-// Kirim status login dari Django ke JavaScript
-
-document.addEventListener("DOMContentLoaded", function() {
-  
-  // Ambil elemen-elemen modal
-  const modal = document.getElementById('classModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalCancel = document.getElementById('modalCancel'); // Tombol Cancel baru
-  const bookingForm = document.getElementById('bookingForm'); // Form baru
-  
-  // Elemen detail
-  const modalTitle = document.getElementById('modalTitle');
-  const modalInstructor = document.getElementById('modalInstructor');
-  const modalTime = document.getElementById('modalTime'); // Kita pakai untuk Subjudul
-  const modalRoom = document.getElementById('modalRoom');
-  const modalPrice = document.getElementById('modalPrice');
-  const modalDayOptions = document.getElementById('modalDayOptions');
-  
-  // Fungsi untuk menampilkan modal
-  function showModal() {
-    modal.classList.remove('hidden');
-  }
-
-  // Fungsi untuk menutup modal
-  function closeModal() {
-    modal.classList.add('hidden');
-    // Reset konten modal saat ditutup
-    modalTitle.textContent = 'Loading...';
-    modalInstructor.textContent = '...';
-    modalRoom.textContent = '...';
-    modalPrice.textContent = 'Rp ...';
-    modalDayOptions.innerHTML = '<div class="text-gray-500">Loading days...</div>';
-  }
-
-  // Event listener untuk tombol tutup modal (x)
-  modalClose.addEventListener('click', closeModal);
-  // Event listener untuk tombol Cancel baru
-  modalCancel.addEventListener('click', closeModal);
-  // Event listener untuk klik di luar modal (background)
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) {
-      closeModal();
-    }
-  });
-
-  // Ambil semua tombol "Choose Day"
-  const openButtons = document.querySelectorAll('.btn-open-modal');
-
-  // Tambahkan event listener untuk setiap tombol
-  openButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const baseTitle = this.dataset.baseTitle; 
-      showModal();
-
-      fetch(`/bookingkelas/get-details/${baseTitle}/`)
-        .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.json();
-        })
-        .then(data => {
-          // Isi modal dengan data yang diterima (sesuai desain baru)
-          modalTitle.textContent = data.base_title_cleaned;
-          // Kita pakai modalInstructor untuk gabung Instruktur & Waktu
-          modalInstructor.textContent = data.instructor;
-          modalRoom.textContent = data.room;
-          modalPrice.textContent = "Rp " + parseInt(data.price).toLocaleString('id-ID');
-
-          // Kosongkan container pilihan hari
-          modalDayOptions.innerHTML = '';
-          
-          if (data.day_options.length > 0) {
-            // =============================================
-            // BUAT HTML BARU UNTUK PILIHAN HARI (PILLS)
-            // =============================================
-            data.day_options.forEach(option => {
-              const isDisabled = option.is_full;
-              const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
-              
-              // Ini adalah trik CSS:
-              // - <input type="radio"> disembunyikan (sr-only)
-              // - <label> di-style sebagai tombol (pill)
-              // - 'peer-checked:' akan mengubah style <label> saat <input> di-klik
-              
-              const dayHtml = `
-                <label class="block">
-                  <input 
-                    type="radio" 
-                    name="session_id" 
-                    value="${option.value_id}" 
-                    class="sr-only peer" 
-                    ${isDisabled ? 'disabled' : ''}
-                  >
-                  <span 
-                    class="block rounded-full px-3 py-2 text-center text-sm font-medium
-                           bg-gray-200 text-gray-800 
-                           peer-checked:bg-[var(--primary)] 
-                           peer-checked:text-[var(--primary-foreground)]
-                           ${disabledClass}"
-                  >
-                    ${option.label}
-                    ${isDisabled ? ' (Penuh)' : ''}
-                  </span>
-                </label>
-              `;
-              modalDayOptions.insertAdjacentHTML('beforeend', dayHtml);
-            });
-          } else {
-            modalDayOptions.innerHTML = '<div class="text-gray-500">Tidak ada daftar hari.</div>';
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching class details:', error);
-          modalTitle.textContent = 'Error';
-          modalDayOptions.innerHTML = '<div class="text-red-500">Gagal memuat detail kelas. Coba lagi.</div>';
-        });
-    });
-  });
-
-  bookingForm.addEventListener('submit', function(event) {
-    if (!isUserLoggedIn) {
-      // Jika user TIDAK login
-      event.preventDefault(); // HENTIKAN form-nya
-      alert('Kamu harus login terlebih dahulu untuk booking.'); // Tampilkan peringatan
-    }
-    // Jika user login, biarkan form-nya terkirim (POST)
-  });
-
-});
+  const isUserLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
 </script>
 {% endblock %}
