@@ -12,7 +12,7 @@ urlpatterns = [
 
     # Actions (AJAX)
     path("item/<int:item_id>/set-qty/", views.set_quantity_ajax, name="set_qty"),
-    path("item/<int)item_id>/remove/", views.remove_item_ajax, name="remove_ajax"),
+    path("item/<int:item_id>/remove/", views.remove_item_ajax, name="remove_ajax"),
     path("clear/", views.clear_cart_ajax, name="clear_ajax"),
 
     # Selection

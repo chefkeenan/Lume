@@ -11,14 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(
-            model_name='bookingorderitem',
-            name='order',
-        ),
-        migrations.RemoveField(
-            model_name='bookingorderitem',
-            name='booking',
-        ),
-        migrations.RemoveField(
             model_name='productorder',
             name='cart',
         ),

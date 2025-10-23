@@ -1,0 +1,1178 @@
+[
+{
+  "model": "catalog.product",
+  "pk": "046e80ac-b029-47e6-ad5a-01c8a11ede9b",
+  "fields": {
+    "product_name": "Ultra-Fit Circle – 14 inch",
+    "stock": 1,
+    "thumbnail": "https://cdn.shopify.com/s/files/1/0734/2237/files/822-901.jpg?v=1721681429",
+    "inStock": true,
+    "description": "Fiberglass ring; foam handles\n\nBrand: Balanced Body | Kategori: Pilates Ring | Varian: Standard | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/ultra-fit-circle-14/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "0a45edfa-1eba-4518-b888-78637eb0e487",
+  "fields": {
+    "product_name": "Cardio Rebounder (A-Series Reformers)",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/cardio-rebounder-for-a-series-reformers/",
+    "inStock": true,
+    "description": "Rebounder for plyometric work\n\nBrand: Align-Pilates | Kategori: Reformer Accessory | Varian: A-Series | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/cardio-rebounder-for-a-series-reformers/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "10594d58-0438-48be-9622-ac0479124be1",
+  "fields": {
+    "product_name": "Foam Roller Soft Density – 36 inch Half (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/%28X%281%29S%28jwobf14esolj5oi1eb1ei1na%29%29/shop/ProductDetail/ST06252_Foam-Roller-Soft-Density-Half---36-Inch-blue",
+    "inStock": true,
+    "description": "Half-round soft density\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: Half Blue | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/%28X%281%29S%28jwobf14esolj5oi1eb1ei1na%29%29/shop/ProductDetail/ST06252_Foam-Roller-Soft-Density-Half---36-Inch-blue",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1111a07f-0a0f-4a9a-b839-940734e6f959",
+  "fields": {
+    "product_name": "86\" Classic Reformer – Aluminum",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/products/86-aluminum-reformer",
+    "inStock": true,
+    "description": "Classical aluminum reformer\n\nBrand: Gratz Pilates | Kategori: Reformer | Varian: 86\" Aluminum | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/products/86-aluminum-reformer",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "114a6a7a-3bc4-4895-9cfd-30fadc2f79cd",
+  "fields": {
+    "product_name": "Wunda Chair",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/products/wunda-chair",
+    "inStock": true,
+    "description": "Maple wood; variable spring tensions\n\nBrand: Gratz Pilates | Kategori: Chair | Varian: Classic Wunda Chair | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/products/wunda-chair",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "11d3d978-c435-4f48-9ae6-86b914792c31",
+  "fields": {
+    "product_name": "Rotational Diskboard – V2 Max/Rehab V2 Max",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST02051_Rotational-Diskboard",
+    "inStock": true,
+    "description": "Diskboard with adjustable mounting\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: Diskboard V2 Max | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST02051_Rotational-Diskboard",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "13ab83b1-0729-4bdd-a4a5-ec6771150100",
+  "fields": {
+    "product_name": "Spine (Half) Corrector",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/collections/barrel-apparatus",
+    "inStock": true,
+    "description": "Classical spine corrector apparatus\n\nBrand: Gratz Pilates | Kategori: Barrel | Varian: Spine Corrector | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/collections/barrel-apparatus",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "13dd2a6b-f644-4182-9b72-7736f3c2daec",
+  "fields": {
+    "product_name": "Rotational Disk – 12 inch (Pair)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06002_rotational-disk--12-inch-pair",
+    "inStock": true,
+    "description": "Improves rotation strength & alignment\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Rotational Disks | Varian: 12\" pair | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06002_rotational-disk--12-inch-pair",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "18a3acbc-6500-470c-80da-921ad164e690",
+  "fields": {
+    "product_name": "Toning Ball – 1 lb (Two-Pack)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06052_Toning-Ball-Two-pack---1-Lb-%28orange%29.aspx",
+    "inStock": true,
+    "description": "Pliable hand weights; pair\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Weighted Ball | Varian: 1 lb pair | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06052_Toning-Ball-Two-pack---1-Lb-%28orange%29.aspx",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "18f2f145-b95d-4253-9581-393fc9d4de8f",
+  "fields": {
+    "product_name": "Eco-Lux Imprint Mat · Pro",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Professional imprint mat\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Pro | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1a2269c6-b4f0-4295-b16a-28029cf3cee2",
+  "fields": {
+    "product_name": "Mini Stability Ball – Large",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06116_Mini-Stability-Ball---Large",
+    "inStock": true,
+    "description": "12\" mini ball\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mini Ball | Varian: Large | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06116_Mini-Stability-Ball---Large",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1a67cae3-b6cc-4b47-bacc-a2ba5703d652",
+  "fields": {
+    "product_name": "AeroPilates Pro Reformer 651",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/aeropilates-pro-reformer-651/",
+    "inStock": true,
+    "description": "Pro reformer with stand & rebounder\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer | Varian: Model 651 | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/aeropilates-pro-reformer-651/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1e0795e5-9dbd-44fd-9706-7b412b95cf5e",
+  "fields": {
+    "product_name": "Jump Board (A-Series Reformers)",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/jump-board-a-series-reformers/",
+    "inStock": true,
+    "description": "Padded jump surface for A-Series\n\nBrand: Align-Pilates | Kategori: Reformer Accessory | Varian: A-Series | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/jump-board-a-series-reformers/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1f4070bf-1ae3-4a85-a4aa-90ac7a155f73",
+  "fields": {
+    "product_name": "AeroPilates Pull-Up Bar",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/aeropilates-pull-up-bar/",
+    "inStock": true,
+    "description": "Upper-body accessory for reformer\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer Accessory | Varian: Pull-Up Bar | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/aeropilates-pull-up-bar/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "1fbe2dba-a257-4694-acdb-53e99e83fa17",
+  "fields": {
+    "product_name": "Fitness Circle Lite - 14 inch",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06031_Fitness-Circle-Lite--14-Inch",
+    "inStock": true,
+    "description": "Fiberglass ring; light resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: Lite | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06031_Fitness-Circle-Lite--14-Inch",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "20df2ddc-7145-4e7c-8186-8bbcad8e4642",
+  "fields": {
+    "product_name": "AeroPilates Stand",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/aeropilates-stand/",
+    "inStock": true,
+    "description": "Elevates reformer for easier access\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer Accessory | Varian: Stand | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/aeropilates-stand/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "215538b2-4a81-48a2-9efa-fae22701eec5",
+  "fields": {
+    "product_name": "Sitting Box Lite (Foam)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/sitting-box-lite/",
+    "inStock": true,
+    "description": "4.5 lbs; easy to move and store\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Lite foam | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/sitting-box-lite/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "2576e40c-5310-4a91-96eb-202c4b3e9cc7",
+  "fields": {
+    "product_name": "Ladder Barrel",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/products/ladder-barrel",
+    "inStock": true,
+    "description": "Adjustable barrel with 4-rung ladder\n\nBrand: Gratz Pilates | Kategori: Barrel | Varian: Ladder Barrel | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/products/ladder-barrel",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "2bf22c7b-e5b3-4ba4-9674-c143f7ccc705",
+  "fields": {
+    "product_name": "Gaiam 15\" Pilates Ring – Fitness Circle",
+    "stock": 1,
+    "thumbnail": "https://www.walmart.com/ip/Gaiam-Pilates-Ring-15-Fitness-Circle-Lightweight-Durable-Foam-Padded-Handles-Flexible-Resistance-Exercise-Equipment-Toning-Arms-Thighs-Legs-Core-Blac/1187143468",
+    "inStock": true,
+    "description": "Foam-padded handles; flexible resistance\n\nBrand: Gaiam | Kategori: Pilates Ring | Varian: 15\" Black | Marketplace: Marketplace (Walmart) | Sumber: https://www.walmart.com/ip/Gaiam-Pilates-Ring-15-Fitness-Circle-Lightweight-Durable-Foam-Padded-Handles-Flexible-Resistance-Exercise-Equipment-Toning-Arms-Thighs-Legs-Core-Blac/1187143468",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "2f8c3cba-a5c0-4fc8-ba46-47f31ae71f50",
+  "fields": {
+    "product_name": "Flex-Band - Extra Strength",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06022_Flexband--Extra-Strength",
+    "inStock": true,
+    "description": "200 cm long band; higher resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Resistance Band | Varian: Extra Strength | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06022_Flexband--Extra-Strength",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "37877dd7-97bf-4a3e-8dc3-16407f19562e",
+  "fields": {
+    "product_name": "Mini Stability Ball – Small",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06045_Mini-Stability-Ball--Small",
+    "inStock": true,
+    "description": "Compact 7–8\" mini ball\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mini Ball | Varian: Small | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06045_Mini-Stability-Ball--Small",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "37be6d70-99d3-45f4-94a4-1e1639b89a65",
+  "fields": {
+    "product_name": "Non-Latex Flex-Band - Light Strength (Orange)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06058_Nonlatex-Flexband--Light-Strength-orange",
+    "inStock": true,
+    "description": "Non-latex 198 cm light resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Resistance Band | Varian: Light | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06058_Nonlatex-Flexband--Light-Strength-orange",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "394cf7b8-1fbf-4ada-8b62-cf4109dc1c39",
+  "fields": {
+    "product_name": "Pilates Soft Ball – 240 mm (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.co.uk/p/240-mm-diameter-pilates-soft-ball-blue/_/R-p-305188",
+    "inStock": true,
+    "description": "Soft ball; inflates with straw\n\nBrand: Domyos (Decathlon) | Kategori: Mini Ball | Varian: 240mm | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.co.uk/p/240-mm-diameter-pilates-soft-ball-blue/_/R-p-305188",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "3986c9c9-f1ed-4783-a7cd-2b861fbbb5c5",
+  "fields": {
+    "product_name": "Gaiam Pilates Bar Kit (Portable Bar + Cords)",
+    "stock": 1,
+    "thumbnail": "https://www.walmart.com/ip/Gaiam-Portable-Pilates-Resistance-Exercise-Bar/554239730",
+    "inStock": true,
+    "description": "Portable bar with resistance cords\n\nBrand: Gaiam | Kategori: Pilates Bar Kit | Varian: Bar + 2 cords | Marketplace: Marketplace (Walmart) | Sumber: https://www.walmart.com/ip/Gaiam-Portable-Pilates-Resistance-Exercise-Bar/554239730",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "3d10ac2a-954b-4238-ba20-f2ae9bca2148",
+  "fields": {
+    "product_name": "Fitness Circle Pro - 12 inch (Black)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06023_Fitness-Circle-Pro--12-Inch-black",
+    "inStock": true,
+    "description": "Spring steel ring; firm resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: 12\" | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06023_Fitness-Circle-Pro--12-Inch-black",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "43d2abb4-077e-42fd-87ed-545ebc5539b2",
+  "fields": {
+    "product_name": "80\" Designer Reformer – Maple Wood",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/products/80-wood-reformer",
+    "inStock": true,
+    "description": "Classical reformer built to original specs\n\nBrand: Gratz Pilates | Kategori: Reformer | Varian: 80\" Maple | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/products/80-wood-reformer",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "4b39bcaa-03db-4655-ba62-28d684b95aed",
+  "fields": {
+    "product_name": "Pilates Arc",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/pilates-arc/",
+    "inStock": true,
+    "description": "3-in-1: spine corrector, wedge, training tool\n\nBrand: Balanced Body | Kategori: Arc / Spine Corrector | Varian: Foam | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/pilates-arc/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "52837d96-8b1e-46b8-8e68-e657b34c0877",
+  "fields": {
+    "product_name": "Eco-Lux Imprint Mat",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Imprint texture eco-friendly mat\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Eco-Lux | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "52c9d900-3bfd-4bb8-ada5-c95537bc908a",
+  "fields": {
+    "product_name": "Resistance Loop – Regular Strength",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06288_Nonlatex-Flexband-Roll--Extra-Strength?Currency=USD",
+    "inStock": true,
+    "description": "Closed loop band for lower/upper body\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Resistance Band | Varian: Loop | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06288_Nonlatex-Flexband-Roll--Extra-Strength?Currency=USD",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "52d9ec3a-36a6-46bd-bf2f-fccdb52e1b71",
+  "fields": {
+    "product_name": "Allegro 2 Reformer Platform Extender",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/allegro-2-reformer-platform-extender/",
+    "inStock": true,
+    "description": "Doubles platform surface\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: A2 Platform Extender | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/allegro-2-reformer-platform-extender/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "541894b0-3f06-420d-93d9-16236f6a73e3",
+  "fields": {
+    "product_name": "F2 Folding Reformer",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/f2-folding-reformer/",
+    "inStock": true,
+    "description": "Folding home/studio reformer\n\nBrand: Align-Pilates | Kategori: Reformer | Varian: F2 Folding | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/f2-folding-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "5df12ac0-0249-4df4-8a67-f92dc15eb60e",
+  "fields": {
+    "product_name": "Allegro Reformer Platform Extender",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/allegro-reformer-platform-extender/",
+    "inStock": true,
+    "description": "Larger platform surface\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Allegro Platform Extender | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/allegro-reformer-platform-extender/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "61796e8b-af3b-4b4e-b4df-8110a6ac9490",
+  "fields": {
+    "product_name": "Pilates Exercise Ball – 240 mm (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.ca/en/p/8736370/pilates-exercise-ball-240-mm-blue",
+    "inStock": true,
+    "description": "Soft ball to improve posture\n\nBrand: Domyos (Decathlon) | Kategori: Mini Ball | Varian: 240mm | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.ca/en/p/8736370/pilates-exercise-ball-240-mm-blue",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "6207fb82-493d-4af3-9b99-5a722fac6af6",
+  "fields": {
+    "product_name": "Add-a-Platform (Standing Platform Extenders)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/collections/extended-platforms/",
+    "inStock": true,
+    "description": "Extended platforms for various reformers\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Standing Platform Extenders | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/collections/extended-platforms/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "6214635a-53d9-4c9e-8026-1da27e31fe0b",
+  "fields": {
+    "product_name": "Deluxe Pilates Mat (Midnight Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Deluxe cushioning, non-slip\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Midnight Blue | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "65d0ef90-1f53-4d1b-a7cd-ada7f8283a9e",
+  "fields": {
+    "product_name": "Allegro 2 – Tower of Power",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/allegro-2-reformer-tower-of-power/",
+    "inStock": true,
+    "description": "Adds Cadillac features to A2\n\nBrand: Balanced Body | Kategori: Reformer + Tower | Varian: A2 Tower of Power | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/allegro-2-reformer-tower-of-power/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "66a74830-5061-450c-a73a-44a7c8df60d5",
+  "fields": {
+    "product_name": "Sitting Box – Contour",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/contour-sitting-box/",
+    "inStock": true,
+    "description": "Rounded edges, larger range of motion\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Contour | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/contour-sitting-box/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "68236240-49b4-4ee6-9133-73c776ce3a22",
+  "fields": {
+    "product_name": "Mini Stability Ball – Set of 3",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06316_Mini-Stability-Ball--Set-Of-3",
+    "inStock": true,
+    "description": "Bundle small/medium/large\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mini Ball | Varian: Set of 3 | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06316_Mini-Stability-Ball--Set-Of-3",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "6844e22d-2609-4881-9fa6-aaf65051b278",
+  "fields": {
+    "product_name": "Sitting Box – M-Series",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/sitting-box-m-series/",
+    "inStock": true,
+    "description": "Sitting box for M-Series reformers\n\nBrand: Align-Pilates | Kategori: Reformer Accessory | Varian: M-Series | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/sitting-box-m-series/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "69a92416-e1c1-4658-8d31-d66bce2feb50",
+  "fields": {
+    "product_name": "Rotational Diskboard – SPX/SPX Max",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "inStock": true,
+    "description": "Adjustable rotational foot placement\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: Diskboard SPX | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "6bb38e24-1f18-4966-aa80-2cf15852ecca",
+  "fields": {
+    "product_name": "Stability Ball with Pump – 65 cm (Silver)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06207_Stability-Ball-With-Pump--65-Cm-silver",
+    "inStock": true,
+    "description": "Anti-burst ball + pump\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Stability Ball | Varian: 65cm | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06207_Stability-Ball-With-Pump--65-Cm-silver",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "700ce516-ab54-4b71-95f7-892ab7cd7cff",
+  "fields": {
+    "product_name": "Cardio-Tramp Rebounder – SPX/SPX Max/MPX",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "inStock": true,
+    "description": "Rebounder for plyometric work\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: Cardio-Tramp | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "702b0c39-c6b0-4b13-90d7-e7ee7c74fff3",
+  "fields": {
+    "product_name": "Rotational Disks & Agility Training (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/disks-agility-training",
+    "inStock": true,
+    "description": "10\", 12\" pairs; mounts; sliding disks\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Rotational Disks | Varian: Category | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/disks-agility-training",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "73560fae-f314-42ad-b7b1-0e8fa1468bbf",
+  "fields": {
+    "product_name": "Balance Products (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/collections/balance-products/",
+    "inStock": true,
+    "description": "Balance boards and trainers\n\nBrand: Balanced Body | Kategori: Balance Trainers | Varian: Boards & tools | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/collections/balance-products/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "7618c0d0-9fc2-4f0e-bfd3-002d05087238",
+  "fields": {
+    "product_name": "All Accessories – Align-Pilates (Category)",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/pilates-reformer-accessories/",
+    "inStock": true,
+    "description": "Boxes, extenders, jumpboards, straps\n\nBrand: Align-Pilates | Kategori: Accessories | Varian: Assorted | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/pilates-reformer-accessories/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "79e3808d-3579-4ff1-b568-c57f569b515c",
+  "fields": {
+    "product_name": "Combination Wunda/Electric Chair",
+    "stock": 1,
+    "thumbnail": "https://www.gratzpilates.com/products/combination-wunda-electric-chair",
+    "inStock": true,
+    "description": "Transforms from Wunda to Electric Chair\n\nBrand: Gratz Pilates | Kategori: Chair | Varian: Combo Chair | Marketplace: Official Brand Store | Sumber: https://www.gratzpilates.com/products/combination-wunda-electric-chair",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "7d1d1456-5fef-4bdb-a4ac-ef3ff1bcbbb2",
+  "fields": {
+    "product_name": "Merrithew Fitness Circle Pro 12\" Ring",
+    "stock": 1,
+    "thumbnail": "https://www.ebay.com/itm/256588605193",
+    "inStock": true,
+    "description": "Pre-owned/brand-new listings\n\nBrand: Merrithew (various sellers) | Kategori: Pilates Ring | Varian: 12\" Black | Marketplace: Marketplace (eBay) | Sumber: https://www.ebay.com/itm/256588605193",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "7d5c600a-358c-4f2e-81ec-07ff8c1b2937",
+  "fields": {
+    "product_name": "10 mm Size S Pilates Mat Comfort – Blue",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.my/p/10-mm-comfortable-pilates-mat-purple-domyos-8916640.html",
+    "inStock": true,
+    "description": "160 x 55 cm, 10 mm thickness\n\nBrand: Domyos (Decathlon) | Kategori: Mat | Varian: 10mm, Blue | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.my/p/10-mm-comfortable-pilates-mat-purple-domyos-8916640.html",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "7df145b1-a89f-41d3-b07b-8c4235dfd102",
+  "fields": {
+    "product_name": "Pilates Mat Comfort 100 – Size S (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.ca/en/p/8851723/pilates-comfort-mat-size-s-100",
+    "inStock": true,
+    "description": "160 x 55 cm, 10 mm\n\nBrand: Domyos (Decathlon) | Kategori: Mat | Varian: Comfort 100 | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.ca/en/p/8851723/pilates-comfort-mat-size-s-100",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "81019a3e-18cc-4b6b-b7dd-65d4a6a88059",
+  "fields": {
+    "product_name": "Studio Reformer – Oversized Platform",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/studio-reformer-oversized-platform/",
+    "inStock": true,
+    "description": "Increases width; non-skid pad\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Oversized Platform | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/studio-reformer-oversized-platform/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "83867e80-295f-42db-8835-3218e142044d",
+  "fields": {
+    "product_name": "Pilates Express Mat (Stone)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Lightweight cushioned mat for Pilates\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Stone color | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "838af934-ca2d-43a3-9e0f-ec5ad615382a",
+  "fields": {
+    "product_name": "Foam Roller Deluxe – 36 inch (Black)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06091_foam-roller-deluxe-36-inch",
+    "inStock": true,
+    "description": "Closed-cell high-density roller\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 36in Black | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06091_foam-roller-deluxe-36-inch",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "84106512-a046-4230-bb3b-22b3326fc309",
+  "fields": {
+    "product_name": "Jumpboard – V2 Max/Rehab V2 Max",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "inStock": true,
+    "description": "Firm padded jump surface\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: V2 Max | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "91c17fef-9b3e-4637-91a5-ed120c8abd1d",
+  "fields": {
+    "product_name": "The Grande · Extra Large Exercise Mat",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Extra large deluxe Pilates mat\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: XL size | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "94a3c423-e955-43cd-a718-e42ae8b2edd7",
+  "fields": {
+    "product_name": "Platform Extenders (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/collections/reformer-platform-extender/",
+    "inStock": true,
+    "description": "Assorted platform extenders\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Category | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/collections/reformer-platform-extender/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "99d4a393-26fc-4ce0-89ad-26ceb249eae3",
+  "fields": {
+    "product_name": "Deluxe Pilates Mat (Graphite)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Deluxe cushioning, non-slip\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Graphite | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "9f3cc40c-d68d-4c6f-9522-7f39d06d52a7",
+  "fields": {
+    "product_name": "Gondola Pole",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/pilates-gondola-pole/",
+    "inStock": true,
+    "description": "Maple dowel pole; rubberized ends\n\nBrand: Balanced Body | Kategori: Prop | Varian: 5 ft maple | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/pilates-gondola-pole/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "a11722fe-7594-4528-89be-b94111607156",
+  "fields": {
+    "product_name": "Maple Dowel (Pilates Pole)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/maple-dowel/",
+    "inStock": true,
+    "description": "Alignment and arm work\n\nBrand: Balanced Body | Kategori: Prop | Varian: Maple dowel | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/maple-dowel/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "a1ea4036-506c-46db-ab24-1a1c74c589dd",
+  "fields": {
+    "product_name": "Gaiam Pilates Collection (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.gaiam.com/collections/pilates",
+    "inStock": true,
+    "description": "Mats, rings, bar kit, mini ball, etc.\n\nBrand: Gaiam | Kategori: Category | Varian: Pilates gear | Marketplace: Official Brand Store | Sumber: https://www.gaiam.com/collections/pilates",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "a700579e-ed18-4c85-b4df-070ce23272a7",
+  "fields": {
+    "product_name": "Reformer – CenterLine Classical",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/centerline-reformer/",
+    "inStock": true,
+    "description": "Classical spec with leather straps & handles\n\nBrand: Balanced Body | Kategori: Reformer | Varian: CenterLine | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/centerline-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "a9ef95be-f3e5-490b-8419-7d52ac729512",
+  "fields": {
+    "product_name": "Non-Latex Flex-Band Roll - Extra Strength",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06288_Nonlatex-Flexband-Roll--Extra-Strength?Currency=USD",
+    "inStock": true,
+    "description": "Non-latex roll for cutting bands\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Resistance Band | Varian: Roll, Extra | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06288_Nonlatex-Flexband-Roll--Extra-Strength?Currency=USD",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "acc02e9a-d4ad-459c-89bd-9f12fe6df785",
+  "fields": {
+    "product_name": "Mini Stability Ball – Medium",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/%28X%281%29S%28pj1op1vjpmbs4mlsrr5xnq04%29%29/shop/ProductDetail/ST06115_Mini-Stability-Ball--Medium",
+    "inStock": true,
+    "description": "10\" mini ball\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mini Ball | Varian: Medium | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/%28X%281%29S%28pj1op1vjpmbs4mlsrr5xnq04%29%29/shop/ProductDetail/ST06115_Mini-Stability-Ball--Medium",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "acd267b0-bc85-48d2-a542-a0a485a408a7",
+  "fields": {
+    "product_name": "Reformer Platform Extenders (General Category)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/collections/reformer-platform-extender/",
+    "inStock": true,
+    "description": "Adds space & stability for exercises\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Standing/Head-end extenders | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/collections/reformer-platform-extender/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "ae19730c-0999-40ee-b68a-07d5ee992a42",
+  "fields": {
+    "product_name": "Foam Roller Deluxe – 24 inch",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/foam-rollers-massage",
+    "inStock": true,
+    "description": "Closed-cell high-density roller\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 24in | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/foam-rollers-massage",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "ae657700-7047-4520-acd5-b767d2ef613f",
+  "fields": {
+    "product_name": "M8-Pro Pilates Reformer",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/m8-pro-pilates-reformer/",
+    "inStock": true,
+    "description": "Commercial studio reformer\n\nBrand: Align-Pilates | Kategori: Reformer | Varian: M8-Pro | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/m8-pro-pilates-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "af43f11f-12fd-4d52-822c-9b4cf160c115",
+  "fields": {
+    "product_name": "AeroPilates Reformer 287",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/aeropilates-reformer-287/",
+    "inStock": true,
+    "description": "Compact home reformer with rebounder\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer | Varian: Model 287 | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/aeropilates-reformer-287/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "b03bec7d-512d-49ff-b50a-d0ba52503df7",
+  "fields": {
+    "product_name": "Fitness Circle Pro - 14 inch (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST02099_Fitness-Circle-Pro--14-Inch-blue",
+    "inStock": true,
+    "description": "Spring steel ring; firm resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: 14\" Blue | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST02099_Fitness-Circle-Pro--14-Inch-blue",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "b0b29ffa-5770-4b31-a201-c71c431abf37",
+  "fields": {
+    "product_name": "Deluxe Grommet Mats with Hanger · 6-pack (Wood)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Commercial grommet mats + hanger\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: 6-pack Wood | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "b3f41d06-938d-4d53-bffa-3c01990e6027",
+  "fields": {
+    "product_name": "Studio Reformer – Platform Extender",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/studio-reformer-platform-extender/",
+    "inStock": true,
+    "description": "Drops in over platform; hinged\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Platform Extender | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/studio-reformer-platform-extender/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "b8455f38-4e44-4bf9-9577-e40b641b98f9",
+  "fields": {
+    "product_name": "AeroPilates Pro XP 556 Reformer",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/pro-xp-556-aeropilates-reformer/",
+    "inStock": true,
+    "description": "Wood-trimmed reformer with rebounder\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer | Varian: XP 556 | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/pro-xp-556-aeropilates-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "bb80604f-20b4-4db1-b658-1b2d200bcc5f",
+  "fields": {
+    "product_name": "Foam Roller – 90 cm x 15 cm (Black)",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.co.uk/p/foam-roller-90cm-x-15cm/_/R-p-305309",
+    "inStock": true,
+    "description": "High-density foam; full-length roller\n\nBrand: Domyos (Decathlon) | Kategori: Foam Roller | Varian: 90x15 cm | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.co.uk/p/foam-roller-90cm-x-15cm/_/R-p-305309",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c01382fd-6e06-43f3-8991-3bc41567db98",
+  "fields": {
+    "product_name": "Deluxe Grommet Mat",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Grommet holes for wall rack\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Single | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c095cc26-1cbe-40be-99c0-a73808ebe67c",
+  "fields": {
+    "product_name": "Jumpboard – SPX/SPX Max",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST01043_Jumpboard--Spxspx-Max",
+    "inStock": true,
+    "description": "Firm padded jump surface\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: SPX / SPX Max | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST01043_Jumpboard--Spxspx-Max",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c14c24d5-e338-4443-805a-1a2abafd9db4",
+  "fields": {
+    "product_name": "Foam Roller Deluxe – 36 inch (Purple)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06041_Foam-Roller-Deluxe--36-Inch-purple",
+    "inStock": true,
+    "description": "Closed-cell high-density roller\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 36in Purple | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06041_Foam-Roller-Deluxe--36-Inch-purple",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c174a25f-1a47-4405-83e4-ae17db61545c",
+  "fields": {
+    "product_name": "10 mm Comfortable Pilates Mat – Purple",
+    "stock": 1,
+    "thumbnail": "https://www.decathlon.co.uk/p/10-mm-comfortable-pilates-mat-purple/_/R-p-351104",
+    "inStock": true,
+    "description": "160 x 55 cm, 10 mm thickness\n\nBrand: Domyos (Decathlon) | Kategori: Mat | Varian: 10mm, Purple | Marketplace: Retailer (Decathlon) | Sumber: https://www.decathlon.co.uk/p/10-mm-comfortable-pilates-mat-purple/_/R-p-351104",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c44d9b76-fdda-48c6-b123-4cfc8501cc1a",
+  "fields": {
+    "product_name": "Padded Platform Extender – V2 Max/Rehab V2 Max",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST02015_Padded-Platform-Extender--V2-Maxrehab-V2-Max",
+    "inStock": true,
+    "description": "Raised padded surface for kneeling/standing\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: Padded Platform | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST02015_Padded-Platform-Extender--V2-Maxrehab-V2-Max",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c45231f2-a5db-4991-81a9-8c4bec01246e",
+  "fields": {
+    "product_name": "Platform Extender (A-Series Reformers)",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/platform-extender-for-a-series-reformers/",
+    "inStock": true,
+    "description": "Large padded platform extender\n\nBrand: Align-Pilates | Kategori: Reformer Accessory | Varian: A-Series | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/platform-extender-for-a-series-reformers/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c4e24976-a4ab-4681-ab0d-d87b1b47b9f2",
+  "fields": {
+    "product_name": "Sitting Box – Standard",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/pilates-sitting-box-standard/",
+    "inStock": true,
+    "description": "3-handled, padded; fits all BB reformers\n\nBrand: Balanced Body | Kategori: Reformer Accessory | Varian: Standard | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/pilates-sitting-box-standard/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "c5900f34-cd11-4ef0-a079-fdb26096bfcb",
+  "fields": {
+    "product_name": "Flex-Band Two-Pack (Regular & Extra Strength)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST02033_Flexband-Twopack",
+    "inStock": true,
+    "description": "Includes regular + extra strength bands\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Resistance Band | Varian: 2-pack | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST02033_Flexband-Twopack",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "ca09ba38-8b23-41bf-96f8-427d2ea5ad66",
+  "fields": {
+    "product_name": "Fitness Circle Pro - 12 inch (Purple)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "inStock": true,
+    "description": "Spring steel ring; firm resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: 12\" Purple | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "cb4c574d-2299-4774-8345-14245f1c576f",
+  "fields": {
+    "product_name": "Padded Platform Extender – SPX Max/MPX",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST02069_Padded-Platform-Extender--Spx-Max",
+    "inStock": true,
+    "description": "Raised padded platform\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: SPX Max / MPX | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST02069_Padded-Platform-Extender--Spx-Max",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "cd2a0292-941b-4110-8908-3d3bc0cd32bf",
+  "fields": {
+    "product_name": "Foam Rollers & Massage (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/foam-rollers-massage",
+    "inStock": true,
+    "description": "Foam rollers, massage sticks & balls\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Rollers | Varian: Category | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/foam-rollers-massage",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "d6bd8463-8287-4485-9b68-ca2191b7d5bc",
+  "fields": {
+    "product_name": "Reformer – Metro IQ (Home)",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/metro-iq-pilates-reformer/",
+    "inStock": true,
+    "description": "Sets up & stores under bed/upright\n\nBrand: Balanced Body | Kategori: Reformer | Varian: Metro IQ Home | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/metro-iq-pilates-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "d76ebc9b-1101-4e1e-94ca-cc5b49880629",
+  "fields": {
+    "product_name": "Eco-Friendly Mat (Black)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Eco-friendly material\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: Black | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "d79185cb-d547-4389-a1d0-95d182299ac4",
+  "fields": {
+    "product_name": "Toning Ball – 2 lbs (Two-Pack)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06053_Toning-Ball--2-Lbs-Twopack",
+    "inStock": true,
+    "description": "Pliable hand weights; pair\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Weighted Ball | Varian: 2 lb pair | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06053_Toning-Ball--2-Lbs-Twopack",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "d8684273-9f55-4030-9def-add52a0daf36",
+  "fields": {
+    "product_name": "Fitness Circle Pro - 14 inch (Black)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "inStock": true,
+    "description": "Spring steel ring; firm resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: 14\" Black | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "d8b74928-e25f-4868-86a3-76ecc34b50ad",
+  "fields": {
+    "product_name": "AeroPilates Rebounder",
+    "stock": 1,
+    "thumbnail": "https://www.staminaproducts.com/product/aeropilates-rebounder/",
+    "inStock": true,
+    "description": "Rebounder for AeroPilates reformers\n\nBrand: AeroPilates (Stamina) | Kategori: Reformer Accessory | Varian: Rebounder | Marketplace: Official Brand Store | Sumber: https://www.staminaproducts.com/product/aeropilates-rebounder/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "e04994b1-c875-4e3b-bfec-a05aa4aacb1f",
+  "fields": {
+    "product_name": "Fitness Circle Flex (Blue)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "inStock": true,
+    "description": "Impact-resistant plastic ring; medium resistance\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Pilates Ring | Varian: Flex plastic | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/fitness-circles",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "e444d19e-458b-43d1-974f-e2f76edd68eb",
+  "fields": {
+    "product_name": "Mini Stability Ball – Large (Gray)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06308_Mini-Stability-Ball--Large-gray",
+    "inStock": true,
+    "description": "12\" mini ball, gray color\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mini Ball | Varian: Large Gray | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06308_Mini-Stability-Ball--Large-gray",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "e6eb7396-c4c0-42ef-b934-d1a9e3194ede",
+  "fields": {
+    "product_name": "Sitting Box – A-Series",
+    "stock": 1,
+    "thumbnail": "https://align-pilates.com/sitting-box-a-series/",
+    "inStock": true,
+    "description": "Upholstered box for long/short box\n\nBrand: Align-Pilates | Kategori: Reformer Accessory | Varian: A-Series Sitting Box | Marketplace: Official Brand Store | Sumber: https://align-pilates.com/sitting-box-a-series/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "e8e29890-00fc-4826-b510-896706fbe3e5",
+  "fields": {
+    "product_name": "Foam Roller Soft Density – 36 inch",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/ProductDetail/ST06169_Foam-Roller-Soft-Density-36-Inch",
+    "inStock": true,
+    "description": "Soft density EVA; textured non-slip\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 36in Soft | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/ProductDetail/ST06169_Foam-Roller-Soft-Density-36-Inch",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "eb55712f-d3cf-4c57-ac18-47ed5c938c31",
+  "fields": {
+    "product_name": "AeroPilates Machines (Category on eBay)",
+    "stock": 1,
+    "thumbnail": "https://www.ebay.com/b/Aero-Pilates-Machine/179807/bn_7023336044",
+    "inStock": true,
+    "description": "AeroPilates reformers with rebounders\n\nBrand: AeroPilates (various sellers) | Kategori: Marketplace Category | Varian: AeroPilates | Marketplace: Marketplace (eBay) | Sumber: https://www.ebay.com/b/Aero-Pilates-Machine/179807/bn_7023336044",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "ebcbbeaf-046e-4aa6-a58f-33a52d8cda4c",
+  "fields": {
+    "product_name": "Exercise Balls (Category)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/fitness-accessories/exercise-balls",
+    "inStock": true,
+    "description": "Selection of toning, mini & stability balls\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Balls | Varian: Toning/Stability/Mini | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/fitness-accessories/exercise-balls",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "f07db880-8ffa-4447-bef4-aee1b28af4c7",
+  "fields": {
+    "product_name": "Accessory Boards (Jumpboards, Diskboards, Footbars)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "inStock": true,
+    "description": "Jumpboards, Cross-Bow, Diskboard, Vinyasa Triangle\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Reformer Accessory | Varian: Boards & Footbars | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/pilates-reformers/reformer-accessories/accessory-boards",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "f37e24de-af67-4e3b-b7f9-fb4fe6a5e65a",
+  "fields": {
+    "product_name": "Deluxe Grommet Mats with Hanger · 6-pack (Silver)",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "inStock": true,
+    "description": "Commercial grommet mats + hanger\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Mat | Varian: 6-pack Silver | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/shop/exercise-mats-and-mat-bags/pilates-mats",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "f5bfc790-0b16-4bac-ae35-a80b38a6a815",
+  "fields": {
+    "product_name": "Foam Roller Soft Density – 18 inch",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/%28X%281%29S%284qokyed52tgxpgukly4bmxu5%29%29/shop/ProductDetail/ST06203_Foam-Roller-Soft-Density--18-Inch-blue",
+    "inStock": true,
+    "description": "Portable soft density roller\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 18in Soft | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/%28X%281%29S%284qokyed52tgxpgukly4bmxu5%29%29/shop/ProductDetail/ST06203_Foam-Roller-Soft-Density--18-Inch-blue",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "f977daa2-b92e-4f86-8a39-8fdae62d14b3",
+  "fields": {
+    "product_name": "Reformer – Allegro 2",
+    "stock": 1,
+    "thumbnail": "https://www.pilates.com/products/allegro-2-pilates-reformer/",
+    "inStock": true,
+    "description": "Ultimate Pilates Reformer; intuitive & durable\n\nBrand: Balanced Body | Kategori: Reformer | Varian: Allegro 2 | Marketplace: Official Brand Store | Sumber: https://www.pilates.com/products/allegro-2-pilates-reformer/",
+    "price": 1000000
+  }
+},
+{
+  "model": "catalog.product",
+  "pk": "fd2bb971-552a-4aa5-8d35-beb15f46c74c",
+  "fields": {
+    "product_name": "Foam Roller Soft Density – 36 inch Half",
+    "stock": 1,
+    "thumbnail": "https://www.merrithew.com/%28X%281%29S%28hz44ycefu2ys2uvlk0hqozqp%29%29/shop/ProductDetail/ST06252_Foam-Roller-Soft-Density--36-Inch--Half",
+    "inStock": true,
+    "description": "Half-round, more stability\n\nBrand: Merrithew (STOTT PILATES) | Kategori: Foam Roller | Varian: 36in Half | Marketplace: Official Brand Store | Sumber: https://www.merrithew.com/%28X%281%29S%28hz44ycefu2ys2uvlk0hqozqp%29%29/shop/ProductDetail/ST06252_Foam-Roller-Soft-Density--36-Inch--Half",
+    "price": 1000000
+  }
+}
+]

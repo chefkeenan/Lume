@@ -1,8 +1,31 @@
-<h1>Login</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.non_field_errors }}
-  <div>{{ form.username.label_tag }} {{ form.username }}</div>
-  <div>{{ form.password.label_tag }} {{ form.password }}</div>
-  <button type="submit">Login</button>
-</form>
+{% block meta %}<title>Login</title>{% endblock meta %}
+
+{% block content %}
+<div class="login">
+  <h1>Login</h1>
+
+  <form method="POST" action="">
+    {% csrf_token %}
+    <table>
+      {{ form.as_table }}
+      <tr>
+        <td></td>
+        <td><input class="btn login_btn" type="submit" value="Login" /></td>
+      </tr>
+    </table>
+  </form>
+
+  {% if messages %}
+  <ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <p>Don't have an account yet?
+     <a href="{% url 'user:register' %}">Register Now</a>
+  </p>
+
+</div>
+{% endblock content %}
