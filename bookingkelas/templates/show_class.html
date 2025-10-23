@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Katalog Kelas</title></head>
+<body>
+<h1>Katalog Kelas</h1>
+<p><a href="{% url 'bookingkelas:add_session' %}">Tambah Session</a> | <a href="{% url 'bookingkelas:sessions_json' %}">Lihat JSON</a></p>
+<ul>
+  {% for s in sessions %}
+    <li>
+      <strong>{{ s.title }}</strong> — {{ s.get_category_display }} — {{ s.time }}
+      <br>Instruktur: {{ s.instructor }} | Kapasitas: {{ s.capacity_current }}/{{ s.capacity_max }}
+      <br>Harga: Rp{{ s.price|intcomma }}
+      {% if s.days %}
+        <br>Hari: 
+        {% for d in s.days %}
+          {{ weekday_map|dict_get:d|stringformat:"s" }}{% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      {% endif %}
+      <p>{{ s.description }}</p>
+    </li>
+  {% empty %}
+    <li>Tidak ada session.</li>
+  {% endfor %}
+</ul>
+</body>
+</html>

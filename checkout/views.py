@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
-
 from .forms import CartCheckoutForm
 from .models import ProductOrder, ProductOrderItem, BookingOrder, BookingOrderItem
 from cart.models import Cart
@@ -12,9 +11,6 @@ from django.urls import reverse
 from decimal import Decimal
 
 # CART -> CHECKOUT PRODUK (alamat diinput tiap checkout)
-# checkout/views.py (potongan perubahan)
-from decimal import Decimal
-
 @login_required
 def cart_checkout_page(request):
     cart = get_object_or_404(
@@ -93,42 +89,36 @@ def checkout_cart_create(request):
     messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
 
-
 # BOOKING CLASS -> CHECKOUT (single booking, tanpa alamat & ongkir)
 @login_required
 def checkout_booking_now(request, booking_id):
+    """
+    Checkout untuk 1 booking kelas (harian/mingguan)
+    """
     if request.method != "POST":
         return HttpResponseBadRequest("POST required.")
 
-    # Ambil booking yang valid milik user (tidak dibatalkan)
     b = get_object_or_404(
-        Booking.objects.select_related("session", "occurrence"),
+        Booking.objects.select_related("session"),
         id=booking_id,
         user=request.user,
         is_cancelled=False
     )
 
-    # (Opsional) jika ada occurrence, pastikan masih masa depan (safeguard)
-    if b.occurrence and not b.occurrence.is_in_future():
-        messages.error(request, "Occurrence sudah lewat, tidak bisa di-checkout.")
-        return redirect("checkout:order_confirmed")
-
     with transaction.atomic():
-        # Cegah double-attach (booking yang sama tidak boleh di-checkout dua kali)
         if BookingOrderItem.objects.filter(booking=b).exists():
-            messages.error(request, "This booking has already been checked out.")
+            messages.error(request, "Booking ini sudah pernah di-checkout.")
             return redirect("checkout:order_confirmed")
 
-        # Buat order & snapshot item booking (tanpa ongkir)
         order = BookingOrder.objects.create(user=request.user, notes="")
         BookingOrderItem.objects.create(
             order=order,
             booking=b,
             session_title=b.session.title,
-            occurrence_date=(b.occurrence.date if b.occurrence else None),
-            occurrence_start_time=(b.occurrence.start_time if b.occurrence else None),
+            occurrence_date=None,  # karena kita belum pakai occurrence model
+            occurrence_start_time=None,
             unit_price=b.price_at_booking,
-            quantity=1,  # satu booking = satu seat
+            quantity=1,
         )
 
         order.recalc_totals()
