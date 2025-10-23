@@ -48,10 +48,18 @@
     {% include "navbar.html" %}
     {% block content %}{% endblock %}
     
-    {% block scripts %}
-    {% endblock scripts %}
-    {% include "footer.html" %}
-    </body>
-    {% block extra_js %}{% endblock %}
-  </body>
+{% block scripts %}{% endblock scripts %}
+{% include "footer.html" %}
+
+<div id="editModal" class="fixed inset-0 z-[100] hidden">
+  <div class="absolute inset-0 bg-black/60" data-close-edit></div>
+  <div class="absolute inset-0 grid place-items-center p-4">
+    <div class="w-full max-w-2xl rounded-2xl bg-white p-6" id="editModalBody"></div>
+  </div>
+</div>
+
+<script src="{% static 'catalog/js_product/admin-producst.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
 </html>
+
