@@ -48,14 +48,12 @@ class Cart(models.Model):
     def total_items(self) -> int:
         return self.items.aggregate(total=Sum("quantity"))["total"] or 0
 
-
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(
         "catalog.Product", on_delete=models.CASCADE, related_name="cart_items"
     )
     quantity = models.PositiveIntegerField(default=1)
-    # NEW: untuk pilih item mana yang mau di-checkout
     is_selected = models.BooleanField(default=True)
 
     class Meta:

@@ -9,12 +9,28 @@ from .models import Cart, CartItem
 from .forms import CartItemQuantityForm
 from django.views.decorators.http import require_GET, require_POST
 from django.middleware.csrf import get_token
-from django.urls import reverse
+from django.contrib import messages
+from django.urls import reverse, NoReverseMatch
+from django.shortcuts import redirect, render
 
-@login_required
 def cart_page(request):
+    # Kalau belum login: kirim pesan + redirect ke login dengan ?next=<url_sekarang>
+    if not request.user.is_authenticated:
+        messages.info(request, "Please log in to view your cart.")
+        try:
+            login_url = reverse("user:login")  # kalau app 'user' pakai namespace
+        except NoReverseMatch:
+            login_url = reverse("login")       # fallback kalau tanpa namespace
+        return redirect(f"{login_url}?next={request.get_full_path()}")
+
+    # Sudah login: render cart seperti biasa
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    return render(request, "cart/cart.html", {"total_items": cart.total_items()})
+    items = cart.items.select_related("product").all()
+    return render(request, "cart/cart.html", {
+        "cart": cart,
+        "items": items,
+        "total_items": cart.total_items(),
+    })
 
 # DATA: JSON untuk render/memanipulasi DOM 
 @require_GET
@@ -49,23 +65,72 @@ def cart_json(request):
     })
 
 # ACTIONS: quantity via AJAX POST 
+from django.db.models import F
 @require_POST
 @login_required
 @transaction.atomic
 def set_quantity_ajax(request, item_id: int):
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-    item = get_object_or_404(CartItem, pk=item_id, cart=cart)
+    """
+    Ubah quantity item cart via AJAX.
+    - Jika qty <= 0 -> hapus item.
+    - Jika qty > stock produk -> tolak (400) dengan pesan error.
+    """
+    # Lock row supaya konsisten kalau ada update paralel
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    item = get_object_or_404(
+        CartItem.objects.select_for_update().select_related("product"),
+        pk=item_id, cart=cart
+    )
+
+    # Ambil target quantity dari POST
     try:
         qty = int(request.POST.get("quantity", item.quantity))
     except (TypeError, ValueError):
         return HttpResponseBadRequest("bad quantity")
 
+    product = item.product
+
+    # Kalau produk tidak tersedia
+    if not getattr(product, "inStock", True) or product.stock <= 0:
+        # Bisa pilih: hapus item / pertahankan & kasih pesan. Di sini aku hapus.
+        item.delete()
+        return JsonResponse({
+            "ok": False,
+            "reason": "out_of_stock",
+            "message": "Product is out of stock.",
+            "item_id": item_id,
+            "quantity": 0,
+            "total_items": cart.total_items(),
+            "selected_count": cart.items.filter(is_selected=True).count(),
+        }, status=400)
+
+    # VALIDASI: jangan melebihi stok
+    if qty > product.stock:
+        return JsonResponse({
+            "ok": False,
+            "reason": "exceed_stock",
+            "message": f"Exceeding stock. Only {product.stock} left.",
+            "item_id": item_id,
+            "quantity": item.quantity, 
+            "available": product.stock,
+            "total_items": cart.total_items(),
+            "selected_count": cart.items.filter(is_selected=True).count(),
+        }, status=400)
+
+    # Hapus jika <= 0
     if qty <= 0:
         item.delete()
-        qty = 0
-    else:
-        item.quantity = qty
-        item.save(update_fields=["quantity"])
+        return JsonResponse({
+            "ok": True,
+            "item_id": item_id,
+            "quantity": 0,
+            "total_items": cart.total_items(),
+            "selected_count": cart.items.filter(is_selected=True).count(),
+        })
+
+    # Update normal
+    item.quantity = qty
+    item.save(update_fields=["quantity"])
 
     return JsonResponse({
         "ok": True,
@@ -124,7 +189,12 @@ def toggle_select_ajax(request, item_id: int):
 def select_all_ajax(request):
     cart, _ = Cart.objects.get_or_create(user=request.user)
     cart.items.update(is_selected=True)
-    return JsonResponse({"ok": True, "selected_count": cart.items.filter(is_selected=True).count()})
+    return JsonResponse({
+        "ok": True,
+        "selected_count": cart.items.filter(is_selected=True).count(),
+        "total_items": cart.total_items(), 
+    })
+
 
 @require_POST
 @login_required
@@ -132,7 +202,12 @@ def select_all_ajax(request):
 def unselect_all_ajax(request):
     cart, _ = Cart.objects.get_or_create(user=request.user)
     cart.items.update(is_selected=False)
-    return JsonResponse({"ok": True, "selected_count": 0})
+    return JsonResponse({
+        "ok": True,
+        "selected_count": 0,
+        "total_items": cart.total_items(), 
+    })
+
 
 # FORMS.PY DEMO: Edit Quantity (AJAX GET + POST)
 @require_GET
@@ -201,13 +276,30 @@ def quantity_form_submit(request, item_id: int):
         "selected_count": cart.items.filter(is_selected=True).count(),
     })
 
+@login_required
+@transaction.atomic
 def add_to_cart(request, product_id):
     """
-    Tambah 1 item ke cart (dipakai tombol 'Add to Cart' di kartu produk).
-    Sederhana: redirect balik ke halaman sebelumnya.
+    Tambah 1 unit produk ke cart dari katalog.
+    Ditolak jika jumlah di cart sudah mencapai stok.
     """
-    product = get_object_or_404(Product, pk=product_id)
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-    cart.add(product, qty=1)  # is_selected=True by default (di models)
-    messages.success(request, f"'{getattr(product, 'product_name', 'Produk')}' ditambahkan ke cart.")
+    product = get_object_or_404(Product.objects.select_for_update(), pk=product_id)
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+
+    # Cari item existing
+    try:
+        item = cart.items.select_for_update().get(product=product)
+        if item.quantity >= product.stock:
+            messages.error(request, "Exceeding stock. Quantity already at maximum available.")
+        else:
+            item.quantity = item.quantity + 1
+            item.save(update_fields=["quantity"])
+            messages.success(request, f"'{product.product_name}' added to cart.")
+    except CartItem.DoesNotExist:
+        if product.stock <= 0 or not getattr(product, "inStock", True):
+            messages.error(request, "Product is out of stock.")
+        else:
+            cart.items.create(product=product, quantity=1, is_selected=True)
+            messages.success(request, f"'{product.product_name}' added to cart.")
+
     return redirect(request.META.get("HTTP_REFERER") or reverse("cart:page"))
