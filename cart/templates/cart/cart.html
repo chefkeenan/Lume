@@ -5,9 +5,10 @@
 {% block content %}
 <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- Top Nav back to home -->
+  <!-- Back to home -->
   <div class="mb-6">
-    <a href="{% url 'main:landing' %}" class="inline-flex items-center gap-2 rounded-full bg-neutral-200/70 px-4 py-2 text-sm hover:bg-neutral-300">
+    <a href="{% url 'main:landing' %}"
+       class="inline-flex items-center gap-2 rounded-full bg-[#E7E2D6] px-4 py-2 text-sm text-[#3A342D] hover:bg-[#DCD4C4]">
       <span class="inline-block -ml-1">←</span>
       <span>Back to Home</span>
     </a>
@@ -15,47 +16,47 @@
 
   <!-- Title -->
   <div class="mb-8">
-    <h1 class="text-4xl font-bold tracking-tight text-neutral-800">Your Cart</h1>
-    <p class="mt-2 text-neutral-600">Review your items before checkout.</p>
+    <h1 class="text-4xl font-extrabold tracking-tight text-[#3A342D]">Your Cart</h1>
+    <p class="mt-2 text-[#766E62]">Review your items before checkout.</p>
   </div>
 
-  <!-- Main Layout -->
+  <!-- Layout -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LEFT: Cart Items -->
-    <div class="lg:col-span-2 space-y-4" id="cartItems">
-      <!-- Empty state -->
-      <div data-empty class="hidden text-center py-20">
-        <p class="text-neutral-500 text-lg">Your cart is empty.</p>
-        <a href="{% url 'catalog:list' %}" class="mt-4 inline-block text-neutral-700 underline">Continue Shopping</a>
+    <!-- LEFT: Items -->
+    <div class="lg:col-span-2 space-y-4">
+      <div id="cartItems" style="display:none"></div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="text-center py-20" style="display:block">
+        <p class="text-lg font-medium text-[#766E62]">Your cart is empty.</p>
       </div>
     </div>
 
-    <!-- RIGHT: Order Summary -->
+    <!-- RIGHT: Summary -->
     <aside class="lg:col-span-1">
       <div class="sticky top-6 rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-6">
-        <h2 class="text-xl font-bold text-neutral-800 mb-6">Order Summary</h2>
+        <h2 class="text-xl font-bold text-[#3A342D] mb-6">Order Summary</h2>
 
         <div class="space-y-4 mb-6">
           <div class="flex items-center justify-between">
-            <span class="text-neutral-600">Total Items</span>
-            <span class="font-semibold text-neutral-800" data-total-items>0</span>
+            <span class="text-[#766E62]">Total Items</span>
+            <span class="font-semibold text-[#3A342D]" data-total-items>0</span>
           </div>
         </div>
 
         <div class="space-y-3">
-          <!-- Checkout Button -->
           <form id="checkoutForm" method="post" action="{% url 'checkout:cart_checkout_page' %}">
             {% csrf_token %}
             <input type="hidden" name="item_ids" id="selectedItemIds">
             <button type="submit" id="checkoutBtn"
-                    class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition disabled:opacity-50 disabled:cursor-not-allowed">
+              class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition">
               Proceed to Checkout →
             </button>
           </form>
 
           <a href="{% url 'main:show_main' %}"
-             class="block w-full rounded-lg border border-neutral-300 py-2.5 text-center text-sm hover:bg-neutral-50">
+             class="block w-full rounded-xl border border-[#E0D9CA] py-2.5 text-center text-sm text-[#3A342D] hover:bg-[#F5F2EB]">
             Continue Shopping
           </a>
         </div>
@@ -64,251 +65,172 @@
 
   </div>
 </section>
+
+<!-- Template untuk product card -->
+<template id="cart-item-template">
+  <div class="rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition" data-item-row>
+    <div class="flex items-center gap-4">
+      <input type="checkbox"
+        class="h-5 w-5 rounded border-2 border-[#B8A88A] text-[#B8A88A] focus:ring-[#B8A88A] cursor-pointer flex-shrink-0"
+        data-select>
+
+      <img data-img class="h-20 w-20 rounded-xl object-cover border border-[#E8E3D8]" alt="">
+
+      <div class="flex-1 min-w-0">
+        <h3 data-name class="text-base font-semibold text-[#3A342D] truncate mb-1"></h3>
+        <p data-price class="text-sm text-[#766E62]"></p>
+      </div>
+
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button data-dec class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-[#3A342D] font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center">−</button>
+        <span data-qty class="w-8 text-center text-sm font-semibold text-[#3A342D]">1</span>
+        <button data-inc class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-[#3A342D] font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center">+</button>
+      </div>
+
+      <button data-remove class="ml-2 text-red-500 hover:text-red-600 hover:scale-110 transition flex-shrink-0">🗑</button>
+    </div>
+  </div>
+</template>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // ===== CSRF Token =====
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
+document.addEventListener('DOMContentLoaded', () => {
+  const TPL = document.getElementById('cart-item-template');
+  const PLACEHOLDER_URL = "{% static 'img/placeholder.webp' %}";
+
+  // --- CSRF Helper ---
+  function getCookie(name){
+    let v=null;if(document.cookie!==''){for(const c of document.cookie.split(';')){
+      const cc=c.trim(); if(cc.startsWith(name+'=')){v=decodeURIComponent(cc.slice(name.length+1));break;}
+    }} return v;
   }
   const CSRF = getCookie('csrftoken');
 
-  // ===== Helper Functions =====
-  async function getJSON(url) {
-    const response = await fetch(url, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    });
-    return await response.json();
+  async function getJSON(url){
+    const r = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+    return await r.json();
   }
-
-  async function postForm(url, bodyObj) {
-    const body = bodyObj instanceof FormData 
-      ? bodyObj 
-      : new URLSearchParams(bodyObj || {});
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': CSRF,
-        'X-Requested-With': 'XMLHttpRequest'
-      },
+  async function postForm(url, bodyObj){
+    const body = new URLSearchParams(bodyObj||{});
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
       body
     });
-    return await response.json();
+    return await r.json();
   }
 
-  function updateTotals(totalItems, selectedCount) {
-    document.querySelectorAll('[data-total-items]').forEach(el => {
-      el.textContent = totalItems;
-    });
-    // Disable checkout if no items selected
-    const checkoutBtn = document.getElementById('checkoutBtn');
-    if (checkoutBtn) {
-      checkoutBtn.disabled = selectedCount === 0;
-    }
+  function toggleEmpty(show){
+    const list = document.getElementById('cartItems');
+    const empty = document.getElementById('emptyState');
+    if (!list || !empty) return;
+    empty.style.display = show ? 'block' : 'none';
+    list.style.display  = show ? 'none'  : 'block';
   }
 
-  // ===== Render Cart Items =====
-  function renderItems(items) {
-    const wrap = document.getElementById('cartItems');
-    const empty = document.querySelector('[data-empty]');
+  function setTotals(totalItems){
+    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = totalItems);
+  }
 
-    if (!items || items.length === 0) {
-      wrap.innerHTML = '';
-      empty?.classList.remove('hidden');
-      updateTotals(0, 0);
+  // --- Render dari Template ---
+  function renderItems(items){
+    const list = document.getElementById('cartItems');
+    if (!items?.length){
+      list.innerHTML = '';
+      toggleEmpty(true);
       return;
     }
+    toggleEmpty(false);
+    list.innerHTML = '';
 
-    empty?.classList.add('hidden');
-    wrap.innerHTML = '';
+    items.forEach(it => {
+      const node = TPL.content.cloneNode(true);
+      const row = node.querySelector('[data-item-row]');
+      row.dataset.itemId = it.id;
 
-    for (const item of items) {
-      const card = document.createElement('div');
-      card.className = 'rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition';
-      card.setAttribute('data-item-row', '');
-      card.dataset.itemId = item.id;
+      const checkbox = node.querySelector('[data-select]');
+      checkbox.checked = !!it.is_selected;
 
-      // Fallback image
-      const imgSrc = item.thumbnail || '/static/img/placeholder.webp';
+      const img = node.querySelector('[data-img]');
+      img.src = it.thumbnail || PLACEHOLDER_URL;
+      img.alt = it.product_name;
 
-      card.innerHTML = `
-        <div class="flex items-center gap-4">
-          <!-- Checkbox -->
-          <input type="checkbox" 
-                 class="h-5 w-5 rounded border-2 border-[#B8A88A] text-[#B8A88A] focus:ring-[#B8A88A] cursor-pointer flex-shrink-0"
-                 data-select 
-                 ${item.is_selected ? 'checked' : ''}
-                 aria-label="Select ${item.product_name}">
+      node.querySelector('[data-name]').textContent  = it.product_name;
+      node.querySelector('[data-price]').textContent = `Rp ${Number(it.price).toLocaleString('id-ID')}`;
+      node.querySelector('[data-qty]').textContent   = it.quantity;
 
-          <!-- Product Image -->
-          <div class="relative flex-shrink-0">
-            <img src="${imgSrc}"
-                 alt="${item.product_name}" 
-                 class="h-20 w-20 rounded-xl object-cover border border-[#E8E3D8]"
-                 onerror="this.src='/static/img/placeholder.webp'">
-          </div>
-
-          <!-- Product Info -->
-          <div class="flex-1 min-w-0">
-            <h3 class="text-base font-semibold text-neutral-800 truncate mb-1">
-              ${item.product_name}
-            </h3>
-            <p class="text-sm text-neutral-600">
-              Rp ${Number(item.price).toLocaleString('id-ID')}
-            </p>
-          </div>
-
-          <!-- Quantity Controls -->
-          <div class="flex items-center gap-3 flex-shrink-0">
-            <button class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-neutral-700 font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center" 
-                    data-dec 
-                    aria-label="Decrease quantity">
-              −
-            </button>
-            <span class="w-8 text-center text-sm font-semibold text-neutral-800" data-qty>
-              ${item.quantity}
-            </span>
-            <button class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-neutral-700 font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center" 
-                    data-inc 
-                    aria-label="Increase quantity">
-              +
-            </button>
-          </div>
-
-          <!-- Remove Button -->
-          <button class="ml-2 text-red-500 hover:text-red-600 hover:scale-110 transition flex-shrink-0" 
-                  data-remove 
-                  aria-label="Remove ${item.product_name}"
-                  title="Remove item">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
-        </div>
-      `;
-
-      wrap.appendChild(card);
-    }
+      list.appendChild(node);
+    });
   }
 
-  // ===== Load Cart Data =====
-  async function loadCart(filter = 'all') {
-    try {
-      const query = filter === 'all' ? '' : `?selected=${filter}`;
-      const data = await getJSON("{% url 'cart:json' %}" + query);
-      
-      if (data.ok) {
+  async function loadCart(){
+    try{
+      const data = await getJSON("{% url 'cart:json' %}");
+      if (data?.ok){
         renderItems(data.items);
-        updateTotals(data.total_items, data.selected_count);
+        setTotals(data.total_items);
+      } else {
+        toggleEmpty(true);
+        setTotals(0);
       }
-    } catch (error) {
-      console.error('Error loading cart:', error);
+    }catch(err){
+      console.error(err);
+      toggleEmpty(true);
+      setTotals(0);
     }
   }
 
-  // ===== Event Handlers =====
-  document.addEventListener('click', async (e) => {
+  // --- Event Delegation ---
+  document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
     if (!row) return;
+    const id = row.dataset.itemId;
 
-    const itemId = row.dataset.itemId;
+    if (e.target.matches('[data-inc]')){
+      const qtyEl = row.querySelector('[data-qty]');
+      const next = Number(qtyEl.textContent) + 1;
+      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
+      if (out.ok){ qtyEl.textContent = out.quantity; setTotals(out.total_items); }
+    }
 
-    // Increase quantity
-    if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')) {
-      const qtySpan = row.querySelector('[data-qty]');
-      const currentQty = Number(qtySpan.textContent);
-      const response = await postForm(
-        "{% url 'cart:set_qty' 999 %}".replace('999', itemId),
-        { quantity: currentQty + 1 }
-      );
-      if (response.ok) {
-        qtySpan.textContent = response.quantity;
-        updateTotals(response.total_items, response.selected_count);
+    if (e.target.matches('[data-dec]')){
+      const qtyEl = row.querySelector('[data-qty]');
+      const next = Number(qtyEl.textContent) - 1;
+      if (next < 1) return;
+      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
+      if (out.ok){
+        if (out.quantity <= 0){ row.remove(); loadCart(); }
+        else { qtyEl.textContent = out.quantity; setTotals(out.total_items); }
       }
     }
 
-    // Decrease quantity
-    if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')) {
-      const qtySpan = row.querySelector('[data-qty]');
-      const currentQty = Number(qtySpan.textContent);
-      if (currentQty <= 1) return; // Prevent going below 1
-      
-      const response = await postForm(
-        "{% url 'cart:set_qty' 999 %}".replace('999', itemId),
-        { quantity: currentQty - 1 }
-      );
-      if (response.ok) {
-        if (response.quantity <= 0) {
-          row.remove();
-          loadCart(); // Reload to check empty state
-        } else {
-          qtySpan.textContent = response.quantity;
-          updateTotals(response.total_items, response.selected_count);
-        }
-      }
+    if (e.target.matches('[data-remove]')){
+      if (!confirm('Remove this item from your cart?')) return;
+      const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
+      if (out.ok){ row.remove(); setTotals(out.total_items); loadCart(); }
     }
 
-    // Remove item
-    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
-      if (confirm('Remove this item from your cart?')) {
-        const response = await postForm(
-          "{% url 'cart:remove_ajax' 999 %}".replace('999', itemId)
-        );
-        if (response.ok) {
-          row.remove();
-          updateTotals(response.total_items, response.selected_count);
-          loadCart(); // Reload to check empty state
-        }
-      }
-    }
-
-    // Toggle selection
-    if (e.target.matches('[data-select]')) {
-      const isChecked = e.target.checked ? '1' : '0';
-      const response = await postForm(
-        "{% url 'cart:toggle_select' 999 %}".replace('999', itemId),
-        { is_selected: isChecked }
-      );
-      if (response.ok) {
-        updateTotals(response.total_items, response.selected_count);
-      }
+    if (e.target.matches('[data-select]')){
+      const val = e.target.checked ? '1' : '0';
+      const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: val});
+      if (out.ok) setTotals(out.total_items);
     }
   });
 
-  // ===== Checkout Form =====
-  document.getElementById('checkoutForm')?.addEventListener('submit', async (e) => {
+  // --- Checkout ---
+  document.getElementById('checkoutForm')?.addEventListener('submit', async (e)=>{
     e.preventDefault();
-    
-    try {
-      const data = await getJSON("{% url 'cart:json' %}?selected=1");
-      
-      if (data.ok && data.items.length > 0) {
-        const itemIds = data.items.map(item => item.id);
-        document.getElementById('selectedItemIds').value = itemIds.join(',');
-        e.target.submit();
-      } else {
-        alert('Please select at least one item to proceed to checkout.');
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      alert('An error occurred. Please try again.');
+    const res = await getJSON("{% url 'cart:json' %}?selected=1");
+    if (!res?.ok || res.items.length === 0){
+      alert('Please select at least one item to proceed.');
+      return;
     }
+    document.getElementById('selectedItemIds').value = res.items.map(x=>x.id).join(',');
+    e.target.submit();
   });
 
-  // ===== Initialize =====
   loadCart();
+});
 </script>
 {% endblock %}
