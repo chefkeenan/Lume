@@ -25,6 +25,22 @@
 
     <!-- LEFT: Items -->
     <div class="lg:col-span-2 space-y-4">
+
+      <!-- Select toolbar -->
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-[#766E62]">Selection</div>
+        <div class="flex items-center gap-2">
+          <button id="selectAllBtn"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB]">
+            Select all
+          </button>
+          <button id="unselectAllBtn"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB]">
+            Unselect all
+          </button>
+        </div>
+      </div>
+
       <div id="cartItems" style="display:none"></div>
 
       <!-- Empty State -->
@@ -41,6 +57,7 @@
         <div class="space-y-4 mb-6">
           <div class="flex items-center justify-between">
             <span class="text-[#766E62]">Total Items</span>
+            <!-- TAMPILKAN JUMLAH QTY YANG TERPILIH -->
             <span class="font-semibold text-[#3A342D]" data-total-items>0</span>
           </div>
         </div>
@@ -50,7 +67,8 @@
             {% csrf_token %}
             <input type="hidden" name="item_ids" id="selectedItemIds">
             <button type="submit" id="checkoutBtn"
-              class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition">
+              class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled>
               Proceed to Checkout →
             </button>
           </form>
@@ -66,7 +84,7 @@
   </div>
 </section>
 
-<!-- Template untuk product card -->
+<!-- Product card template -->
 <template id="cart-item-template">
   <div class="rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition" data-item-row>
     <div class="flex items-center gap-4">
@@ -91,6 +109,9 @@
     </div>
   </div>
 </template>
+
+<!-- Toasts -->
+{% include "toast.html" %}
 {% endblock %}
 
 {% block scripts %}
@@ -98,8 +119,9 @@
 document.addEventListener('DOMContentLoaded', () => {
   const TPL = document.getElementById('cart-item-template');
   const PLACEHOLDER_URL = "{% static 'img/placeholder.webp' %}";
+  const checkoutBtn = document.getElementById('checkoutBtn');
 
-  // --- CSRF Helper ---
+  // CSRF
   function getCookie(name){
     let v=null;if(document.cookie!==''){for(const c of document.cookie.split(';')){
       const cc=c.trim(); if(cc.startsWith(name+'=')){v=decodeURIComponent(cc.slice(name.length+1));break;}
@@ -118,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
       body
     });
+    // walau 4xx tetap di-JSON-in biar dapat {ok:false,message:"..."}
     return await r.json();
   }
 
@@ -127,13 +150,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!list || !empty) return;
     empty.style.display = show ? 'block' : 'none';
     list.style.display  = show ? 'none'  : 'block';
+    if (show) setCheckoutDisabled(true);
   }
 
-  function setTotals(totalItems){
-    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = totalItems);
+  // ===== summary helpers (pakai DOM, bukan data server) =====
+  function computeSelectedQtyFromDOM(){
+    let sum = 0;
+    document.querySelectorAll('[data-item-row]').forEach(row=>{
+      const cb = row.querySelector('[data-select]');
+      if (cb && cb.checked){
+        const qty = Number(row.querySelector('[data-qty]')?.textContent || 0);
+        sum += qty;
+      }
+    });
+    return sum;
+  }
+  function setTotals(selectedQty){
+    const qty = Number(selectedQty) || 0;
+    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = qty);
+    setCheckoutDisabled(!(qty > 0));
+  }
+  function setCheckoutDisabled(disabled){
+    if (checkoutBtn) checkoutBtn.disabled = !!disabled;
+  }
+  function refreshSummaryFromDOM(){
+    setTotals(computeSelectedQtyFromDOM());
   }
 
-  // --- Render dari Template ---
+  // ===== render =====
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -155,6 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const img = node.querySelector('[data-img]');
       img.src = it.thumbnail || PLACEHOLDER_URL;
       img.alt = it.product_name;
+      img.onerror = () => { img.onerror=null; img.src = PLACEHOLDER_URL; };
 
       node.querySelector('[data-name]').textContent  = it.product_name;
       node.querySelector('[data-price]').textContent = `Rp ${Number(it.price).toLocaleString('id-ID')}`;
@@ -162,6 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       list.appendChild(node);
     });
+
+    // summary berdasar DOM
+    refreshSummaryFromDOM();
   }
 
   async function loadCart(){
@@ -169,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await getJSON("{% url 'cart:json' %}");
       if (data?.ok){
         renderItems(data.items);
-        setTotals(data.total_items);
       } else {
         toggleEmpty(true);
         setTotals(0);
@@ -181,55 +228,110 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- Event Delegation ---
+  // ===== select all / unselect all =====
+  document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
+    const out = await postForm("{% url 'cart:select_all' %}");
+    if (window.showToast) showToast(out.message || "Selected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
+  document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
+    const out = await postForm("{% url 'cart:unselect_all' %}");
+    if (window.showToast) showToast(out.message || "Unselected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
+
+  // ===== Event Delegation =====
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
+
+    // toggle select
+    if (e.target.matches('[data-select]')){
+      const id = e.target.closest('[data-item-row]')?.dataset.itemId;
+      const val = e.target.checked ? '1' : '0';
+      const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: val});
+      if (window.showToast && out.message) showToast(out.message, out.ok ? "success" : "error");
+      refreshSummaryFromDOM();
+      return;
+    }
+
     if (!row) return;
     const id = row.dataset.itemId;
 
-    if (e.target.matches('[data-inc]')){
+    // increment
+    if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) + 1;
       const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
-      if (out.ok){ qtyEl.textContent = out.quantity; setTotals(out.total_items); }
-    }
-
-    if (e.target.matches('[data-dec]')){
-      const qtyEl = row.querySelector('[data-qty]');
-      const next = Number(qtyEl.textContent) - 1;
-      if (next < 1) return;
-      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
       if (out.ok){
-        if (out.quantity <= 0){ row.remove(); loadCart(); }
-        else { qtyEl.textContent = out.quantity; setTotals(out.total_items); }
+        qtyEl.textContent = out.quantity;
+        if (window.showToast && out.message) showToast(out.message, "success");
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
       }
-    }
-
-    if (e.target.matches('[data-remove]')){
-      if (!confirm('Remove this item from your cart?')) return;
-      const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
-      if (out.ok){ row.remove(); setTotals(out.total_items); loadCart(); }
-    }
-
-    if (e.target.matches('[data-select]')){
-      const val = e.target.checked ? '1' : '0';
-      const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: val});
-      if (out.ok) setTotals(out.total_items);
-    }
-  });
-
-  // --- Checkout ---
-  document.getElementById('checkoutForm')?.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const res = await getJSON("{% url 'cart:json' %}?selected=1");
-    if (!res?.ok || res.items.length === 0){
-      alert('Please select at least one item to proceed.');
       return;
     }
-    document.getElementById('selectedItemIds').value = res.items.map(x=>x.id).join(',');
-    e.target.submit();
+
+    // decrement (biarin next <= 0, biar server bisa hapus item)
+    if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')){
+      const qtyEl = row.querySelector('[data-qty]');
+      const next = Number(qtyEl.textContent) - 1;
+      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
+      if (out.ok){
+        if (out.quantity <= 0){
+          row.remove();
+          if (window.showToast) showToast("Item removed from cart. 🗑️", "success");
+          const hasItem = !!document.querySelector('[data-item-row]');
+          if (!hasItem) toggleEmpty(true);
+        } else {
+          qtyEl.textContent = out.quantity;
+          if (window.showToast && out.message) showToast(out.message, "success");
+        }
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
+      }
+      return;
+    }
+
+    // remove
+    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')){
+      if (!confirm('Remove this item from your cart?')) return;
+      const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
+      if (out.ok){
+        row.remove();
+        if (window.showToast) showToast(out.message || "Item removed. 🗑️", "success");
+        const hasItem = !!document.querySelector('[data-item-row]');
+        if (!hasItem) toggleEmpty(true);
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to remove item.", "error");
+      }
+      return;
+    }
   });
 
+  // ===== Checkout =====
+  document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
+    if (checkoutBtn?.disabled){
+      e.preventDefault();
+      if (window.showToast) showToast("Please select at least one item to proceed.", "warning");
+      return;
+    }
+    const selectedIds = Array.from(
+      document.querySelectorAll('[data-item-row] input[type="checkbox"][data-select]:checked')
+    ).map(cb => cb.closest('[data-item-row]').dataset.itemId);
+
+    if (selectedIds.length === 0){
+      e.preventDefault();
+      if (window.showToast) showToast("Please select at least one item to proceed.", "warning");
+      setCheckoutDisabled(true);
+      return;
+    }
+    document.getElementById('selectedItemIds').value = selectedIds.join(',');
+  });
+
+  // Init
   loadCart();
 });
 </script>

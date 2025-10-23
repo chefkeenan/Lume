@@ -46,7 +46,9 @@
   </head>
   <body class="theme-bg">
     {% include "navbar.html" %}
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% include "toast.html" %}
+    {% endblock %}
     
     {% block scripts %}
     {% endblock scripts %}
