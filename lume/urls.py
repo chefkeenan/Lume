@@ -23,6 +23,6 @@ urlpatterns = [
     path("user/", include("user.urls")),
     path("bookingkelas/", include("bookingkelas.urls", namespace="bookingkelas")),
         path("catalog/", include(("catalog.urls", "catalog"), namespace="catalog")),
-    path("", include("main.urls")),
+    path("", include(("main.urls", "main"), namespace="main")),
 
 ]
