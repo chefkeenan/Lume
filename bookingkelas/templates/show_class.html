@@ -3,6 +3,26 @@
 {% load humanize %}
 
 {% block content %}
+
+<!-- HERO (ukuran & posisi sama seperti di main) -->
+<section class="relative mx-auto max-w-7xl px-6 pt-8">
+  <div class="relative overflow-hidden rounded-[28px]">
+    <img
+      src="{% static 'hero/hero-kelas.png' %}"
+      alt="Classes"
+      class="h-[300px] w-full object-cover object-[50%_40%]"
+    />
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.22)_0%,rgba(0,0,0,.12)_45%,rgba(0,0,0,.04)_100%)]"></div>
+
+    <div class="absolute inset-0 grid place-items-center">
+      <div class="text-center text-white drop-shadow max-w-3xl px-6">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Upcoming Classes</h1>
+        <p class="mt-2 text-white/90">Find the schedule that fits your flow</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="mx-auto max-w-7xl px-6 py-10">
   <div class="flex items-center justify-between">
     <h1 class="text-2xl font-bold">Upcoming Classes</h1>
@@ -10,12 +30,11 @@
 
   <div class="mt-6 grid gap-6 md:grid-cols-2">
     {% for s in sessions %}
-    {% include "class_card.html" with c=s %}
+      {% include "class_card.html" with c=s %}
     {% empty %}
-    <div class="text-gray-500">Belum ada jadwal.</div>
+      <div class="text-gray-500">Belum ada jadwal.</div>
     {% endfor %}
   </div>
-
 </div>
 
 <!-- MODAL -->
