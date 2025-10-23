@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Checkout — LUME{% endblock %}
+
+{% block content %}
+
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight mb-6">Checkout</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- FORM ADDRESS -->
+    <form method="post" action="{% url 'checkout:checkout_cart_create' %}" class="lg:col-span-2 space-y-6">
+      {% csrf_token %}
+
+      <!-- Contact (receiver) -->
+      <div class="bg-white/60 dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-medium mb-4">Shipping Address</h2>
+
+        {% if form.non_field_errors %}
+          <div class="mb-3 text-sm text-red-600">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label class="text-sm block mb-1" for="{{ form.address_line1.id_for_label }}">Address line 1</label>
+            {{ form.address_line1 }}
+            {% if form.address_line1.errors %}<p class="mt-1 text-sm text-red-600">{{ form.address_line1.errors|striptags }}</p>{% endif %}
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-sm block mb-1" for="{{ form.address_line2.id_for_label }}">Address line 2</label>
+            {{ form.address_line2 }}
+            {% if form.address_line2.errors %}<p class="mt-1 text-sm text-red-600">{{ form.address_line2.errors|striptags }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="text-sm block mb-1" for="{{ form.city.id_for_label }}">City</label>
+            {{ form.city }}
+            {% if form.city.errors %}<p class="mt-1 text-sm text-red-600">{{ form.city.errors|striptags }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="text-sm block mb-1" for="{{ form.province.id_for_label }}">Province</label>
+            {{ form.province }}
+            {% if form.province.errors %}<p class="mt-1 text-sm text-red-600">{{ form.province.errors|striptags }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="text-sm block mb-1" for="{{ form.postal_code.id_for_label }}">Postal code</label>
+            {{ form.postal_code }}
+            {% if form.postal_code.errors %}<p class="mt-1 text-sm text-red-600">{{ form.postal_code.errors|striptags }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="text-sm block mb-1" for="{{ form.country.id_for_label }}">Country</label>
+            {{ form.country }}
+            {% if form.country.errors %}<p class="mt-1 text-sm text-red-600">{{ form.country.errors|striptags }}</p>{% endif %}
+          </div>
+          <div class="sm:col-span-2">
+            <label class="text-sm block mb-1" for="{{ form.notes.id_for_label }}">Notes (optional)</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}<p class="mt-1 text-sm text-red-600">{{ form.notes.errors|striptags }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment (informasi saja, karena di view kamu fix COD) -->
+      <div class="bg-white/60 dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl p-6 shadow-sm">
+        <h2 class="text-lg font-medium mb-2">Payment</h2>
+        <p class="text-sm text-neutral-600">{{ payment_method }}</p>
+      </div>
+
+      <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-white hover:bg-black/90">
+        Place Order
+      </button>
+    </form>
+
+    <!-- SUMMARY -->
+    <aside class="lg:col-span-1">
+      <div class="bg-white/60 dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl p-6 shadow-sm sticky top-6">
+        <h2 class="text-lg font-medium mb-4">Order Summary</h2>
+
+        <ul class="space-y-4 max-h-72 overflow-auto pr-2">
+          {% for ci in cart_items %}
+          <li class="flex items-center gap-3">
+            <img src="{{ ci.product.image_url|default:'/static/img/placeholder.webp' }}" class="w-14 h-14 rounded-lg object-cover" alt="{{ ci.product.name }}">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium line-clamp-1">{{ ci.product.name }}</p>
+              <p class="text-xs text-neutral-500">Qty: {{ ci.quantity }}</p>
+            </div>
+            <span class="text-sm font-medium tabular-nums">
+              {{ ci.product.price }} × {{ ci.quantity }}
+            </span>
+          </li>
+          {% empty %}
+          <li class="text-sm text-neutral-500">No items in cart.</li>
+          {% endfor %}
+        </ul>
+
+        <dl class="mt-4 space-y-2 text-sm">
+          <div class="flex justify-between"><dt>Subtotal</dt><dd class="tabular-nums">{{ subtotal }}</dd></div>
+          <div class="flex justify-between"><dt>Shipping</dt><dd class="tabular-nums">{{ shipping }}</dd></div>
+          <div class="border-t border-neutral-200/70 dark:border-neutral-800 my-3"></div>
+          <div class="flex justify-between text-base font-semibold"><dt>Total</dt><dd class="tabular-nums">{{ total }}</dd></div>
+        </dl>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

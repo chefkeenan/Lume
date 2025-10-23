@@ -1,0 +1,362 @@
+[
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 1,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - mon",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Monday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 2,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - tue",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Tuesday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 3,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - wed",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Wednesday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 4,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - thur",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Thursday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 5,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - fri",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Friday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 6,
+  "fields": {
+    "title": "DAILY 1 (14.00 - 15.30) - sat",
+    "category": "daily",
+    "instructor": "Fiona",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 14.00 PM until 15.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Saturday"
+    ],
+    "time": "14.00 - 15.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 7,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - mon",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Monday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 8,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - tue",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Tuesday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 9,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - wed",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Wednesday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 10,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - thur",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Thursday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 11,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - fri",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Friday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 12,
+  "fields": {
+    "title": "DAILY 2 (16.00 - 17.30) - sat",
+    "category": "daily",
+    "instructor": "Vira",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 16.00 PM until 17.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Saturday"
+    ],
+    "time": "16.00 - 17.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 13,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - mon",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Monday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 14,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - tue",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Tuesday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 15,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - wed",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Wednesday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 16,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - thur",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Thursday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 17,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - fri",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Friday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 18,
+  "fields": {
+    "title": "DAILY 3 (18.00 - 19.30) - sat",
+    "category": "daily",
+    "instructor": "Keisha",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "This class will be held at 18.00 PM until 19.30 PM",
+    "price": 250000,
+    "room": "1A",
+    "days": [
+      "Saturday"
+    ],
+    "time": "18.00 - 19.30"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 19,
+  "fields": {
+    "title": "WEEKLY 1 (Mon",
+    "category": "wed",
+    "instructor": "Fri)",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "Neila",
+    "price": 20,
+    "room": "This class will be held every Monday, Wednesday, and Friday in the afternoon",
+    "days": [
+      "1b"
+    ],
+    "time": "700000"
+  }
+},
+{
+  "model": "bookingkelas.classsessions",
+  "pk": 20,
+  "fields": {
+    "title": "WEEKLY 2 (Tue",
+    "category": "thu",
+    "instructor": "Sat)",
+    "capacity_current": 0,
+    "capacity_max": 20,
+    "description": "Frisha",
+    "price": 20,
+    "room": "This class will be held every Tuesday, Thursday, and Saturday in the evening; Saturday class will be held in the afternoon.",
+    "days": [
+      "1b"
+    ],
+    "time": "700000"
+  }
+}
+]

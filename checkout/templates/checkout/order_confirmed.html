@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — LUME{% endblock %}
+
+{% block content %}
+
+<section class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-20 text-center">
+  <h1 class="text-3xl font-semibold">Thank you! 🎉</h1>
+  <p class="mt-3 text-neutral-600">Your order was placed successfully.</p>
+  <div class="mt-8">
+    <a href="{% url 'catalogue:list' %}" class="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-white hover:bg-black/90">
+      Back to Home
+    </a>
+  </div>
+</section>
+{% endblock %}
