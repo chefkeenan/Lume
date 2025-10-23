@@ -1,88 +1,86 @@
+{% load static %}
+
+{# === URL names (sesuaikan kalau beda) === #}
 {% url 'main:landing' as home_url %}
 {% url 'main:show_main' as products_url %}
 {% url 'bookingkelas:catalog' as classes_url %}
-
-{# Auth URLs (fallback ke /user/... kalau url name belum ada) #}
+{# Cart page & Profile page opsional #}
+{% url 'cart:index' as cart_url %}{% firstof cart_url '/cart/' as cart_url %}
+{% url 'user:profile' as profile_url %}{% firstof profile_url '/user/profile/' as profile_url %}
+{# Auth URLs (fallback kalau belum di-wire) #}
 {% url 'login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
 {% url 'logout' as logout_named %}{% firstof logout_named '/user/logout/' as logout_url %}
-{% url 'user:register' as register_named %}{% firstof register_named '/user/register/' as register_url %}
-
-{# Manage (superuser) #}
-{% url 'catalog:product_add' as manage_url %}
 
 <header class="sticky top-0 z-40">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
-    <nav class="flex items-center justify-between rounded-2xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+    <nav class="flex items-center justify-between rounded-full border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
 
-      <!-- Brand -->
+      {# Brand #}
       <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-stone-700">
         Lume
       </a>
 
-      <!-- Left links -->
+      {# Center tabs #}
+      {% with current=request.resolver_match %}
       <ul class="flex items-center gap-2 text-sm font-medium text-stone-600">
         <li>
           <a href="{{ home_url|default:'/' }}"
-             class="inline-flex items-center rounded-xl px-4 py-2 transition
-             {% if request.resolver_match and request.resolver_match.url_name == 'landing' %}
-               bg-stone-100 text-stone-800
-             {% else %}
-               hover:text-stone-800
-             {% endif %}">
-            Home
+             class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+             {% if current and current.url_name == 'landing' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
+            {# icon home #}
+            <img src="{% static 'assets/home.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`">
           </a>
         </li>
 
-        <li>
-          {% if request.resolver_match and request.resolver_match.url_name == 'show_main' %}
-            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition bg-stone-100 text-stone-800">Products</a>
-          {% elif request.path|slice:":9" == "/catalog/" %}
-            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition bg-stone-100 text-stone-800">Products</a>
-          {% else %}
-            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition hover:text-stone-800">Products</a>
-          {% endif %}
-        </li>
+            {% with name=current.url_name %}
+            <li>
+              <a href="{{ products_url }}"
+                class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+                {% if name == 'show_main' or name == 'product_list' or name == 'detail' %}
+                  bg-stone-100 text-stone-800
+                {% else %}
+                  hover:text-stone-800
+                {% endif %}">
+                <img src="{% static 'assets/store.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`">
+              </a>
+            </li>
+            {% endwith %}
+
+
 
         <li>
           <a href="{{ classes_url }}"
-             class="inline-flex items-center rounded-xl px-4 py-2 transition
-             {% if request.resolver_match and request.resolver_match.app_name == 'bookingkelas' %}
-               bg-stone-100 text-stone-800
-             {% else %}
-               hover:text-stone-800
-             {% endif %}">
-            Book Class
+             class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+             {% if current and current.app_name == 'bookingkelas' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
+            <img src="{% static 'assets/class.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
           </a>
         </li>
-
-        {% if request.user.is_authenticated and request.user.is_superuser %}
-        <li>
-          <a href="{{ manage_url }}"
-            class="inline-flex items-center rounded-xl px-4 py-2 transition border border-stone-300 hover:bg-stone-50">
-            + Add Product
-          </a>
-
-        </li>
-        {% endif %}
       </ul>
+      {% endwith %}
 
-      <!-- Right side: auth -->
+      {# Right icons #}
       <div class="flex items-center gap-2">
+        {# Cart #}
+        <a href="{{ cart_url }}" class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Cart">
+          <img src="{% static 'assets/cart.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
+          {# badge count opsional: kirim context cart_count #}
+          {% if cart_count %}<span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>{% endif %}
+        </a>
+
         {% if request.user.is_authenticated %}
-          <span class="hidden sm:inline text-sm text-stone-600">Hi, <strong>{{ request.user.username }}</strong></span>
+          {# Profile #}
+          <a href="{{ profile_url }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Profile">
+            <img src="{% static 'assets/user.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
+          </a>
+          {# Logout as POST #}
           <form method="post" action="{{ logout_url }}" class="m-0">
             {% csrf_token %}
-            <button class="inline-flex items-center rounded-xl px-3 py-2 text-sm border border-stone-300 hover:bg-stone-50">
-              Logout
+            <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
+              <img src="{% static 'assets/logout.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
             </button>
           </form>
         {% else %}
-          <a href="{{ login_url }}" class="inline-flex items-center rounded-xl px-3 py-2 text-sm hover:bg-stone-50 border border-stone-300">
-            Login
-          </a>
-          <a href="{{ register_url }}" class="inline-flex items-center rounded-xl px-3 py-2 text-sm text-white bg-stone-900 hover:bg-black">
-            Register
-          </a>
+          <a href="{{ login_url }}" class="inline-flex h-9 items-center rounded-xl px-3 text-sm border border-stone-300 hover:bg-stone-50">Login</a>
         {% endif %}
       </div>
     </nav>
