@@ -1,52 +1,85 @@
 {# catalog/templates/catalog/product_card.html #}
 {% load humanize %}
-<article class="theme-card rounded-3xl border border-theme shadow-sm">
-  <div class="overflow-hidden rounded-t-3xl">
-    <div class="relative">
-      <a href="{% url 'catalog:detail' p.id %}">
-        <img
-          src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/960/640' }}"
-          alt="{{ p.product_name }}"
-          class="h-64 w-full object-cover"
-          onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/960/640';"
-        />
-      </a>
-      {% if not p.inStock %}
+
+<article
+  class="relative w-full max-w-[312px] rounded-[18px] border border-[#CFC8BA] bg-[#E9E3D6] p-4 shadow-[0_1px_0_#0f0f0f]">
+
+  {# ====== HEADER: Nama produk (wishlist dihilangkan) ====== #}
+  <header class="mb-3 flex items-start justify-between">
+    <h3 class="text-[20px] font-semibold leading-6 text-neutral-900">
+      <a href="{% url 'catalog:detail' p.id %}" class="hover:opacity-80">{{ p.product_name }}</a>
+    </h3>
+  </header>
+
+  {# ====== IMAGE ====== #}
+  <div class="relative overflow-hidden rounded-[14px] border border-[#D7D1C4]">
+    <a href="{% url 'catalog:detail' p.id %}">
+      <img
+        src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/960/640' }}"
+        alt="{{ p.product_name }}"
+        class="h-[180px] w-full object-cover"
+        onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/960/640';"
+      />
+    </a>
+
+    {# Out of stock overlay (tetap dari logic lo) #}
+    {% if not p.inStock %}
       <div class="absolute inset-0 grid place-items-center bg-black/40">
         <span class="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800">Out of Stock</span>
       </div>
+    {% endif %}
+
+    {# Badge best seller (opsional, nggak ngubah logic apa pun) #}
+    {% if p.is_best_seller or p.tag == 'Best-seller' %}
+      <span
+        class="absolute left-3 bottom-3 rounded-[10px] border border-[#B9C8B6] bg-[#E3EADF] px-2.5 py-1 text-[12px] font-semibold text-[#6B7C68]">
+        Best-seller
+      </span>
+    {% endif %}
+  </div>
+
+  {# ====== BODY: Harga + Add to Cart ====== #}
+  <div class="mt-4">
+    <p class="text-[22px] font-extrabold tracking-tight text-neutral-900">
+      Rp {{ p.price|intcomma }}
+    </p>
+
+    <div class="mt-3 flex items-center justify-between gap-3">
+      {# Tombol Add to Cart: versi FORM (user login) / LINK (belum login) — logic asli dipertahankan #}
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'cart:add' p.id %}" class="m-0 p-0">
+          {% csrf_token %}
+          <input type="hidden" name="qty" value="1">
+          <button type="submit"
+            class="inline-flex items-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+              <path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14" />
+            </svg>
+            Add to Cart
+          </button>
+        </form>
+      {% else %}
+        <a href="/user/login/"
+          class="inline-flex items-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor">
+            <path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14" />
+          </svg>
+          Add to Cart
+        </a>
+      {% endif %}
+    </div>
+
+    {# Link kecil bawah: samain feel contoh (Edit/Delete). Detail tetap disediakan via judul & gambar. #}
+    <div class="mt-3 flex items-center gap-4 text-[14px]">
+      <a href="{% url 'catalog:detail' p.id %}" class="underline decoration-1 underline-offset-2 hover:opacity-80">Detail</a>
+
+      {% if user.is_staff %}
+        <a href="{% url 'catalog:product_edit_modal' p.id %}" class="underline decoration-1 underline-offset-2 hover:opacity-80">Edit</a>
+        <a href="{% url 'catalog:product_delete' p.id %}" class="text-red-600 underline decoration-1 underline-offset-2 hover:opacity-80">Delete</a>
       {% endif %}
     </div>
   </div>
-  <div class="px-6 pb-6 pt-5">
-    <h3 class="text-lg font-semibold">
-      <a href="{% url 'catalog:detail' p.id %}" class="hover:underline">
-        {{ p.product_name }}
-      </a>
-    </h3>
-    {% if p.description %}
-      <p class="mt-1" style="color:var(--muted-foreground)">{{ p.description|truncatechars:90 }}</p>
-    {% endif %}
-    <p class="mt-4 text-2xl font-semibold" style="color:var(--primary)">Rp{{ p.price|intcomma }}</p>
-    <div class="mt-5 flex gap-2">
-      <a href="{% url 'catalog:detail' p.id %}"
-        class="inline-flex flex-1 items-center justify-center rounded-xl border border-theme px-4 py-3 text-sm font-medium theme-card hover:opacity-90">
-        Detail
-      </a>
 
-    {% if user.is_authenticated %}
-      <form method="post" action="{% url 'cart:add' p.id %}">
-        {% csrf_token %}
-        <input type="hidden" name="qty" value="1">
-        <button type="submit" class="flex-1">Add to cart</button>
-      </form>
-    {% else %}
-      <a href="/user/login/"
-        class="btn-primary inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium">
-        Add to Cart
-      </a>
-    {% endif %}
-
-    </div>
-  </div>
+  {# Ring tipis tepi luar supaya mirip mockup #}
+  <span class="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-black/10"></span>
 </article>
