@@ -141,7 +141,7 @@ def book_class(request, session_id):
     messages.success(request, f"Berhasil booking {s.title}.")
     return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
 
-@login_required(login_url="/user/login/")
+
 def choose_day(request, session_id):
     s = get_object_or_404(ClassSessions, id=session_id)
     if s.is_full:
