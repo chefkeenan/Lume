@@ -1,97 +1,157 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}Lume — Landing{% endblock %}
+{% load static humanize %}
+
+{% block title %}Lume — Find Your Flow{% endblock %}
 
 {% block content %}
-<!-- HERO full-bleed dengan overlay (mirip desain Figma kamu) -->
-<section class="relative mx-auto max-w-7xl px-6 pt-12">
-  <div class="relative overflow-hidden rounded-[28px]">
-    <!-- Background image -->
-    <style>
-    .hero-bg { background-image: url("{% static 'hero/hero-landing.png' %}"); }
-    </style>
 
-    <div class="h-[420px] sm:h-[520px] lg:h-[620px] bg-center bg-cover hero-bg"></div>
+<!-- ========== HERO (full-bleed image + overlay) ========== -->
+<section class="relative isolate">
+  <div class="absolute inset-0 -z-10">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20"></div>
+    <img src="{% static 'hero/hero-landing.png' %}" alt="Lume Hero"
+         class="h-[640px] w-full object-cover" />
+  </div>
 
+  <div class="mx-auto max-w-7xl px-6 pt-36 pb-16">
+    <div class="max-w-xl text-white">
+      <h1 class="text-5xl md:text-6xl font-extrabold leading-tight drop-shadow">
+        Find Your<br/> Flow <span class="font-light">with Lume.</span>
+      </h1>
+      <p class="mt-5 text-white/85 max-w-lg">
+        Feel stronger, move freely, and unwind with us. Join our Pilates family and discover a space
+        where your body and mind can thrive at their own pace.
+      </p>
+      <div class="mt-8 flex gap-3">
+        <a href="{% url 'bookingkelas:catalog' %}"
+           class="rounded-full bg-white text-stone-900 px-5 py-3 font-semibold shadow hover:bg-stone-100">
+          Book a Class
+        </a>
+        <a href="#our-products"
+           class="rounded-full bg-white/10 text-white px-5 py-3 font-semibold ring-1 ring-white/40 hover:bg-white/20">
+          Shop Products
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- overlay -->
-    <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.30)_0%,rgba(0,0,0,.20)_50%,rgba(0,0,0,.05)_100%)]"></div>
-    <!-- content -->
-    <div class="absolute inset-0 flex items-center">
-      <div class="p-6 sm:p-10 lg:p-14 text-white max-w-xl">
-        <h1 class="text-4xl sm:text-5xl font-extrabold leading-tight">Find Your Flow with Lume.</h1>
-        <p class="mt-3 opacity-90">Feel stronger, move freely, and thrive with us. Join our Pilates family and discover a space where your body and mind can thrive at their own pace.</p>
-        <div class="mt-6 flex gap-3">
-          <a href="/bookingkelas/" class="btn-primary rounded-xl px-5 py-3 text-white">Book a Class</a>
-          <a href="{% url 'main:show_main' %}" class="btn-ghost rounded-xl px-5 py-3">Shop Products</a>
+<!-- ========== OUR PRODUCTS ========== -->
+<section id="our-products" class="mx-auto max-w-7xl px-6 py-16">
+  <h2 class="text-center text-4xl md:text-5xl font-extrabold tracking-tight text-stone-800">Our Products</h2>
+
+  <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {% for p in highlights %}
+    <a href="{% url 'catalog:detail' p.id %}"
+       class="group rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition overflow-hidden">
+      <div class="aspect-[4/3] bg-stone-100">
+        <img src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/600/450' }}"
+             alt="{{ p.product_name }}"
+             class="h-full w-full object-cover"
+             onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/600/450';">
+      </div>
+      <div class="p-4">
+        <div class="flex items-start justify-between gap-4">
+          <h5 class="font-semibold line-clamp-2">{{ p.product_name }}</h5>
+          <button class="text-stone-400 hover:text-stone-700" aria-label="favorite">♡</button>
+        </div>
+        <div class="mt-2 text-sm text-stone-700">Rp {{ p.price|intcomma }}</div>
+        <span class="mt-3 inline-flex items-center justify-center w-full rounded-xl bg-stone-900 text-white py-2.5 font-semibold hover:bg-black">
+          View Detail
+        </span>
+      </div>
+    </a>
+    {% empty %}
+      {% for i in "1234" %}
+      <div class="group rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm overflow-hidden">
+        <div class="aspect-[4/3] bg-stone-100 grid place-content-center"><div class="h-12 w-12 rounded-xl bg-stone-200"></div></div>
+        <div class="p-4">
+          <h5 class="font-semibold">Coming Soon</h5>
+          <div class="mt-2 text-sm text-stone-500">Rp -</div>
+          <span class="mt-3 inline-flex items-center justify-center w-full rounded-xl bg-stone-300 text-stone-700 py-2.5 font-semibold">—</span>
         </div>
       </div>
-    </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <div class="mt-8 text-center">
+    <a href="{% url 'main:show_main' %}"
+       class="inline-flex items-center gap-2 rounded-full bg-stone-900 text-white px-5 py-3 font-semibold hover:bg-black">
+      View All Products ↗
+    </a>
   </div>
 </section>
 
-<!-- FEATURES -->
-<section id="features" class="bg-white">
-  <div class="mx-auto max-w-7xl px-6 py-14">
-    <h2 class="text-2xl font-bold">Kenapa Lume?</h2>
-    <p class="mt-2 text-gray-600">Didesain bareng pengguna, agar latihanmu konsisten dan progresif.</p>
-    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      <div class="theme-card rounded-2xl border border-theme p-6">
-        <h3 class="font-semibold">Kurasi Produk</h3>
-        <p class="mt-2 opacity-80">Hanya alat yang teruji kualitas & ergonominya.</p>
+<!-- ========== WHY CHOOSE LUME ========== -->
+<section id="why-lume" class="relative overflow-hidden">
+  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-stone-100 to-stone-200"></div>
+  <div class="mx-auto max-w-7xl px-6 py-20">
+    <h2 class="text-center text-4xl md:text-5xl font-extrabold">Why Choose<br/>Lume?</h2>
+    <div class="mt-12 grid gap-8 md:grid-cols-3">
+      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
+        <h4 class="font-semibold">Properti Terkurasi</h4>
+        <p class="mt-2 text-sm text-stone-600">Kualitas alat & layanan teruji.</p>
       </div>
-      <div class="theme-card rounded-2xl border border-theme p-6">
-        <h3 class="font-semibold">Booking Kelas Mudah</h3>
-        <p class="mt-2 opacity-80">Jadwalkan kelas dari website, fleksibel & cepat.</p>
+      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
+        <h4 class="font-semibold">Transaksi Mudah</h4>
+        <p class="mt-2 text-sm text-stone-600">Proses cepat & transparan.</p>
       </div>
-      <div class="theme-card rounded-2xl border border-theme p-6">
-        <h3 class="font-semibold">Dukungan Komunitas</h3>
-        <p class="mt-2 opacity-80">Tips rutin dari instruktur & komunitas Pilates.</p>
+      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
+        <h4 class="font-semibold">Solusi Personal</h4>
+        <p class="mt-2 text-sm text-stone-600">Instruktur & dukungan komunitas.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- HIGHLIGHT PRODUCTS -->
-<section class="theme-bg">
-  <div class="mx-auto max-w-7xl px-6 py-14">
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Produk Unggulan</h2>
-      <a href="{% url 'main:show_main' %}" class="btn-ghost rounded-xl px-4 py-2">Lihat Semua</a>
-    </div>
+<!-- ========== UPCOMING CLASSES ========== -->
+<section id="upcoming-classes" class="mx-auto max-w-7xl px-6 py-16">
+  <h2 class="text-center text-4xl md:text-5xl font-extrabold tracking-tight">Upcoming Classes</h2>
 
-    <div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {% for p in highlights %}
-            <a href="{% url 'catalog:detail' p.id %}" class="theme-card rounded-2xl border border-theme p-4 hover:shadow">
-            <img
-                src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/600/400' }}"
-                alt="{{ p.product_name }}"
-                class="h-40 w-full object-cover rounded-xl"
-                onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/600/400';"
-            >
-            <div class="mt-3">
-                <h3 class="font-semibold">{{ p.product_name }}</h3>
-                <p class="text-sm text-gray-600 line-clamp-2">{{ p.description }}</p>
-                <div class="mt-2 font-medium">{{ p.formatted_price }}</div>
-            </div>
-            </a>
-        {% empty %}
-            <div class="col-span-full text-gray-500">Belum ada produk untuk ditampilkan.</div>
-        {% endfor %}
+  <div class="mt-10 grid gap-6 md:grid-cols-2">
+    {% for c in sessions %}
+    <div class="rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm overflow-hidden">
+      <div class="p-5">
+        <div class="flex items-center justify-between">
+          <h5 class="font-semibold">{{ c.title }}</h5>
+          <span class="text-[10px] uppercase tracking-wider rounded-full bg-stone-100 px-2 py-1 text-stone-600">
+            {{ c.category }}
+          </span>
+        </div>
+        <p class="mt-2 text-sm text-stone-500">by {{ c.instructor }}</p>
+        <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
+          <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
+          <div class="col-span-2">
+            <span class="block text-stone-400">Days</span>
+            {% if c.days_names %}
+              {% for d in c.days_names %}
+                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs mr-1">{{ d }}</span>
+              {% endfor %}
+            {% else %}
+              <span class="text-stone-500">—</span>
+            {% endif %}
+          </div>
+        </div>
+        <a href="{% if c.category == 'daily' %}{% url 'bookingkelas:choose_day' c.id %}{% else %}{% url 'bookingkelas:book_class' c.id %}{% endif %}"
+           class="mt-4 inline-flex items-center justify-center w-full rounded-xl bg-stone-900 text-white py-2.5 font-semibold hover:bg-black">
+          {% if c.category == 'daily' %}Choose Day{% else %}Book Now{% endif %}
+        </a>
+      </div>
     </div>
+    {% empty %}
+      <div class="text-gray-500">Belum ada jadwal.</div>
+    {% endfor %}
+  </div>
 
+  <div class="mt-8 text-center">
+    <a href="{% url 'bookingkelas:catalog' %}"
+       class="inline-flex items-center gap-2 rounded-full bg-stone-900 text-white px-5 py-3 font-semibold hover:bg-black">
+      View All Classes ↗
+    </a>
   </div>
 </section>
 
-<!-- CTA BOTTOM -->
-<section class="bg-white">
-  <div class="mx-auto max-w-7xl px-6 py-14 text-center">
-    <h2 class="text-2xl font-bold">Siap mulai rutinitas Pilates yang konsisten?</h2>
-    <p class="mt-2 text-gray-600">Mulai dengan alat dasar atau langsung booking kelas pertamamu.</p>
-    <div class="mt-6 flex items-center justify-center gap-3">
-      <a href="{% url 'main:show_main' %}" class="btn-primary rounded-xl px-5 py-3 text-white">Belanja Sekarang</a>
-      <a href="/bookingkelas/" class="btn-ghost rounded-xl px-5 py-3">Book Kelas</a>
-    </div>
-  </div>
-</section>
+
 {% endblock %}

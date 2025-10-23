@@ -1,58 +1,64 @@
-{# pastikan context processor 'django.template.context_processors.request' aktif #}
-{# aktifkan url-name di bawah sesuai projectmu, atau pakai '#' dulu #}
-
 {% url 'main:landing' as home_url %}
-{% url 'catalog:index' as products_url %}
-{# placeholder kalau belum ada url-nya: #}
-{% firstof products_url '#' as products_url %}
-{% with classes_url='#' checkouts_url='#' %}
+{% url 'main:show_main' as products_url %}
+{% url 'bookingkelas:catalog' as classes_url %}
 
-<header class="sticky top-0 z-40 bg-transparent">
+<header class="sticky top-0 z-40">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
-    <nav class="flex items-center justify-between rounded-[2rem] border border-gray-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
+    <nav class="flex items-center justify-between rounded-2xl border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur">
       <!-- Brand -->
-      <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-gray-700">
+      <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-stone-700">
         Lume
       </a>
 
-      <!-- Nav items (teks saja) -->
-      <ul class="flex items-center gap-6 text-sm font-medium text-gray-500">
+      <!-- Links -->
+      <ul class="flex items-center gap-2 text-sm font-medium text-stone-600">
+        <!-- Home -->
         <li>
           <a href="{{ home_url|default:'/' }}"
-             class="inline-flex items-center gap-2 rounded-lg px-3 py-2 transition
-                    {% if request.path == home_url %}bg-stone-100 text-stone-700{% else %}hover:text-stone-700{% endif %}">
+             class="inline-flex items-center rounded-xl px-4 py-2 transition
+             {% if request.resolver_match and request.resolver_match.url_name == 'landing' %}
+               bg-stone-100 text-stone-800
+             {% else %}
+               hover:text-stone-800
+             {% endif %}">
             Home
           </a>
         </li>
 
+        <!-- Products: aktif di /shop/ atau /catalog/... -->
         <li>
-          <a href="{{ products_url }}"
-             class="inline-flex items-center gap-2 rounded-lg px-3 py-2 transition hover:text-stone-700
-                    {% if request.path == products_url %}bg-stone-100 text-stone-700{% endif %}">
-            Products
+          {% if request.resolver_match and request.resolver_match.url_name == 'show_main' %}
+            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition bg-stone-100 text-stone-800">Products</a>
+          {% elif request.path|slice:":9" == "/catalog/" %}
+            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition bg-stone-100 text-stone-800">Products</a>
+          {% else %}
+            <a href="{{ products_url }}" class="inline-flex items-center rounded-xl px-4 py-2 transition hover:text-stone-800">Products</a>
+          {% endif %}
+        </li>
+
+        <!-- Book Class -->
+        <li>
+          <a href="{{ classes_url }}"
+             class="inline-flex items-center rounded-xl px-4 py-2 transition
+             {% if request.resolver_match and request.resolver_match.app_name == 'bookingkelas' %}
+               bg-stone-100 text-stone-800
+             {% else %}
+               hover:text-stone-800
+             {% endif %}">
+            Book Class
           </a>
         </li>
 
+        <!-- Checkouts (placeholder) -->
         <li>
-          <span class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed select-none"
-                title="Coming soon">
-            Classes
-          </span>
-        </li>
-
-        <li>
-          <span class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-gray-400 cursor-not-allowed select-none"
-                title="Coming soon">
+          <span class="inline-flex items-center rounded-xl px-4 py-2 text-stone-400 cursor-not-allowed select-none" title="Coming soon">
             Checkouts
           </span>
         </li>
       </ul>
 
-      <!-- Right side (kosong dulu / nanti isi ikon) -->
-      <div class="flex items-center gap-4 text-gray-400">
-        <!-- placeholder untuk ikon cart / profile / logout nanti -->
-      </div>
+      <!-- Right side (placeholder) -->
+      <div class="flex items-center gap-3 text-stone-400"></div>
     </nav>
   </div>
 </header>
-{% endwith %}
