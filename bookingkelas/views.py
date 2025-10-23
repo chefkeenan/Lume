@@ -141,38 +141,77 @@ def book_class(request, session_id):
     messages.success(request, f"Berhasil booking {s.title}.")
     return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
 
-@login_required(login_url="/user/login/")
-def choose_day(request, session_id):
-    s = get_object_or_404(ClassSessions, id=session_id)
-    if s.is_full:
-        messages.error(request, "Kelas sudah penuh.")
+
+def choose_day(request, base_title):
+    
+    sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
+
+    if not sessions_in_group.exists():
+        messages.error(request, "Sesi kelas tidak ditemukan.")
         return redirect("bookingkelas:catalog")
 
+    s_general = sessions_in_group.first()
+    
+    # TAMBAHKAN INI: Gunakan fungsi _base_title yang sudah ada
+    base_title_cleaned = _base_title(s_general.title)
+    
     weekday_map = _weekday_map()
-    day_options = [(d, weekday_map.get(str(d), str(d))) for d in (s.days or [])]
+    
+    # 2. Buat day_options dari SEMUA sesi di grup itu
+    day_options = []
+    for s_item in sessions_in_group:
+        # Asumsi s.days di database kamu itu ['mon'] atau ['tue']
+        if s_item.days:
+            day_key = s_item.days[0].lower().strip()
+            day_label = weekday_map.get(day_key, day_key)
+            
+            # PENTING: Value-nya adalah session_id, Label-nya adalah nama hari
+            # Kita juga kirim status is_full
+            day_options.append({
+                "value_id": s_item.id,
+                "label": day_label,
+                "is_full": s_item.is_full
+            })
 
     if request.method == "POST":
-        selected_day = request.POST.get("day")
-        if not selected_day:
+        # 3. Yang di-POST sekarang bukan "day", tapi "session_id"
+        selected_session_id = request.POST.get("session_id")
+        if not selected_session_id:
             messages.error(request, "Pilih satu hari terlebih dahulu.")
-            return redirect("bookingkelas:choose_day", session_id=s.id)
+            return redirect("bookingkelas:choose_day", base_title=base_title)
+        
+        # 4. Ambil sesi SPESIFIK yang dipilih user
+        try:
+            s_to_book = ClassSessions.objects.get(id=selected_session_id)
+        except ClassSessions.DoesNotExist:
+            messages.error(request, "Sesi yang dipilih tidak valid.")
+            return redirect("bookingkelas:choose_day", base_title=base_title)
+            
+        # 5. Cek sisanya (is_full, sudah booking, dll)
+        if s_to_book.is_full:
+            messages.error(request, "Kelas pada hari tersebut sudah penuh.")
+            return redirect("bookingkelas:choose_day", base_title=base_title)
 
-        if Booking.objects.filter(user=request.user, session=s, is_cancelled=False).exists():
+        if Booking.objects.filter(user=request.user, session=s_to_book, is_cancelled=False).exists():
             messages.info(request, "Kamu sudah terdaftar di sesi ini.")
             return redirect("bookingkelas:catalog")
 
-        Booking.objects.create(
+        # 6. Buat Booking
+        new_booking = Booking.objects.create(
             user=request.user,
-            session=s,
-            day_selected=selected_day,
-            price_at_booking=Decimal(s.price),
+            session=s_to_book, # Pakai sesi yang spesifik
+            day_selected=s_to_book.days[0], # Ambil hari dari sesi itu
+            price_at_booking=Decimal(s_to_book.price),
         )
-        s.capacity_current = s.bookings.filter(is_cancelled=False).count()
-        s.save(update_fields=["capacity_current"])
-        messages.success(request, f"Berhasil booking {s.title} ({weekday_map.get(selected_day, selected_day)}).")
-        return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
+        s_to_book.capacity_current = s_to_book.bookings.filter(is_cancelled=False).count()
+        s_to_book.save(update_fields=["capacity_current"])
+        
+        day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
+        messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
+        return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
 
-    return render(request, "bookingkelas/choose_day.html", {"session": s, "day_options": day_options})
+    # Kirim s_general untuk judul, dan day_options untuk pilihan radio
+    return render(request, "bookingkelas/choose_day.html", {"session": s_general, "day_options": day_options,"base_title_cleaned": base_title_cleaned})
 
 def class_list(request):
     classes = ClassSessions.objects.all().order_by("title")
