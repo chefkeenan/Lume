@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.db.models import Q
 from catalog.models import Product
 from bookingkelas.models import ClassSessions, WEEKDAYS
+from django.core.paginator import Paginator
 
 PRICE_RANGES = [
     ("0-200k", "≤ Rp200.000",               0,        200_000),
@@ -43,36 +44,31 @@ def landing_view(request):
 
 
 def show_main(request):
-    qs = Product.objects.all()
+    qs = Product.objects.all().order_by("-id")
 
-    # ambil beberapa checkbox price: /?price=0-200k&price=5m+
-    selected = set(request.GET.getlist("price"))
+    # === filter harga: single-select via dropdown ===
+    selected_price = request.GET.get("price", "")
+    if selected_price:
+        for key, _label, lo, hi in PRICE_RANGES:
+            if key == selected_price:
+                if lo is not None:
+                    qs = qs.filter(price__gte=lo)
+                if hi is not None:
+                    qs = qs.filter(price__lt=hi)
+                break
 
-    if selected:
-        q = Q()
-        for key, _label, min_v, max_v in PRICE_RANGES:
-            if key in selected:
-                if min_v is not None and max_v is not None:
-                    q |= Q(price__gte=min_v, price__lte=max_v)
-                elif min_v is not None and max_v is None:
-                    q |= Q(price__gte=min_v)
-                elif min_v is None and max_v is not None:
-                    q |= Q(price__lte=max_v)
-        qs = qs.filter(q)
-
-    # opsional: sorting harga (termurah / termahal)
+    # === sort (opsional) ===
     order = request.GET.get("order")
     if order in {"price", "-price"}:
         qs = qs.order_by(order)
 
-    # siapkan context price ranges + status checked
-    price_ranges_ctx = [
-        {"key": key, "label": label, "checked": (key in selected)}
-        for key, label, _min_v, _max_v in PRICE_RANGES
-    ]
+    # pagination
+    paginator = Paginator(qs, 12)
+    page_obj = paginator.get_page(request.GET.get("page"))
 
-    ctx = {
-        "products": qs,
-        "PRICE_RANGES": price_ranges_ctx,
-    }
-    return render(request, "main.html", ctx)  # sesuaikan nama template
+    return render(request, "main.html", {
+        "page_obj": page_obj,
+        "price_ranges": PRICE_RANGES,      # kirim (key, label, lo, hi)
+        "selected_price": selected_price,  # untuk label dropdown
+        "order": order or "",
+    })
