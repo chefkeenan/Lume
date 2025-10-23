@@ -153,13 +153,13 @@ def remove_item_ajax(request, item_id: int):
     item.delete()
     return JsonResponse({
         "ok": True,
-        "message": "Item removed.",
+        "message": "Item removed from cart. 🗑️",
         "item_id": item_id,
         "quantity": 0,
         "total_items": cart.total_items(),
         "selected_count": cart.items.filter(is_selected=True).count(),
-        "selected_qty": _selected_qty(cart),
     })
+
 
 
 @require_POST
