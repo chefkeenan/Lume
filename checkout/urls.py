@@ -14,4 +14,6 @@ urlpatterns = [
 
     # Order Confirmed (dipakai keduanya)
     path("confirmed/", views.order_confirmed, name="order_confirmed"),
+
+    path("mine/", views.my_checkouts, name="my_checkouts"),  
 ]
