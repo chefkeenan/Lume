@@ -1,0 +1,64 @@
+<style>
+    #toastContainer {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 240px; max-width: 360px; padding: 10px 12px;
+      border-radius: 14px; font-size: 14px; font-weight: 600;
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      pointer-events: auto; transform: translateY(-6px); opacity: 0;
+      animation: toast-in 180ms ease-out forwards, toast-out 220ms ease-in 2.6s forwards;
+    }
+    .toast-success { background: #E7E2D6; color: #3A342D; }
+    .toast-error   { background: #F9E2E2; color: #803232; }
+    .toast-warning { background: #FFF3CD; color: #6B5A1B; }
+    .toast-info    { background: #E1EBF9; color: #264E8A; }
+    .toast__emoji { font-size: 16px; line-height: 1; }
+    .toast__text  { flex: 1 1 auto; }
+    .toast__close { background: transparent; border: 0; font-weight: 700; opacity: .65; cursor: pointer; }
+    .toast__close:hover { opacity: 1; }
+    @keyframes toast-in { to { transform: translateY(0); opacity: 1; } }
+    @keyframes toast-out { to { transform: translateX(10px); opacity: 0; } }
+  </style>
+  
+  <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+  
+  <script>
+  (function () {
+    const EMOJI = { success:"✅", error:"❌", warning:"⚠️", info:"ℹ️", default:"ℹ️" };
+  
+    window.showToast = function (message, type = "info", opts = {}) {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+  
+      const kind = ["success","error","warning","info"].includes(type) ? type : "info";
+      const emoji = opts.emoji || EMOJI[kind] || EMOJI.default;
+      const timeout = Number.isFinite(opts.timeout) ? opts.timeout : 2800;
+  
+      const el = document.createElement("div");
+      el.className = `toast toast-${kind}`;
+  
+      el.innerHTML = `
+        <span class="toast__emoji">${emoji}</span>
+        <div class="toast__text"></div>
+        <button class="toast__close" aria-label="Close">×</button>
+      `;
+      el.querySelector(".toast__text").textContent = message;
+      el.querySelector(".toast__close").addEventListener("click", () => el.remove());
+      container.appendChild(el);
+  
+      // Auto-hide with hover pause
+      let hid = setTimeout(remove, timeout);
+      function remove() {
+        el.style.opacity = "0";
+        el.style.transform = "translateX(10px)";
+        setTimeout(() => el.remove(), 200);
+      }
+      el.addEventListener("mouseenter", () => clearTimeout(hid));
+      el.addEventListener("mouseleave", () => (hid = setTimeout(remove, 1200)));
+    };
+  })();
+  </script>
+  

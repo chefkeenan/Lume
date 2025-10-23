@@ -12,7 +12,11 @@ from .models import ProductOrder, ProductOrderItem, BookingOrder, BookingOrderIt
 from cart.models import Cart
 from bookingkelas.models import Booking
 
-@login_required
+from decimal import Decimal
+from django.db.models import F
+from catalog.models import Product
+
+@login_required(login_url="/user/login/")
 def cart_checkout_page(request):
     cart = get_object_or_404(
         Cart.objects.prefetch_related("items__product"),
@@ -41,7 +45,7 @@ def cart_checkout_page(request):
         "payment_method": "Cash on Delivery",
     })
 
-@login_required
+@login_required(login_url="/user/login/")
 def checkout_cart_create(request):
     if request.method != "POST":
         return HttpResponseBadRequest("POST required.")
@@ -69,6 +73,22 @@ def checkout_cart_create(request):
     cd = form.cleaned_data
 
     with transaction.atomic():
+        # 🔒 VALIDASI stok (kalau ada field stock) pakai row-level lock,
+        #   tapi TANPA impor model Product (kita ambil model dari instance)
+        locked = {}
+        for ci in selected_qs.select_related("product"):
+            # lock baris product yang bersangkutan
+            PModel = type(ci.product)
+            p = PModel.objects.select_for_update().get(pk=ci.product_id)
+            locked[ci.product_id] = p
+
+            # kalau model Product kamu punya field 'stock', validasi di sini
+            if hasattr(p, "stock") and p.stock is not None:
+                if p.stock < ci.quantity:
+                    messages.error(request, f"Stok {getattr(p, 'name', getattr(p, 'product_name', 'produk'))} tidak mencukupi.")
+                    return redirect("cart:page")
+
+        # 🧾 buat order (bagian ini sama seperti punyamu)
         order = ProductOrder.objects.create(
             user=user,
             cart=cart,
@@ -83,8 +103,10 @@ def checkout_cart_create(request):
             notes=cd.get("notes", ""),
         )
 
-        # snapshot hanya item terpilih
+        # 🧊 snapshot item + 💥 kurangi stok kalau fieldnya ada
         for ci in selected_qs:
+            p = locked.get(ci.product_id, ci.product)
+
             ProductOrderItem.objects.create(
                 order=order,
                 product=ci.product,
@@ -93,10 +115,23 @@ def checkout_cart_create(request):
                 quantity=ci.quantity,
             )
 
+            # Kurangi stok secara atomic hanya jika field 'stock' tersedia
+            if hasattr(p, "stock") and p.stock is not None:
+                PModel = type(p)
+                PModel.objects.filter(pk=p.pk).update(stock=F("stock") - ci.quantity)
+
+        # (opsional) matikan inStock kalau ada & stok habis
+        for p in locked.values():
+            if hasattr(p, "inStock"):
+                p.refresh_from_db(fields=["stock"])
+                if p.stock is not None and p.stock <= 0 and getattr(p, "inStock", True):
+                    type(p).objects.filter(pk=p.pk).update(inStock=False)
+
+        # hitung ulang total (sama seperti punyamu)
         order.recalc_totals()
         order.save(update_fields=["subtotal", "shipping_fee", "total"])
 
-        # hapus hanya item terpilih (biarkan yang tidak dipilih tetap di cart)
+        # 🧹 hapus HANYA item terpilih dari cart setelah commit sukses (punyamu sudah OK)
         selected_ids = list(selected_qs.values_list("id", flat=True))
         transaction.on_commit(lambda: cart.items.filter(id__in=selected_ids).delete())
 
@@ -105,7 +140,7 @@ def checkout_cart_create(request):
 
 
 #BOOKING CLASS -> CHECKOUT (single, tanpa ongkir) 
-@login_required
+@login_required(login_url="/user/login/")
 def checkout_booking_now(request, booking_id):
     # Terima GET/POST agar kompatibel dengan redirect dari modul booking
     b = get_object_or_404(
@@ -140,7 +175,7 @@ def checkout_booking_now(request, booking_id):
     return redirect("checkout:order_confirmed")
 
 # JSON ringkasan cart, untuk AJAX
-@login_required
+@login_required(login_url="/user/login/")
 def cart_summary_json(request):
     cart = get_object_or_404(Cart.objects.prefetch_related("items__product"), user=request.user)
 
@@ -160,6 +195,6 @@ def cart_summary_json(request):
         "count": sum(ci.quantity for ci in items),
     })
 
-@login_required
+@login_required(login_url="/user/login/")
 def order_confirmed(request):
     return render(request, "checkout/order_confirmed.html")
