@@ -12,22 +12,29 @@ from .models import ProductOrder, ProductOrderItem, BookingOrder, BookingOrderIt
 from cart.models import Cart
 from bookingkelas.models import Booking
 
-# CART -> CHECKOUT PRODUK 
 @login_required
 def cart_checkout_page(request):
     cart = get_object_or_404(
         Cart.objects.prefetch_related("items__product"),
         user=request.user
     )
-    items = list(cart.items.all())
-    subtotal = sum(ci.product.price * ci.quantity for ci in items) if items else Decimal("0")
+
+    # hanya item terpilih
+    items_qs = cart.items.select_related("product").filter(is_selected=True)
+    items = list(items_qs)
+
+    if not items:  # tidak ada yang dipilih -> balik ke cart
+        messages.error(request, "Pilih dulu item yang mau di-checkout.")
+        return redirect("cart:page")
+
+    subtotal = sum(ci.product.price * ci.quantity for ci in items)
     shipping = ProductOrder.FLAT_SHIPPING if items else Decimal("0")
     total = subtotal + shipping
 
     form = CartCheckoutForm()
     return render(request, "checkout/cart_checkout_page.html", {
         "form": form,
-        "cart_items": items,
+        "cart_items": items,        # hanya yang terpilih
         "subtotal": subtotal,
         "shipping": shipping,
         "total": total,
@@ -49,14 +56,16 @@ def checkout_cart_create(request):
         Cart.objects.prefetch_related("items__product"),
         user=request.user
     )
-    if not cart.items.exists():
-        messages.error(request, "Your cart is empty.")
-        return redirect("checkout:cart_checkout_page")
+
+    # ambil hanya item terpilih
+    selected_qs = cart.items.select_related("product").filter(is_selected=True)
+    if not selected_qs.exists():
+        messages.error(request, "Tidak ada item yang dipilih untuk checkout.")
+        return redirect("cart:page")
 
     user = request.user
     receiver_name = user.get_full_name() or user.username
     receiver_phone = getattr(user, "phone", "") or ""
-
     cd = form.cleaned_data
 
     with transaction.atomic():
@@ -74,21 +83,26 @@ def checkout_cart_create(request):
             notes=cd.get("notes", ""),
         )
 
-        for ci in cart.items.all():
+        # snapshot hanya item terpilih
+        for ci in selected_qs:
             ProductOrderItem.objects.create(
                 order=order,
                 product=ci.product,
-                product_name=ci.product.name,
+                product_name=getattr(ci.product, "product_name", getattr(ci.product, "name", str(ci.product))),
                 unit_price=ci.product.price,
                 quantity=ci.quantity,
             )
 
         order.recalc_totals()
         order.save(update_fields=["subtotal", "shipping_fee", "total"])
-        transaction.on_commit(lambda: cart.items.all().delete())
+
+        # hapus hanya item terpilih (biarkan yang tidak dipilih tetap di cart)
+        selected_ids = list(selected_qs.values_list("id", flat=True))
+        transaction.on_commit(lambda: cart.items.filter(id__in=selected_ids).delete())
 
     messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
+
 
 #BOOKING CLASS -> CHECKOUT (single, tanpa ongkir) 
 @login_required
@@ -129,7 +143,13 @@ def checkout_booking_now(request, booking_id):
 @login_required
 def cart_summary_json(request):
     cart = get_object_or_404(Cart.objects.prefetch_related("items__product"), user=request.user)
-    items = list(cart.items.all())
+
+    qs = cart.items.select_related("product")
+    # kalau ?selected=1, hitung hanya item terpilih
+    if request.GET.get("selected") == "1":
+        qs = qs.filter(is_selected=True)
+
+    items = list(qs)
     subtotal = sum(ci.product.price * ci.quantity for ci in items)
     shipping = ProductOrder.FLAT_SHIPPING if items else Decimal("0")
     total = subtotal + shipping
