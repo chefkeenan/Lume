@@ -32,6 +32,17 @@
       .btn-ghost:hover{background-color:color-mix(in oklab, var(--primary) 10%, white)}
       .border-theme{border-color:var(--border)}
     </style>
+
+    <style>
+    @keyframes wiggleOnce {
+      0%   { transform: translateY(0) rotate(0) }
+      30%  { transform: translateY(-3px) rotate(-0.35deg) }
+      60%  { transform: translateY(-3px) rotate(0.35deg) }
+      100% { transform: translateY(0) rotate(0) }
+    }
+    .product-card-wiggle:hover { animation: wiggleOnce .35s ease-in-out 1; }
+    </style>
+
   </head>
   <body class="theme-bg">
     {% include "navbar.html" %}
