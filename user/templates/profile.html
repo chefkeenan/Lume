@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}
+My Profile
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-stone-50">
+  <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Header -->
+    <div class="mb-12">
+      <h1 class="text-5xl font-light text-stone-900 mb-2">My Profile</h1>
+      <p class="text-stone-500">Manage your account and view your history</p>
+    </div>
+
+    <!-- Profile Information -->
+    <section class="bg-white border border-stone-200 rounded-xl p-8 mb-8">
+      <div class="flex justify-between items-start mb-6">
+        <h2 class="text-2xl font-light text-stone-900">Profile Information</h2>
+        <button id="btn-edit" type="button"
+                class="inline-flex items-center gap-2 rounded-lg border border-stone-300 px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">
+          <!-- pencil -->
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.75 19.9l-4.5.75.75-4.5L16.862 4.487z" />
+          </svg>
+          <span>Edit</span>
+        </button>
+      </div>
+
+      <form id="profile-form" method="post" action="{% url 'user:my_profile' %}">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Username -->
+          <div>
+            <label class="text-sm font-semibold text-stone-500 mb-2 block">Username</label>
+            <!-- read value -->
+            <p id="v-username" class="text-lg text-stone-900 font-light">{{ request.user.username }}</p>
+            <!-- input (hidden by default) -->
+            <input id="f-username" name="username" type="text"
+                   value="{{ request.user.username }}"
+                   class="hidden w-full px-4 py-2 border border-stone-300 rounded-lg bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/20" />
+          </div>
+
+          <!-- Phone -->
+          <div>
+            <label class="text-sm font-semibold text-stone-500 mb-2 block">Phone</label>
+            <p id="v-phone" class="text-lg text-stone-900 font-light">{{ request.user.phone|default:"-" }}</p>
+            <input id="f-phone" name="phone" type="tel"
+                   value="{{ request.user.phone }}"
+                   class="hidden w-full px-4 py-2 border border-stone-300 rounded-lg bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-stone-900/20" />
+          </div>
+
+          <!-- Member since -->
+          <div>
+            <label class="text-sm font-semibold text-stone-500 mb-2 block">Member Since</label>
+            <p class="text-lg text-stone-900 font-light">{{ member_since|date:"Y-m-d" }}</p>
+          </div>
+        </div>
+
+        <!-- Action buttons (hidden by default) -->
+        <div id="edit-actions" class="hidden mt-6 flex gap-3">
+          <button id="btn-save" type="submit"
+                  class="rounded-lg bg-stone-900 text-white px-4 py-2 hover:bg-black">
+            Save Changes
+          </button>
+          <button id="btn-cancel" type="button"
+                  class="rounded-lg border border-stone-300 px-4 py-2 hover:bg-stone-50">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Purchase History -->
+    <section class="bg-white border border-stone-200 rounded-xl p-8 mb-8">
+      <h2 class="text-2xl font-light text-stone-900 mb-6 flex items-center gap-2">
+        <!-- bag -->
+        <svg class="w-6 h-6 text-stone-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 7V6a6 6 0 1112 0v1m-9 4h6m-9 0a2 2 0 01-2-2V7h14v2a2 2 0 01-2 2m-10 0l1 9a2 2 0 002 2h6a2 2 0 002-2l1-9"/>
+        </svg>
+        Purchase History
+      </h2>
+
+      {% if orders %}
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="border-b border-stone-200">
+              <th class="text-left py-3 px-4 font-semibold">Date</th>
+              <th class="text-left py-3 px-4 font-semibold">Items</th>
+              <th class="text-left py-3 px-4 font-semibold">Total</th>
+              <th class="text-left py-3 px-4 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in orders %}
+            <tr class="border-b border-stone-100 hover:bg-stone-50 transition">
+              <td class="py-4 px-4 font-light">{{ o.created_at|date:"Y-m-d" }}</td>
+              <td class="py-4 px-4 font-light">{{ o.items_summary }}</td>
+              <td class="py-4 px-4 font-light text-stone-900">Rp {{ o.total|intcomma }}</td>
+              <td class="py-4 px-4">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">Completed</span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-stone-500">No purchases yet.</p>
+      {% endif %}
+    </section>
+
+    <!-- Class Booking History -->
+    <section class="bg-white border border-stone-200 rounded-xl p-8">
+      <h2 class="text-2xl font-light text-stone-900 mb-6 flex items-center gap-2">
+        <!-- dumbbell -->
+        <svg class="w-6 h-6 text-stone-900" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 6h2v12H6zM16 6h2v12h-2zM9 10h6v4H9z" />
+        </svg>
+        Class Booking History
+      </h2>
+
+      {% if bookings %}
+        <div class="space-y-4">
+          {% for b in bookings %}
+          <div class="border border-stone-200 rounded-lg p-6 hover:bg-stone-50 transition">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <h3 class="text-lg font-semibold text-stone-900">{{ b.session_title }}</h3>
+                {% if b.instructor %}
+                <p class="text-sm text-stone-500 font-light">Instructor: {{ b.instructor }}</p>
+                {% endif %}
+              </div>
+              {% with s=b.status %}
+              <span class="px-3 py-1 rounded-full text-xs font-semibold
+                  {% if s == 'Upcoming' %} bg-blue-100 text-blue-800
+                  {% elif s == 'Completed' %} bg-green-100 text-green-800
+                  {% elif s == 'Cancelled' %} bg-red-100 text-red-800
+                  {% else %} bg-stone-100 text-stone-700 {% endif %}">
+                {{ b.status }}
+              </span>
+              {% endwith %}
+            </div>
+            <div class="flex gap-6 text-sm text-stone-600 font-light">
+              <span class="flex items-center gap-1">
+                <!-- calendar -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8 7V3m8 4V3M3 9h18M5 12h14M5 16h10" />
+                </svg>
+                {{ b.date|date:"Y-m-d" }}
+              </span>
+              {% if b.time %}
+              <span class="flex items-center gap-1">
+                <!-- clock -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"/>
+                </svg>
+                {{ b.time|time:"H:i" }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-stone-500">No bookings yet.</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+<!-- JS: toggle edit + AJAX save -->
+<script>
+  const btnEdit = document.getElementById('btn-edit');
+  const btnCancel = document.getElementById('btn-cancel');
+  const form = document.getElementById('profile-form');
+  const editActions = document.getElementById('edit-actions');
+
+  const vUsername = document.getElementById('v-username');
+  const vPhone = document.getElementById('v-phone');
+  const fUsername = document.getElementById('f-username');
+  const fPhone = document.getElementById('f-phone');
+
+  function setEditing(on) {
+    // toggle read-only vs input
+    vUsername.classList.toggle('hidden', on);
+    vPhone.classList.toggle('hidden', on);
+    fUsername.classList.toggle('hidden', !on);
+    fPhone.classList.toggle('hidden', !on);
+    editActions.classList.toggle('hidden', !on);
+    btnEdit.querySelector('span').textContent = on ? 'Editing…' : 'Edit';
+  }
+
+  btnEdit.addEventListener('click', () => setEditing(true));
+  if (btnCancel) btnCancel.addEventListener('click', () => {
+    // reset values
+    fUsername.value = vUsername.textContent.trim();
+    fPhone.value = vPhone.textContent.trim();
+    setEditing(false);
+  });
+
+  // AJAX submit: post ke URL yang sama; jika ok -> reload
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const url = form.getAttribute('action');
+    const fd = new FormData(form);
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        body: fd,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' } // opsional
+      });
+      if (!resp.ok) throw new Error('Save failed');
+      // reload agar data konsisten dengan server-side validation/normalization
+      window.location.reload();
+    } catch (err) {
+      alert('Gagal menyimpan perubahan. Coba lagi.');
+      console.error(err);
+    }
+  });
+</script>
+{% endblock %}
