@@ -1,0 +1,56 @@
+{% load humanize %}
+
+<article class="relative w-full max-w-[312px] flex flex-col rounded-[18px]
+         border border-[#CFC8BA] bg-[#E9E3D6] p-4 shadow-md
+         transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+
+    <!-- HEADER -->
+    <header class="mb-3 flex justify-between items-start">
+        <div>
+            <h3 class="text-[18px] font-semibold leading-6 text-neutral-900">
+                {{ c.title }}
+            </h3>
+            <p class="text-sm text-gray-700">{{ c.instructor }}</p>
+        </div>
+        <span class="rounded-full bg-stone-100 px-3 py-1 text-xs">{{ c.category|title }}</span>
+    </header>
+
+    <!-- DETAIL -->
+    <div class="text-sm space-y-1">
+        <div>Time: {{ c.time }}</div>
+        <div>Room: {{ c.room }}</div>
+        <div>Price: Rp {{ c.price|intcomma }}</div>
+        <div>Days:
+            {% for d in c.days_names %}
+            <span class="inline-flex rounded-full border px-2 py-0.5 text-xs mr-1">{{ d }}</span>
+            {% empty %}
+            <span class="text-gray-500">—</span>
+            {% endfor %}
+        </div>
+        <div>Slot: {{ c.capacity_current }}/{{ c.capacity_max }}</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="mt-4">
+        {% if c.category == "daily" %}
+        <button type="button"
+            class="inline-flex items-center justify-center w-full rounded-xl bg-[#8B5E3C] text-white py-2.5 font-semibold hover:bg-[#734C30] btn-open-modal"
+            data-base-title="{{ c.base_title }}">
+            Choose Day
+        </button>
+        {% elif c.instance_id %}
+        <a href="{% url 'bookingkelas:book_class' c.instance_id %}"
+            class="inline-flex items-center justify-center w-full rounded-xl bg-[#8B5E3C] text-white py-2.5 font-semibold hover:bg-[#734C30]">
+            Book Now
+        </a>
+        {% else %}
+        <button disabled
+            class="inline-flex items-center justify-center w-full rounded-xl bg-gray-400 text-white py-2.5 font-semibold cursor-not-allowed">
+            Unavailable
+        </button>
+        {% endif %}
+
+    </div>
+
+    <span class="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-black/10"></span>
+</article>
