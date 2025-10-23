@@ -106,6 +106,42 @@ def add_session(request):
         form = SessionsForm()
     return render(request, "bookingkelas/add_session.html", {"form": form})
 
+@login_required # <-- Tetap wajib login untuk lihat detail hari
+def get_session_details_json(request, base_title):
+    sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
+    
+    if not sessions_in_group.exists():
+        return JsonResponse({"error": "Sesi tidak ditemukan"}, status=404)
+
+    s_general = sessions_in_group.first()
+    base_title_cleaned = _base_title(s_general.title)
+    weekday_map = _weekday_map()
+    
+    # 1. Buat day_options
+    day_options = []
+    for s_item in sessions_in_group:
+        if s_item.days:
+            day_key = s_item.days[0].lower().strip()
+            day_label = weekday_map.get(day_key, day_key)
+            day_options.append({
+                "value_id": s_item.id,
+                "label": day_label,
+                "is_full": s_item.is_full
+            })
+
+    # 2. Siapkan data untuk dikirim sebagai JSON
+    data = {
+        "base_title_cleaned": base_title_cleaned,
+        "instructor": s_general.instructor,
+        "time": s_general.time,
+        "room": s_general.room,
+        "price": s_general.price,
+        "description": s_general.description, # <-- Asumsi kamu mau nambahin ini
+        "day_options": day_options
+    }
+    
+    return JsonResponse(data)
+
 @login_required(login_url="/user/login/")
 @transaction.atomic
 def book_class(request, session_id):
@@ -131,74 +167,48 @@ def book_class(request, session_id):
     return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
 
 @login_required(login_url="/user/login/")
-def choose_day(request, base_title):
+def book_daily_session(request):
     
-    sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
-
-    if not sessions_in_group.exists():
-        messages.error(request, "Sesi kelas tidak ditemukan.")
-        return redirect("bookingkelas:catalog")
-
-    s_general = sessions_in_group.first()
-    
-    base_title_cleaned = _base_title(s_general.title)
-    
-    weekday_map = _weekday_map()
-    
-    day_options = []
-    for s_item in sessions_in_group:
-        # Asumsi s.days di database kamu itu ['mon'] atau ['tue']
-        if s_item.days:
-            day_key = s_item.days[0].lower().strip()
-            day_label = weekday_map.get(day_key, day_key)
-            
-            # PENTING: Value-nya adalah session_id, Label-nya adalah nama hari
-            # Kita juga kirim status is_full
-            day_options.append({
-                "value_id": s_item.id,
-                "label": day_label,
-                "is_full": s_item.is_full
-            })
-
+    # Logic POST kita pindah ke sini
     if request.method == "POST":
-        # 3. Yang di-POST sekarang bukan "day", tapi "session_id"
         selected_session_id = request.POST.get("session_id")
         if not selected_session_id:
             messages.error(request, "Pilih satu hari terlebih dahulu.")
-            return redirect("bookingkelas:choose_day", base_title=base_title)
+            # Jika error, kembali ke katalog (karena modalnya sudah ditutup)
+            return redirect("bookingkelas:catalog") 
         
-        # 4. Ambil sesi SPESIFIK yang dipilih user
         try:
             s_to_book = ClassSessions.objects.get(id=selected_session_id)
         except ClassSessions.DoesNotExist:
             messages.error(request, "Sesi yang dipilih tidak valid.")
-            return redirect("bookingkelas:choose_day", base_title=base_title)
+            return redirect("bookingkelas:catalog")
             
-        # 5. Cek sisanya (is_full, sudah booking, dll)
         if s_to_book.is_full:
             messages.error(request, "Kelas pada hari tersebut sudah penuh.")
-            return redirect("bookingkelas:choose_day", base_title=base_title)
+            return redirect("bookingkelas:catalog") # <-- Redirect ke katalog
 
         if Booking.objects.filter(user=request.user, session=s_to_book, is_cancelled=False).exists():
             messages.info(request, "Kamu sudah terdaftar di sesi ini.")
             return redirect("bookingkelas:catalog")
 
-        # 6. Buat Booking
+        # Buat Booking (sudah benar)
         new_booking = Booking.objects.create(
             user=request.user,
-            session=s_to_book, # Pakai sesi yang spesifik
-            day_selected=s_to_book.days[0], # Ambil hari dari sesi itu
+            session=s_to_book,
+            day_selected=s_to_book.days[0],
             price_at_booking=Decimal(s_to_book.price),
         )
         s_to_book.capacity_current = s_to_book.bookings.filter(is_cancelled=False).count()
         s_to_book.save(update_fields=["capacity_current"])
         
+        weekday_map = _weekday_map()
         day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
         messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
         return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
 
-    # Kirim s_general untuk judul, dan day_options untuk pilihan radio
-    return render(request, "bookingkelas/choose_day.html", {"session": s_general, "day_options": day_options,"base_title_cleaned": base_title_cleaned})
+    # Jika ada yang akses via GET, lempar ke katalog
+    return redirect("bookingkelas:catalog")
+
 
 @login_required(login_url="/user/login/")
 def class_list(request):

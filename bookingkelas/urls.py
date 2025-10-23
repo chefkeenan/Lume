@@ -10,8 +10,9 @@ urlpatterns = [
     
     # booking alur
     path("<int:session_id>/book/", views.book_class, name="book_class"),
-    path("<str:base_title>/choose-day/", views.choose_day, name="choose_day"),
-    
+    path("get-details/<str:base_title>/", views.get_session_details_json, name="get_session_details_json"),
+    path("book-daily-session/", views.book_daily_session, name="book_daily_session"),
+
     # (opsional) CRUD simple
     path("classes/", views.class_list, name="class_list"),
     path("classes/<int:pk>/edit/", views.class_edit, name="class_edit"),

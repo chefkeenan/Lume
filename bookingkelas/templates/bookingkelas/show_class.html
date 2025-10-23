@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+
 {% block content %}
 <div class="mx-auto max-w-7xl px-6 py-10">
   <div class="flex items-center justify-between">
@@ -9,6 +10,7 @@
   <div class="mt-6 grid gap-6 md:grid-cols-2">
     {% for s in sessions %}
       <div class="theme-card rounded-2xl border border-theme p-5 hover:shadow">
+        
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-semibold">{{ s.base_title }}</div>
@@ -28,10 +30,16 @@
           </div>
           <div class="mt-1">Slot: {{ s.capacity_current }}/{{ s.capacity_max }}</div>
         </div>
-
         <div class="mt-4 flex gap-3">
           {% if s.category == "daily" %}
-            <a href="{% url 'bookingkelas:choose_day' s.base_title %}" class="btn-primary rounded-xl px-4 py-2 text-white">Choose Day</a>          {% else %}
+            <button 
+              type="button" 
+              class="btn-primary rounded-xl px-4 py-2 text-white btn-open-modal" 
+              data-base-title="{{ s.base_title }}"
+            >
+              Choose Day
+            </button>
+          {% else %}
             <a href="{% url 'bookingkelas:book_class' s.instance_id %}" class="btn-primary rounded-xl px-4 py-2 text-white">Book Now</a>
           {% endif %}
         </div>
@@ -41,4 +49,149 @@
     {% endfor %}
   </div>
 </div>
+
+
+<div id="classModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+    
+    <div class="flex justify-between items-center border-b p-4">
+      <h2 id="modalTitle" class="text-2xl font-bold">Loading...</h2>
+      <button id="modalClose" class="text-2xl">&times;</button>
+    </div>
+
+    <form action="{% url 'bookingkelas:book_daily_session' %}" method="POST">
+      {% csrf_token %}
+      
+      <div class="p-6 space-y-4">
+        <div class="text-sm">
+          <div>Instructor: <span id="modalInstructor"></span></div>
+          <div>Time: <span id="modalTime"></span></div>
+          <div>Room: <span id="modalRoom"></span></div>
+          <div>Price: Rp <span id="modalPrice"></span></div>
+        </div>
+        <hr>
+        <h3 class="font-semibold">Choose Day:</h3>
+        <div id="modalDayOptions" class="space-y-4">
+          <div class="text-gray-500">Loading days...</div>
+        </div>
+      </div>
+
+      <div class="border-t p-4 bg-gray-50 rounded-b-2xl">
+        <button type="submit" class="btn-primary rounded-xl px-4 py-2 text-white w-full">Book</button>
+      </div>
+    </form>
+    
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  
+  // Ambil elemen-elemen modal
+  const modal = document.getElementById('classModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalInstructor = document.getElementById('modalInstructor');
+  const modalTime = document.getElementById('modalTime');
+  const modalRoom = document.getElementById('modalRoom');
+  const modalPrice = document.getElementById('modalPrice');
+  const modalDayOptions = document.getElementById('modalDayOptions');
+  
+  // Fungsi untuk menampilkan modal
+  function showModal() {
+    modal.classList.remove('hidden');
+  }
+
+  // Fungsi untuk menutup modal
+  function closeModal() {
+    modal.classList.add('hidden');
+    // Reset konten modal saat ditutup
+    modalTitle.textContent = 'Loading...';
+    modalInstructor.textContent = '';
+    modalTime.textContent = '';
+    modalRoom.textContent = '';
+    modalPrice.textContent = '';
+    modalDayOptions.innerHTML = '<div class="text-gray-500">Loading days...</div>';
+  }
+
+  // Event listener untuk tombol tutup modal
+  modalClose.addEventListener('click', closeModal);
+  // Event listener untuk klik di luar modal (background)
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Ambil semua tombol "Choose Day"
+  const openButtons = document.querySelectorAll('.btn-open-modal');
+
+  // Tambahkan event listener untuk setiap tombol
+  openButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const baseTitle = this.dataset.baseTitle; // Ambil base_title dari data-attribute
+      
+      // 1. Tampilkan modal (masih loading)
+      showModal();
+
+      // 2. Ambil data detail dari server
+      fetch(`/bookingkelas/get-details/${baseTitle}/`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // 3. Isi modal dengan data yang diterima
+          modalTitle.textContent = data.base_title_cleaned;
+          modalInstructor.textContent = data.instructor;
+          modalTime.textContent = data.time;
+          modalRoom.textContent = data.room;
+          // Format harga (opsional, tapi bagus)
+          modalPrice.textContent = parseInt(data.price).toLocaleString('id-ID');
+
+          // Kosongkan container pilihan hari
+          modalDayOptions.innerHTML = '';
+          
+          if (data.day_options.length > 0) {
+            // 4. Buat HTML untuk setiap pilihan hari
+            data.day_options.forEach(option => {
+              const isDisabled = option.is_full;
+              const disabledClass = isDisabled ? 'border-gray-300 bg-gray-100 text-gray-400' : '';
+              
+              const dayHtml = `
+                <label class="flex items-center gap-3 rounded-xl border border-theme p-3 ${disabledClass}">
+                  <input 
+                    type="radio" 
+                    name="session_id" 
+                    value="${option.value_id}" 
+                    class="h-4 w-4"
+                    ${isDisabled ? 'disabled' : ''}
+                  >
+                  <span>
+                    ${option.label}
+                    ${isDisabled ? '(Penuh)' : ''}
+                  </span>
+                </label>
+              `;
+              modalDayOptions.insertAdjacentHTML('beforeend', dayHtml);
+            });
+          } else {
+            modalDayOptions.innerHTML = '<div class="text-gray-500">Tidak ada daftar hari.</div>';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching class details:', error);
+          modalTitle.textContent = 'Error';
+          modalDayOptions.innerHTML = '<div class="text-red-500">Gagal memuat detail kelas. Coba lagi.</div>';
+        });
+    });
+  });
+
+});
+</script>
 {% endblock %}
