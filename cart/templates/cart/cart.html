@@ -26,11 +26,9 @@
     <!-- LEFT: Items -->
     <div class="lg:col-span-2 space-y-4">
 
-      <!-- NEW: select toolbar -->
+      <!-- Select toolbar -->
       <div class="flex items-center justify-between">
-        <div class="text-sm text-[#766E62]">
-          Selection
-        </div>
+        <div class="text-sm text-[#766E62]">Selection</div>
         <div class="flex items-center gap-2">
           <button id="selectAllBtn"
                   class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB]">
@@ -42,7 +40,6 @@
           </button>
         </div>
       </div>
-      <!-- /toolbar -->
 
       <div id="cartItems" style="display:none"></div>
 
@@ -60,6 +57,7 @@
         <div class="space-y-4 mb-6">
           <div class="flex items-center justify-between">
             <span class="text-[#766E62]">Total Items</span>
+            <!-- TAMPILKAN JUMLAH QTY YANG TERPILIH -->
             <span class="font-semibold text-[#3A342D]" data-total-items>0</span>
           </div>
         </div>
@@ -86,7 +84,7 @@
   </div>
 </section>
 
-<!-- Template untuk product card -->
+<!-- Product card template -->
 <template id="cart-item-template">
   <div class="rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition" data-item-row>
     <div class="flex items-center gap-4">
@@ -111,6 +109,9 @@
     </div>
   </div>
 </template>
+
+<!-- Toasts -->
+{% include "toast.html" %}
 {% endblock %}
 
 {% block scripts %}
@@ -139,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
       body
     });
+    // walau 4xx tetap di-JSON-in biar dapat {ok:false,message:"..."}
     return await r.json();
   }
 
@@ -151,20 +153,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (show) setCheckoutDisabled(true);
   }
 
-  function setTotals(totalItems){
-    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = totalItems);
+  // ===== summary helpers (pakai DOM, bukan data server) =====
+  function computeSelectedQtyFromDOM(){
+    let sum = 0;
+    document.querySelectorAll('[data-item-row]').forEach(row=>{
+      const cb = row.querySelector('[data-select]');
+      if (cb && cb.checked){
+        const qty = Number(row.querySelector('[data-qty]')?.textContent || 0);
+        sum += qty;
+      }
+    });
+    return sum;
   }
-
+  function setTotals(selectedQty){
+    const qty = Number(selectedQty) || 0;
+    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = qty);
+    setCheckoutDisabled(!(qty > 0));
+  }
   function setCheckoutDisabled(disabled){
     if (checkoutBtn) checkoutBtn.disabled = !!disabled;
   }
-
-  function updateCheckoutStateFromDOM(){
-    const anyRow = document.querySelector('[data-item-row]') !== null;
-    const anyChecked = document.querySelector('[data-item-row] input[type="checkbox"][data-select]:checked') !== null;
-    setCheckoutDisabled(!anyRow || !anyChecked);
+  function refreshSummaryFromDOM(){
+    setTotals(computeSelectedQtyFromDOM());
   }
 
+  // ===== render =====
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -195,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
       list.appendChild(node);
     });
 
-    updateCheckoutStateFromDOM();
+    // summary berdasar DOM
+    refreshSummaryFromDOM();
   }
 
   async function loadCart(){
@@ -203,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await getJSON("{% url 'cart:json' %}");
       if (data?.ok){
         renderItems(data.items);
-        setTotals(data.total_items);
       } else {
         toggleEmpty(true);
         setTotals(0);
@@ -215,40 +228,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Select all
-document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
-  const out = await postForm("{% url 'cart:select_all' %}");
-  if (!out.ok && window.showToast) showToast("Failed to select all items.", "error");
-  if (out.total_items !== undefined) setTotals(out.total_items); 
-  await loadCart();
-  updateCheckoutStateFromDOM();
-});
+  // ===== select all / unselect all =====
+  document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
+    const out = await postForm("{% url 'cart:select_all' %}");
+    if (window.showToast) showToast(out.message || "Selected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
+  document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
+    const out = await postForm("{% url 'cart:unselect_all' %}");
+    if (window.showToast) showToast(out.message || "Unselected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
 
-// Unselect all
-document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
-  const out = await postForm("{% url 'cart:unselect_all' %}");
-  if (!out.ok && window.showToast) showToast("Failed to unselect items.", "error");
-  if (out.total_items !== undefined) setTotals(out.total_items); 
-  await loadCart();
-  updateCheckoutStateFromDOM();
-});
-
-
-  // Event Delegation (row actions)
+  // ===== Event Delegation =====
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
-    const refreshAfter = () => { updateCheckoutStateFromDOM(); };
 
     // toggle select
     if (e.target.matches('[data-select]')){
-      const id = row?.dataset.itemId;
+      const id = e.target.closest('[data-item-row]')?.dataset.itemId;
       const val = e.target.checked ? '1' : '0';
       const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: val});
-      if (!out.ok){
-        e.target.checked = !e.target.checked;
-        if (window.showToast) showToast(out.message || "Failed to update selection.", "error");
-      }
-      refreshAfter();
+      if (window.showToast && out.message) showToast(out.message, out.ok ? "success" : "error");
+      refreshSummaryFromDOM();
       return;
     }
 
@@ -256,36 +258,36 @@ document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
     const id = row.dataset.itemId;
 
     // increment
-    if (e.target.matches('[data-inc]')){
+    if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) + 1;
       const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
       if (out.ok){
         qtyEl.textContent = out.quantity;
-        setTotals(out.total_items);
+        if (window.showToast && out.message) showToast(out.message, "success");
+        refreshSummaryFromDOM();
       } else {
         if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
       }
       return;
     }
 
-    // decrement
-    if (e.target.matches('[data-dec]')){
+    // decrement (biarin next <= 0, biar server bisa hapus item)
+    if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) - 1;
-      if (next < 1) return;
       const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
       if (out.ok){
         if (out.quantity <= 0){
           row.remove();
-          setTotals(out.total_items);
+          if (window.showToast) showToast("Item removed from cart. 🗑️", "success");
           const hasItem = !!document.querySelector('[data-item-row]');
           if (!hasItem) toggleEmpty(true);
         } else {
           qtyEl.textContent = out.quantity;
-          setTotals(out.total_items);
+          if (window.showToast && out.message) showToast(out.message, "success");
         }
-        refreshAfter();
+        refreshSummaryFromDOM();
       } else {
         if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
       }
@@ -293,15 +295,15 @@ document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
     }
 
     // remove
-    if (e.target.matches('[data-remove]')){
+    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')){
       if (!confirm('Remove this item from your cart?')) return;
       const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
       if (out.ok){
         row.remove();
-        setTotals(out.total_items);
+        if (window.showToast) showToast(out.message || "Item removed. 🗑️", "success");
         const hasItem = !!document.querySelector('[data-item-row]');
         if (!hasItem) toggleEmpty(true);
-        refreshAfter();
+        refreshSummaryFromDOM();
       } else {
         if (window.showToast) showToast(out.message || "Failed to remove item.", "error");
       }
@@ -309,15 +311,13 @@ document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
     }
   });
 
-  // Checkout
+  // ===== Checkout =====
   document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
-    // disallow submit kalau disabled atau tidak ada yang dipilih
     if (checkoutBtn?.disabled){
       e.preventDefault();
       if (window.showToast) showToast("Please select at least one item to proceed.", "warning");
       return;
     }
-    // kumpulkan ID yang dipilih langsung dari DOM
     const selectedIds = Array.from(
       document.querySelectorAll('[data-item-row] input[type="checkbox"][data-select]:checked')
     ).map(cb => cb.closest('[data-item-row]').dataset.itemId);
