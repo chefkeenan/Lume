@@ -64,18 +64,36 @@
       </div>
     </details>
 
-    <!-- Dropdown SORT -->
-    <form method="get" class="hidden md:block">
-      <select name="order" class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm"
-              onchange="this.form.submit()">
-        <option value="">Urut default</option>
-        <option value="price" {% if order == 'price' %}selected{% endif %}>Harga: Termurah</option>
-        <option value="-price" {% if order == '-price' %}selected{% endif %}>Harga: Termahal</option>
-      </select>
-      {% if selected_price %}<input type="hidden" name="price" value="{{ selected_price }}">{% endif %}
-    </form>
-  </div>
+    <!-- Kanan: Add Product (admin only) + Sort -->
+    <div class="flex items-center gap-3">
+  {% if user.is_staff %}
+    <a
+      href="{% url 'catalog:product_add' %}"
+      class="inline-flex items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-stone-100"
+      title="Tambah produk baru"
+    >
+      <!-- ikon plus -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M11 5a1 1 0 1 1 2 0v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5z"/>
+      </svg>
+      Add Product
+    </a>
+  {% endif %}
+
+  <!-- Dropdown SORT (punyamu) -->
+  <form method="get" class="hidden md:block">
+    <select name="order" class="rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm"
+            onchange="this.form.submit()">
+      <option value="">Urut default</option>
+      <option value="price" {% if order == 'price' %}selected{% endif %}>Harga: Termurah</option>
+      <option value="-price" {% if order == '-price' %}selected{% endif %}>Harga: Termahal</option>
+    </select>
+    {% if selected_price %}<input type="hidden" name="price" value="{{ selected_price }}">{% endif %}
+  </form>
+</div>
+
 </section>
+
 
 <!-- GRID PRODUK -->
 <section id="grid" class="mx-auto max-w-7xl px-6 py-8">
