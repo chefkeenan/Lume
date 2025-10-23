@@ -18,7 +18,5 @@ urlpatterns = [
     path("classes/<int:pk>/edit/", views.class_edit, name="class_edit"),
     path("classes/<int:pk>/delete/", views.class_delete, name="class_delete"),
 
-
-
 ]
 

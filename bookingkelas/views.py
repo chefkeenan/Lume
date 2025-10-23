@@ -67,7 +67,7 @@ def catalog(request):
             "instance_id": inst0.id,  
         })
     grouped_sessions = sorted(grouped_sessions, key=lambda x: (x["category"], x["time"], x["base_title"]))
-    return render(request, "bookingkelas/show_class.html", {"sessions": grouped_sessions})
+    return render(request, "show_class.html", {"sessions": grouped_sessions})
 
 @login_required(login_url="/user/login/")
 def sessions_json(request):
@@ -104,7 +104,7 @@ def add_session(request):
             return redirect("bookingkelas:catalog")
     else:
         form = SessionsForm()
-    return render(request, "bookingkelas/add_session.html", {"form": form})
+    return render(request, "add_session.html", {"form": form})
 
 def get_session_details_json(request, base_title):
     sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
@@ -142,7 +142,6 @@ def get_session_details_json(request, base_title):
     return JsonResponse(data)
 
 @login_required(login_url="/user/login/")
-@transaction.atomic
 def book_class(request, session_id):
     s = get_object_or_404(ClassSessions.objects.select_for_update(), id=session_id)
 
@@ -212,7 +211,7 @@ def book_daily_session(request):
 @login_required(login_url="/user/login/")
 def class_list(request):
     classes = ClassSessions.objects.all().order_by("title")
-    return render(request, "bookingkelas/class_list.html", {"classes": classes})
+    return render(request, "class_list.html", {"classes": classes})
 
 @login_required(login_url="/user/login/")
 def class_edit(request, pk):
@@ -222,7 +221,7 @@ def class_edit(request, pk):
         form.save()
         messages.success(request, "Sesi diperbarui.")
         return redirect("bookingkelas:class_list")
-    return render(request, "bookingkelas/class_form.html", {"form": form})
+    return render(request, "class_form.html", {"form": form})
 
 @login_required(login_url="/user/login/")
 def class_delete(request, pk):
