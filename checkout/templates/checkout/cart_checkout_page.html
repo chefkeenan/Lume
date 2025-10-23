@@ -1,32 +1,34 @@
 {% extends "base.html" %}
 {% load static %}
 {% load humanize %}
+{% load widget_tweaks %}
 {% block title %}Checkout — Lume{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+<section class="mx-auto max-w-7xl px-6 lg:px-8 py-10 bg-[#F7F7F3]">
 
   <!-- Back to Cart -->
   <div class="mb-6">
     <a href="{% url 'cart:page' %}"
-       class="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-100/70 px-4 py-2 text-sm hover:bg-neutral-200">
+       class="inline-flex items-center gap-2 rounded-full border border-[#E2E4DA] bg-white px-5 py-2 text-sm text-[#3E4038]
+              shadow-[0_2px_8px_rgba(126,128,115,0.10)] hover:bg-[#F1F2EC] hover:border-[#D2D4C9] transition">
       ← Back to Cart
     </a>
   </div>
 
   <!-- Heading -->
-  <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Checkout</h1>
-  <p class="text-neutral-600 mt-1">Complete your purchase</p>
+  <h1 class="text-3xl font-semibold tracking-tight text-[#3E4038]">Checkout</h1>
+  <p class="text-[#7A7C72] mt-1">Complete your purchase</p>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
     <!-- LEFT: Form -->
-    <form method="post" action="{% url 'checkout:checkout_cart_create' %}" class="lg:col-span-2 space-y-6">
+    <form method="post" action="{% url 'checkout:checkout_cart_create' %}" class="lg:col-span-2 space-y-6" id="checkout-form">
       {% csrf_token %}
 
       <!-- Shipping Information -->
-      <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-        <h2 class="text-lg font-medium mb-4">Shipping Information</h2>
+      <div class="rounded-3xl border border-[#E6E7E1] bg-[#F4F2EA] p-6 shadow-[0_6px_18px_rgba(126,128,115,0.08)]">
+        <h2 class="text-lg font-medium mb-4 text-[#3E4038]">Shipping Information</h2>
 
         {% if form.non_field_errors %}
           <div class="mb-3 text-sm text-red-600">{{ form.non_field_errors }}</div>
@@ -35,105 +37,95 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <!-- Address line 1 -->
           <div class="sm:col-span-2">
-            <label for="{{ form.address_line1.id_for_label }}" class="text-sm block mb-1">Address</label>
-            {{ form.address_line1|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.address_line1.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.address_line1.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.address_line1.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Address</label>
+            {{ form.address_line1|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.address_line1.errors %}<p class="text-sm text-red-600 mt-1">{{ form.address_line1.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Address line 2 -->
           <div class="sm:col-span-2">
-            <label for="{{ form.address_line2.id_for_label }}" class="text-sm block mb-1">Address</label>
-            {{ form.address_line2|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.address_line2.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.address_line2.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.address_line2.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Address Line 2</label>
+            {{ form.address_line2|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.address_line2.errors %}<p class="text-sm text-red-600 mt-1">{{ form.address_line2.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- City -->
           <div>
-            <label for="{{ form.city.id_for_label }}" class="text-sm block mb-1">City</label>
-            {{ form.city|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.city.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.city.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.city.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">City</label>
+            {{ form.city|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.city.errors %}<p class="text-sm text-red-600 mt-1">{{ form.city.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Province -->
           <div>
-            <label for="{{ form.province.id_for_label }}" class="text-sm block mb-1">Province</label>
-            {{ form.province|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.province.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.province.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.province.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Province</label>
+            {{ form.province|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.province.errors %}<p class="text-sm text-red-600 mt-1">{{ form.province.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Postal -->
           <div>
-            <label for="{{ form.postal_code.id_for_label }}" class="text-sm block mb-1">Postal Code</label>
-            {{ form.postal_code|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.postal_code.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.postal_code.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.postal_code.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Postal Code</label>
+            {{ form.postal_code|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.postal_code.errors %}<p class="text-sm text-red-600 mt-1">{{ form.postal_code.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Country -->
           <div>
-            <label for="{{ form.country.id_for_label }}" class="text-sm block mb-1">Country</label>
-            {{ form.country|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.country.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.country.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.country.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Country</label>
+            {{ form.country|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.country.errors %}<p class="text-sm text-red-600 mt-1">{{ form.country.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Notes -->
           <div class="sm:col-span-2">
-            <label for="{{ form.notes.id_for_label }}" class="text-sm block mb-1">Notes</label>
-            {{ form.notes|add_class:"w-full rounded-lg border border-neutral-300 px-3 py-2 bg-white" }}
-            {% if form.notes.errors %}
-              <p class="text-sm text-red-600 mt-1">{{ form.notes.errors|striptags }}</p>
-            {% endif %}
+            <label for="{{ form.notes.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Notes</label>
+            {{ form.notes|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {% if form.notes.errors %}<p class="text-sm text-red-600 mt-1">{{ form.notes.errors|striptags }}</p>{% endif %}
           </div>
         </div>
       </div>
 
-      <!-- Payment (info only, fixed COD) -->
-      <div class="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-        <h2 class="text-lg font-medium mb-3">Payment Method</h2>
-        <div class="rounded-xl border border-neutral-300 bg-white px-4 py-3">
-          <label class="inline-flex items-center gap-3">
-            <input type="radio" checked disabled class="h-4 w-4">
-            <span>Cash on Delivery (COD)</span>
-          </label>
-        </div>
+      <!-- Payment (COD) -->
+      <div class="rounded-3xl border border-[#E6E7E1] bg-[#F4F2EA] p-6 shadow-[0_6px_18px_rgba(126,128,115,0.08)]">
+        <h2 class="text-lg font-medium mb-3 text-[#3E4038]">Payment Method</h2>
+        <label class="flex items-center gap-3 rounded-2xl border border-[#D9DBD0] bg-white px-4 py-3 cursor-pointer hover:bg-[#F7F7F3]">
+          <input type="radio" name="payment_method" value="COD" checked
+                 class="h-4 w-4 text-[#7E8073] focus:ring-[#7E8073]">
+          <span class="text-sm text-[#3E4038]">Cash on Delivery (COD)</span>
+        </label>
       </div>
 
       <!-- Submit -->
       <button type="submit"
-              class="w-full inline-flex items-center justify-center rounded-xl bg-neutral-800 px-5 py-3 text-white font-medium hover:bg-neutral-900">
+              class="w-full inline-flex items-center justify-center rounded-full bg-[#7E8073] px-6 py-3 text-white font-semibold
+                     shadow-[0_6px_14px_rgba(126,128,115,0.25)] hover:bg-[#6F7166] active:bg-[#64665C] transition">
         Place Order
       </button>
     </form>
 
     <!-- RIGHT: Order Summary -->
     <aside class="lg:col-span-1">
-      <div class="sticky top-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-        <h2 class="text-lg font-medium mb-4">Order Summary</h2>
+      <div class="sticky top-6 rounded-3xl border border-[#E6E7E1] bg-white p-6 shadow-[0_6px_18px_rgba(126,128,115,0.08)]">
+        <h2 class="text-lg font-medium mb-4 text-[#3E4038]">Order Summary</h2>
 
-        <dl class="space-y-2 text-sm">
-          <div class="flex justify-between">
-            <dt>Subtotal</dt>
-            <dd class="tabular-nums">Rp {{ subtotal|floatformat:0|intcomma }}</dd>
-          </div>
-          <div class="flex justify-between">
-            <dt>Shipping</dt>
-            <dd class="tabular-nums">Rp {{ shipping|floatformat:0|intcomma }}</dd>
-          </div>
-          <div class="border-t border-neutral-200 my-3"></div>
+        {% if cart_items %}
+        <div class="space-y-3 mb-4 max-h-56 overflow-auto pr-1">
+          {% for ci in cart_items %}
+            <div class="flex items-center justify-between text-sm text-[#3E4038]">
+              <span class="truncate">{{ ci.product.name }} × {{ ci.quantity }}</span>
+              <span>Rp {{ ci.product.price|floatformat:0|intcomma }}</span>
+            </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <dl class="space-y-2 text-sm text-[#3E4038]">
+          <div class="flex justify-between"><dt>Subtotal</dt><dd class="tabular-nums">Rp {{ subtotal|floatformat:0|intcomma }}</dd></div>
+          <div class="flex justify-between"><dt>Shipping</dt><dd class="tabular-nums">Rp {{ shipping|floatformat:0|intcomma }}</dd></div>
+          <div class="my-3 h-px bg-[#E6E7E1]"></div>
           <div class="flex justify-between text-base font-semibold">
-            <dt>Total</dt>
-            <dd class="tabular-nums">Rp {{ total|floatformat:0|intcomma }}</dd>
+            <dt>Total</dt><dd class="tabular-nums">Rp {{ total|floatformat:0|intcomma }}</dd>
           </div>
         </dl>
       </div>
@@ -141,4 +133,16 @@
 
   </div>
 </section>
+
+<script>
+  // Anti double-click
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('checkout-form');
+    if (!form) return;
+    form.addEventListener('submit', function () {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+    });
+  });
+</script>
 {% endblock %}
