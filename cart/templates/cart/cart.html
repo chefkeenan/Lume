@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (show) setCheckoutDisabled(true);
   }
 
-  // ===== summary helpers (pakai DOM, bukan data server) =====
+  // summary helpers (pakai DOM, bukan data server) 
   function computeSelectedQtyFromDOM(){
     let sum = 0;
     document.querySelectorAll('[data-item-row]').forEach(row=>{
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTotals(computeSelectedQtyFromDOM());
   }
 
-  // ===== render =====
+  // render 
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ===== select all / unselect all =====
+  // select all / unselect all 
   document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
     const out = await postForm("{% url 'cart:select_all' %}");
     if (window.showToast) showToast(out.message || "Selected all items. ✅", out.ok ? "success" : "error");
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadCart();
   });
 
-  // ===== Event Delegation =====
+  // Event Delegation 
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
 
@@ -294,9 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // remove
-    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')){
-      if (!confirm('Remove this item from your cart?')) return;
+    // Remove 
+    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
       const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
       if (out.ok){
         row.remove();
@@ -311,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ===== Checkout =====
+  // Checkout 
   document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
     if (checkoutBtn?.disabled){
       e.preventDefault();
