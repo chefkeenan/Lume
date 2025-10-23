@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Products</h1>
+
+<table class="w-full border-collapse">
+  <thead>
+    <tr class="border-b">
+      <th class="p-2 text-left">ID</th>
+      <th class="p-2 text-left">Name</th>
+      <th class="p-2 text-left">Price</th>
+      <th class="p-2 text-left">Actions</th>
+    </tr>
+  </thead>
+  <tbody id="product-tbody">
+    {% for p in products %}
+      {% include "catalog/_product_row.html" with p=p %}
+    {% empty %}
+      <tr id="empty-row"><td colspan="4" class="p-4 text-center text-gray-500">No products.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Modal container -->
+<div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-[9999]">
+  <div class="bg-white w-full max-w-lg rounded-xl p-4" id="modal-body"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ===== CSRF from cookie =====
+function getCookie(name){
+  const v = `; ${document.cookie}`.split(`; ${name}=`);
+  if (v.length===2) return decodeURIComponent(v.pop().split(';').shift());
+}
+const csrftoken = getCookie('csrftoken');
+
+// ===== modal helpers =====
+const $modal = document.getElementById('modal');
+const $modalBody = document.getElementById('modal-body');
+function openModal(html){ $modalBody.innerHTML = html; $modal.classList.remove('hidden'); $modal.classList.add('flex'); }
+function closeModal(){ $modal.classList.add('hidden'); $modal.classList.remove('flex'); $modalBody.innerHTML=''; }
+$modal.addEventListener('click', (e)=>{ if(e.target.id==='modal') closeModal(); });
+
+// ===== action buttons (edit/delete) =====
+document.getElementById('product-tbody').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+
+  if(action === 'edit'){
+    // GET form partial
+    const editModalTpl = "{% url 'catalog:product_edit_modal' '00000000-0000-0000-0000-000000000000' %}";
+    const editModalUrl = editModalTpl.replace('00000000-0000-0000-0000-000000000000', id);
+
+    const r = await fetch(editModalUrl, { headers: {'X-Requested-With':'XMLHttpRequest'}});
+    const data = await r.json();
+    if(data.ok) openModal(data.form_html); else alert('Gagal membuka form.');
+    return;
+  }
+
+  if(action === 'delete'){
+    openModal(`
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold">Confirm delete?</h3>
+        <p>Product #${id} akan dihapus.</p>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="px-3 py-2 border rounded" id="cancel-del">Cancel</button>
+          <button type="button" class="px-3 py-2 rounded bg-red-600 text-white" id="confirm-del">Delete</button>
+        </div>
+      </div>
+    `);
+    document.getElementById('cancel-del').onclick = closeModal;
+    document.getElementById('confirm-del').onclick = async ()=>{
+      const deleteTpl = "{% url 'catalog:product_delete' '00000000-0000-0000-0000-000000000000' %}";
+      const deleteUrl = deleteTpl.replace('00000000-0000-0000-0000-000000000000', id);
+
+      const r = await fetch(deleteUrl, {
+        method:'POST',
+        headers:{'X-Requested-With':'XMLHttpRequest','X-CSRFToken':csrftoken}
+      });
+      const data = await r.json();
+      if(data.ok){
+        const row = document.querySelector(`tr[data-row-id="${id}"]`);
+        if(row) row.remove();
+        if(!document.querySelector('#product-tbody tr')) {
+          document.getElementById('product-tbody').innerHTML =
+            '<tr id="empty-row"><td colspan="4" class="p-4 text-center text-gray-500">No products.</td></tr>';
+        }
+        closeModal();
+      }else{
+        alert('Gagal delete.');
+      }
+    };
+    return;
+  }
+});
+
+// ===== submit form edit di dalam modal =====
+$modalBody.addEventListener('submit', async (e)=>{
+  const form = e.target.closest('form[data-edit-form]');
+  if(!form) return;
+  e.preventDefault();
+  const id = form.dataset.id;
+
+  const editTpl = "{% url 'catalog:product_edit' '00000000-0000-0000-0000-000000000000' %}";
+  const editUrl = editTpl.replace('00000000-0000-0000-0000-000000000000', id);
+
+  const fd = new FormData(form);
+  const r = await fetch(editUrl, {
+    method:'POST',
+    headers:{'X-Requested-With':'XMLHttpRequest','X-CSRFToken':csrftoken},
+    body: fd
+  });
+  const data = await r.json();
+  if(r.ok && data.ok){
+    const row = document.querySelector(`tr[data-row-id="${data.id}"]`);
+    if(row) row.outerHTML = data.row_html;
+    closeModal();
+  }else{
+    if(data.form_html) openModal(data.form_html); else alert('Gagal update.');
+  }
+});
+</script>
+{% endblock %}
+
