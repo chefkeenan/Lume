@@ -1,7 +1,10 @@
+# catalog/forms.py
 from django import forms
 from django.forms import ModelForm
 from django.utils.html import strip_tags
 from .models import Product
+
+BASE_INPUT = {"class": "w-full rounded-lg border px-3 py-2"}
 
 class ProductForm(ModelForm):
     class Meta:
@@ -16,7 +19,12 @@ class ProductForm(ModelForm):
             "inStock": "In Stock",
         }
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 4}),
+            "product_name": forms.TextInput(attrs=BASE_INPUT),
+            "price": forms.NumberInput(attrs={**BASE_INPUT, "min": 0}),
+            "stock": forms.NumberInput(attrs={**BASE_INPUT, "min": 0}),
+            "thumbnail": forms.URLInput(attrs=BASE_INPUT),
+            "description": forms.Textarea(attrs={**BASE_INPUT, "rows": 4}),
+            "inStock": forms.CheckboxInput(attrs={"class": "h-4 w-4"}),
         }
 
     def clean_product_name(self):

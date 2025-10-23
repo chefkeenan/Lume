@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block content %}
+<nav class="mx-auto max-w-7xl px-6 pt-6 text-sm">
+  <ol class="flex items-center gap-2 text-[color:var(--muted-foreground)]">
+    <li><a href="/" class="hover:opacity-80">Home</a></li>
+    <li>/</li>
+    <li><a href="/#produk" class="hover:opacity-80">Products</a></li>
+    <li>/</li>
+    <li class="text-gray-900">{{ p.product_name }}</li>
+  </ol>
+</nav>
+
+<section class="mx-auto max-w-7xl px-6 py-10">
+  <div class="grid gap-10 lg:grid-cols-12">
+    <!-- Image -->
+    <div class="lg:col-span-6">
+      <div class="relative overflow-hidden rounded-3xl border border-theme theme-card">
+        <img
+          src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/1280/960' }}"
+          alt="{{ p.product_name }}"
+          class="w-full object-cover aspect-[4/3]"
+          onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/1280/960';"
+        />
+        {% if not p.inStock %}
+        <div class="absolute inset-0 grid place-items-center bg-black/40">
+          <span class="rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800">Out of Stock</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="lg:col-span-6">
+      <h1 class="text-4xl font-bold">{{ p.product_name }}</h1>
+      <p class="mt-3 text-base" style="color:var(--muted-foreground)">
+        {{ p.description|default:"No description." }}
+      </p>
+
+      <div class="mt-6 rounded-2xl border border-theme p-5 theme-card">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <p class="text-sm" style="color:var(--muted-foreground)">Price</p>
+            <p class="text-3xl font-semibold" style="color:var(--primary)">Rp{{ p.price|intcomma }}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm" style="color:var(--muted-foreground)">Stock</p>
+            <p class="text-base font-medium">{{ p.stock|default:0 }} available</p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+          {% if user.is_authenticated and p.inStock %}
+            <form method="post" action="{% url 'cart:add' p.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="qty" value="1">
+              <button type="submit" class="flex-1">Add to cart</button>
+            </form>
+          {% else %}
+          <button disabled
+            class="w-full cursor-not-allowed rounded-xl px-5 py-3 text-sm font-medium opacity-60 border border-theme theme-card">
+            {% if not user.is_authenticated %}Login to purchase{% else %}Out of Stock{% endif %}
+          </button>
+          {% endif %}
+
+          <a href="/#produk" class="btn-ghost rounded-xl px-5 py-3 text-sm font-medium">Back to Products</a>
+        </div>
+
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+        <div class="mt-4 flex gap-2">
+          <button id="btnEdit"
+                  class="rounded-xl border px-4 py-2 text-sm hover:bg-stone-50">
+            Edit
+          </button>
+          <button id="btnDelete"
+                  class="rounded-xl border px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+            Delete
+          </button>
+        </div>
+        {% endif %}
+      </div>
+
+      <ul class="mt-6 grid gap-2 text-sm text-[color:var(--muted-foreground)]">
+        <li>• Fast shipping & easy returns</li>
+        <li>• Secure payment</li>
+        <li>• Quality guaranteed</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+{% if request.user.is_authenticated and request.user.is_superuser %}
+<!-- Modal Edit (simple) -->
+<div id="editModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4 z-50">
+  <div class="w-full max-w-lg rounded-2xl bg-white p-5">
+    <h3 class="text-lg font-semibold mb-4">Edit Product</h3>
+    <form id="editForm" class="space-y-3">
+      {% csrf_token %}
+      <div>
+        <label class="block text-sm">Name</label>
+        <input name="product_name" class="w-full rounded-lg border px-3 py-2"
+               value="{{ p.product_name }}">
+      </div>
+      <div>
+        <label class="block text-sm">Price</label>
+        <input name="price" type="number" class="w-full rounded-lg border px-3 py-2"
+               value="{{ p.price }}">
+      </div>
+      <div>
+        <label class="block text-sm">Stock</label>
+        <input name="stock" type="number" class="w-full rounded-lg border px-3 py-2"
+               value="{{ p.stock }}">
+      </div>
+      <div>
+        <label class="block text-sm">Thumbnail URL</label>
+        <input name="thumbnail" class="w-full rounded-lg border px-3 py-2"
+               value="{{ p.thumbnail }}">
+      </div>
+      <div>
+        <label class="block text-sm">Description</label>
+        <textarea name="description" rows="4"
+                  class="w-full rounded-lg border px-3 py-2">{{ p.description }}</textarea>
+      </div>
+      <div class="flex items-center gap-2">
+        <input id="inStock" name="inStock" type="checkbox" {% if p.inStock %}checked{% endif %}>
+        <label for="inStock">In Stock</label>
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button type="button" id="btnCancelEdit" class="rounded-lg border px-4 py-2">Cancel</button>
+        <button type="submit" class="rounded-lg bg-stone-900 text-white px-4 py-2">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.CATALOG_DETAIL = {
+    productId: "{{ p.id }}",
+    updateUrl: "{% url 'catalog:product_edit'  p.id %}",
+    deleteUrl: "{% url 'catalog:product_delete' p.id %}",
+    redirectAfterDelete: "{% url 'main:show_main' %}"
+  };
+</script>
+<script src="{% static 'js/manage_ajax.js' %}"></script> {# lihat poin 2 soal path #}
+{% endblock %}
+
+
