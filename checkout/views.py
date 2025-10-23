@@ -11,10 +11,6 @@ from django.urls import reverse
 from decimal import Decimal
 
 # CART -> CHECKOUT PRODUK (alamat diinput tiap checkout)
-# checkout/views.py (potongan perubahan)
-from decimal import Decimal
-# ...
-
 @login_required
 def cart_checkout_page(request):
     cart = get_object_or_404(
@@ -93,7 +89,6 @@ def checkout_cart_create(request):
     messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
 
-
 # BOOKING CLASS -> CHECKOUT (single booking, tanpa alamat & ongkir)
 @login_required
 def checkout_booking_now(request, booking_id):
@@ -131,7 +126,6 @@ def checkout_booking_now(request, booking_id):
 
     messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
-
 
 def order_confirmed(request):
     """
