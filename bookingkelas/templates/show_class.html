@@ -9,8 +9,8 @@
   </div>
 
   <div class="mt-6 grid gap-6 md:grid-cols-2">
-    {% for s in sessions %}
-    {% include "class_card.html" with c=s %}
+    {% for c in sessions %}
+    {% include "class_card.html" with c=c %}
     {% empty %}
     <div class="text-gray-500">Belum ada jadwal.</div>
     {% endfor %}
