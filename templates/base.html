@@ -36,7 +36,10 @@
   <body class="theme-bg">
     {% include "navbar.html" %}
     {% block content %}{% endblock %}
-    {% block scripts %}{% endblock %}
+    
+    {% block scripts %}
+    {% endblock scripts %}
+    </body>
     {% block extra_js %}{% endblock %}
   </body>
 </html>
