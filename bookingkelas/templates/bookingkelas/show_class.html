@@ -30,6 +30,7 @@
           </div>
           <div class="mt-1">Slot: {{ s.capacity_current }}/{{ s.capacity_max }}</div>
         </div>
+
         <div class="mt-4 flex gap-3">
           {% if s.category == "daily" %}
             <button 
@@ -56,28 +57,39 @@
     
     <div class="flex justify-between items-center border-b p-4">
       <h2 id="modalTitle" class="text-2xl font-bold">Loading...</h2>
-      <button id="modalClose" class="text-2xl">&times;</button>
+      <button id="modalClose" class="text-2xl leading-none">&times;</button>
     </div>
 
-    <form action="{% url 'bookingkelas:book_daily_session' %}" method="POST">
+    <form id="bookingForm" action="{% url 'bookingkelas:book_daily_session' %}" method="POST">
       {% csrf_token %}
       
       <div class="p-6 space-y-4">
-        <div class="text-sm">
-          <div>Instructor: <span id="modalInstructor"></span></div>
-          <div>Time: <span id="modalTime"></span></div>
-          <div>Room: <span id="modalRoom"></span></div>
-          <div>Price: Rp <span id="modalPrice"></span></div>
+        <div class="text-sm space-y-1">
+          <div class="text-gray-500">Instruktur</div>
+          <div id="modalInstructor" class="font-medium">...</div>
+          
+          <div class="text-gray-500 pt-2">Lokasi</div>
+          <div id="modalRoom" class="font-medium">...</div>
+
+          <div class="text-gray-500 pt-2">Harga</div>
+          <div id="modalPrice" class="font-semibold text-lg text-[var(--primary)]">Rp ...</div>
         </div>
-        <hr>
-        <h3 class="font-semibold">Choose Day:</h3>
-        <div id="modalDayOptions" class="space-y-4">
+        
+        <hr class="border-theme">
+        
+        <h3 class="font-semibold">Choose Your Day</h3>
+        <div id="modalDayOptions" class="grid grid-cols-3 gap-2">
           <div class="text-gray-500">Loading days...</div>
         </div>
       </div>
 
-      <div class="border-t p-4 bg-gray-50 rounded-b-2xl">
-        <button type="submit" class="btn-primary rounded-xl px-4 py-2 text-white w-full">Book</button>
+      <div class="border-t p-4 bg-gray-50 rounded-b-2xl grid grid-cols-2 gap-3">
+        <button type="button" id="modalCancel" class="btn-ghost rounded-xl px-4 py-2 w-full">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary rounded-xl px-4 py-2 w-full">
+          Confirm Booking
+        </button>
       </div>
     </form>
     
@@ -88,14 +100,20 @@
 
 {% block scripts %}
 <script>
+// Kirim status login dari Django ke JavaScript
+
 document.addEventListener("DOMContentLoaded", function() {
   
   // Ambil elemen-elemen modal
   const modal = document.getElementById('classModal');
   const modalClose = document.getElementById('modalClose');
+  const modalCancel = document.getElementById('modalCancel'); // Tombol Cancel baru
+  const bookingForm = document.getElementById('bookingForm'); // Form baru
+  
+  // Elemen detail
   const modalTitle = document.getElementById('modalTitle');
   const modalInstructor = document.getElementById('modalInstructor');
-  const modalTime = document.getElementById('modalTime');
+  const modalTime = document.getElementById('modalTime'); // Kita pakai untuk Subjudul
   const modalRoom = document.getElementById('modalRoom');
   const modalPrice = document.getElementById('modalPrice');
   const modalDayOptions = document.getElementById('modalDayOptions');
@@ -110,15 +128,16 @@ document.addEventListener("DOMContentLoaded", function() {
     modal.classList.add('hidden');
     // Reset konten modal saat ditutup
     modalTitle.textContent = 'Loading...';
-    modalInstructor.textContent = '';
-    modalTime.textContent = '';
-    modalRoom.textContent = '';
-    modalPrice.textContent = '';
+    modalInstructor.textContent = '...';
+    modalRoom.textContent = '...';
+    modalPrice.textContent = 'Rp ...';
     modalDayOptions.innerHTML = '<div class="text-gray-500">Loading days...</div>';
   }
 
-  // Event listener untuk tombol tutup modal
+  // Event listener untuk tombol tutup modal (x)
   modalClose.addEventListener('click', closeModal);
+  // Event listener untuk tombol Cancel baru
+  modalCancel.addEventListener('click', closeModal);
   // Event listener untuk klik di luar modal (background)
   modal.addEventListener('click', function(e) {
     if (e.target === modal) {
@@ -132,49 +151,56 @@ document.addEventListener("DOMContentLoaded", function() {
   // Tambahkan event listener untuk setiap tombol
   openButtons.forEach(button => {
     button.addEventListener('click', function() {
-      const baseTitle = this.dataset.baseTitle; // Ambil base_title dari data-attribute
-      
-      // 1. Tampilkan modal (masih loading)
+      const baseTitle = this.dataset.baseTitle; 
       showModal();
 
-      // 2. Ambil data detail dari server
       fetch(`/bookingkelas/get-details/${baseTitle}/`)
         .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
+          if (!response.ok) throw new Error('Network response was not ok');
           return response.json();
         })
         .then(data => {
-          // 3. Isi modal dengan data yang diterima
+          // Isi modal dengan data yang diterima (sesuai desain baru)
           modalTitle.textContent = data.base_title_cleaned;
+          // Kita pakai modalInstructor untuk gabung Instruktur & Waktu
           modalInstructor.textContent = data.instructor;
-          modalTime.textContent = data.time;
           modalRoom.textContent = data.room;
-          // Format harga (opsional, tapi bagus)
-          modalPrice.textContent = parseInt(data.price).toLocaleString('id-ID');
+          modalPrice.textContent = "Rp " + parseInt(data.price).toLocaleString('id-ID');
 
           // Kosongkan container pilihan hari
           modalDayOptions.innerHTML = '';
           
           if (data.day_options.length > 0) {
-            // 4. Buat HTML untuk setiap pilihan hari
+            // =============================================
+            // BUAT HTML BARU UNTUK PILIHAN HARI (PILLS)
+            // =============================================
             data.day_options.forEach(option => {
               const isDisabled = option.is_full;
-              const disabledClass = isDisabled ? 'border-gray-300 bg-gray-100 text-gray-400' : '';
+              const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
+              
+              // Ini adalah trik CSS:
+              // - <input type="radio"> disembunyikan (sr-only)
+              // - <label> di-style sebagai tombol (pill)
+              // - 'peer-checked:' akan mengubah style <label> saat <input> di-klik
               
               const dayHtml = `
-                <label class="flex items-center gap-3 rounded-xl border border-theme p-3 ${disabledClass}">
+                <label class="block">
                   <input 
                     type="radio" 
                     name="session_id" 
                     value="${option.value_id}" 
-                    class="h-4 w-4"
+                    class="sr-only peer" 
                     ${isDisabled ? 'disabled' : ''}
                   >
-                  <span>
+                  <span 
+                    class="block rounded-full px-3 py-2 text-center text-sm font-medium
+                           bg-gray-200 text-gray-800 
+                           peer-checked:bg-[var(--primary)] 
+                           peer-checked:text-[var(--primary-foreground)]
+                           ${disabledClass}"
+                  >
                     ${option.label}
-                    ${isDisabled ? '(Penuh)' : ''}
+                    ${isDisabled ? ' (Penuh)' : ''}
                   </span>
                 </label>
               `;
@@ -190,6 +216,15 @@ document.addEventListener("DOMContentLoaded", function() {
           modalDayOptions.innerHTML = '<div class="text-red-500">Gagal memuat detail kelas. Coba lagi.</div>';
         });
     });
+  });
+
+  bookingForm.addEventListener('submit', function(event) {
+    if (!isUserLoggedIn) {
+      // Jika user TIDAK login
+      event.preventDefault(); // HENTIKAN form-nya
+      alert('Kamu harus login terlebih dahulu untuk booking.'); // Tampilkan peringatan
+    }
+    // Jika user login, biarkan form-nya terkirim (POST)
   });
 
 });

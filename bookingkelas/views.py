@@ -106,7 +106,6 @@ def add_session(request):
         form = SessionsForm()
     return render(request, "bookingkelas/add_session.html", {"form": form})
 
-@login_required # <-- Tetap wajib login untuk lihat detail hari
 def get_session_details_json(request, base_title):
     sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
     
