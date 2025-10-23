@@ -3,7 +3,7 @@
 {% block title %}Your Cart — Lume{% endblock %}
 
 {% block content %}
-<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
   <!-- Top Nav back to home -->
   <div class="mb-6">
@@ -14,42 +14,43 @@
   </div>
 
   <!-- Title -->
-  <div class="mb-2">
-    <h1 class="text-3xl font-semibold tracking-tight text-neutral-900">Your Cart</h1>
-    <p class="mt-1 text-neutral-500">Review your items before checkout.</p>
+  <div class="mb-8">
+    <h1 class="text-4xl font-bold tracking-tight text-neutral-800">Your Cart</h1>
+    <p class="mt-2 text-neutral-600">Review your items before checkout.</p>
   </div>
 
-  <!-- Layout -->
-  <div class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Main Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LEFT: items -->
+    <!-- LEFT: Cart Items -->
     <div class="lg:col-span-2 space-y-4" id="cartItems">
-      <!-- Items will be injected here by JS -->
-      <div data-empty class="text-neutral-500 text-center py-16 hidden">
-        Your cart is empty.
+      <!-- Empty state -->
+      <div data-empty class="hidden text-center py-20">
+        <p class="text-neutral-500 text-lg">Your cart is empty.</p>
+        <a href="{% url 'catalog:list' %}" class="mt-4 inline-block text-neutral-700 underline">Continue Shopping</a>
       </div>
     </div>
 
-    <!-- RIGHT: summary -->
+    <!-- RIGHT: Order Summary -->
     <aside class="lg:col-span-1">
-      <div class="rounded-2xl bg-neutral-100 border border-neutral-200 p-5">
-        <h2 class="text-lg font-semibold">Order Summary</h2>
+      <div class="sticky top-6 rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-6">
+        <h2 class="text-xl font-bold text-neutral-800 mb-6">Order Summary</h2>
 
-        <dl class="mt-4 space-y-2">
+        <div class="space-y-4 mb-6">
           <div class="flex items-center justify-between">
-            <dt class="text-sm text-neutral-600">Total Items</dt>
-            <dd class="text-sm font-medium" data-total-items>{{ total_items|default:0 }}</dd>
+            <span class="text-neutral-600">Total Items</span>
+            <span class="font-semibold text-neutral-800" data-total-items>0</span>
           </div>
-        </dl>
+        </div>
 
-        <div class="mt-5 space-y-3">
-          <!-- Proceed to checkout: kirim hanya ID yang selected -->
+        <div class="space-y-3">
+          <!-- Checkout Button -->
           <form id="checkoutForm" method="post" action="{% url 'checkout:cart_checkout_page' %}">
             {% csrf_token %}
             <input type="hidden" name="item_ids" id="selectedItemIds">
-            <button type="submit"
-                    class="w-full rounded-lg bg-neutral-400 text-white py-2.5 text-sm hover:bg-neutral-500">
-              Proceed to Checkout
+            <button type="submit" id="checkoutBtn"
+                    class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Proceed to Checkout →
             </button>
           </form>
 
@@ -60,156 +61,254 @@
         </div>
       </div>
     </aside>
+
   </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // ===== CSRF =====
-  function getCookie(name){
-    let v=null;
-    if(document.cookie!==''){
-      for(const c of document.cookie.split(';')){
-        const cc=c.trim();
-        if(cc.startsWith(name+'=')){ v=decodeURIComponent(cc.slice(name.length+1)); break; }
+  // ===== CSRF Token =====
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
     }
-    return v;
+    return cookieValue;
   }
   const CSRF = getCookie('csrftoken');
 
-  // ===== Helpers =====
-  async function getJSON(url){
-    const r = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
-    return await r.json();
+  // ===== Helper Functions =====
+  async function getJSON(url) {
+    const response = await fetch(url, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    return await response.json();
   }
-  async function postForm(url, bodyObj){
-    const body = bodyObj instanceof FormData ? bodyObj : new URLSearchParams(bodyObj||{});
-    const r = await fetch(url, {
-      method:'POST',
-      headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
+
+  async function postForm(url, bodyObj) {
+    const body = bodyObj instanceof FormData 
+      ? bodyObj 
+      : new URLSearchParams(bodyObj || {});
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': CSRF,
+        'X-Requested-With': 'XMLHttpRequest'
+      },
       body
     });
-    return await r.json();
-  }
-  function setTotalItems(n){
-    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = n);
+    return await response.json();
   }
 
-  // ===== Render item card =====
-  function renderItems(items){
+  function updateTotals(totalItems, selectedCount) {
+    document.querySelectorAll('[data-total-items]').forEach(el => {
+      el.textContent = totalItems;
+    });
+    // Disable checkout if no items selected
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+      checkoutBtn.disabled = selectedCount === 0;
+    }
+  }
+
+  // ===== Render Cart Items =====
+  function renderItems(items) {
     const wrap = document.getElementById('cartItems');
-    wrap.innerHTML = '';
     const empty = document.querySelector('[data-empty]');
-    if (!items.length){
+
+    if (!items || items.length === 0) {
+      wrap.innerHTML = '';
       empty?.classList.remove('hidden');
+      updateTotals(0, 0);
       return;
     }
-    empty?.classList.add('hidden');
 
-    for (const it of items){
-      // card skeleton (sesuai figma)
+    empty?.classList.add('hidden');
+    wrap.innerHTML = '';
+
+    for (const item of items) {
       const card = document.createElement('div');
-      card.className = "rounded-xl border border-neutral-200 bg-neutral-100/70 px-4 py-4 shadow-sm";
-      card.setAttribute('data-item-row','');
-      card.dataset.itemId = it.id;
+      card.className = 'rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition';
+      card.setAttribute('data-item-row', '');
+      card.dataset.itemId = item.id;
+
+      // Fallback image
+      const imgSrc = item.thumbnail || '/static/img/placeholder.webp';
 
       card.innerHTML = `
         <div class="flex items-center gap-4">
-          <!-- checkbox kiri -->
-          <input type="checkbox" class="h-4 w-4 rounded border-neutral-300 text-neutral-700"
-                 data-select ${it.is_selected ? 'checked' : ''}>
+          <!-- Checkbox -->
+          <input type="checkbox" 
+                 class="h-5 w-5 rounded border-2 border-[#B8A88A] text-[#B8A88A] focus:ring-[#B8A88A] cursor-pointer flex-shrink-0"
+                 data-select 
+                 ${item.is_selected ? 'checked' : ''}
+                 aria-label="Select ${item.product_name}">
 
-          <!-- image -->
-          <img src="${it.thumbnail || '{% static "img/placeholder.webp" %}'}"
-               alt="${it.product_name}" class="h-16 w-16 rounded-md object-cover border border-neutral-200">
+          <!-- Product Image -->
+          <div class="relative flex-shrink-0">
+            <img src="${imgSrc}"
+                 alt="${item.product_name}" 
+                 class="h-20 w-20 rounded-xl object-cover border border-[#E8E3D8]"
+                 onerror="this.src='/static/img/placeholder.webp'">
+          </div>
 
-          <!-- text -->
+          <!-- Product Info -->
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-neutral-800 truncate">${it.product_name}</p>
-            <p class="text-xs text-neutral-500">Rp ${Number(it.price).toLocaleString('id-ID')}</p>
+            <h3 class="text-base font-semibold text-neutral-800 truncate mb-1">
+              ${item.product_name}
+            </h3>
+            <p class="text-sm text-neutral-600">
+              Rp ${Number(item.price).toLocaleString('id-ID')}
+            </p>
           </div>
 
-          <!-- qty stepper -->
-          <div class="flex items-center gap-2">
-            <button class="h-7 w-7 rounded border border-neutral-300 text-sm" data-dec aria-label="Decrease">−</button>
-            <span class="w-8 text-center text-sm" data-qty>${it.quantity}</span>
-            <button class="h-7 w-7 rounded border border-neutral-300 text-sm" data-inc aria-label="Increase">+</button>
+          <!-- Quantity Controls -->
+          <div class="flex items-center gap-3 flex-shrink-0">
+            <button class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-neutral-700 font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center" 
+                    data-dec 
+                    aria-label="Decrease quantity">
+              −
+            </button>
+            <span class="w-8 text-center text-sm font-semibold text-neutral-800" data-qty>
+              ${item.quantity}
+            </span>
+            <button class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-neutral-700 font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center" 
+                    data-inc 
+                    aria-label="Increase quantity">
+              +
+            </button>
           </div>
 
-          <!-- remove -->
-          <button class="ml-2 text-red-500 hover:text-red-600" data-remove aria-label="Remove">🗑</button>
+          <!-- Remove Button -->
+          <button class="ml-2 text-red-500 hover:text-red-600 hover:scale-110 transition flex-shrink-0" 
+                  data-remove 
+                  aria-label="Remove ${item.product_name}"
+                  title="Remove item">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
         </div>
-
-        <!-- slot opsional untuk edit qty inline (pakai AJAX form) -->
-        <div data-edit-slot class="hidden mt-3"></div>
       `;
+
       wrap.appendChild(card);
     }
   }
 
-  // ===== Load initial =====
-  async function loadCart(filter='all'){
-    const qs = filter==='all' ? '' : `?selected=${filter}`;
-    const data = await getJSON("{% url 'cart:json' %}"+qs);
-    if (data.ok){
-      renderItems(data.items);
-      setTotalItems(data.total_items);
+  // ===== Load Cart Data =====
+  async function loadCart(filter = 'all') {
+    try {
+      const query = filter === 'all' ? '' : `?selected=${filter}`;
+      const data = await getJSON("{% url 'cart:json' %}" + query);
+      
+      if (data.ok) {
+        renderItems(data.items);
+        updateTotals(data.total_items, data.selected_count);
+      }
+    } catch (error) {
+      console.error('Error loading cart:', error);
     }
   }
 
-  // ===== Item actions (event delegation) =====
-  document.addEventListener('click', async (e)=>{
+  // ===== Event Handlers =====
+  document.addEventListener('click', async (e) => {
     const row = e.target.closest('[data-item-row]');
-    // stepper +
-    if (row && e.target.matches('[data-inc]')){
-      const id = row.dataset.itemId;
-      const qty = Number(row.querySelector('[data-qty]').textContent) + 1;
-      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: qty});
-      if (out.ok){ row.querySelector('[data-qty]').textContent = out.quantity; setTotalItems(out.total_items); }
-    }
-    // stepper −
-    if (row && e.target.matches('[data-dec]')){
-      const id = row.dataset.itemId;
-      const qty = Number(row.querySelector('[data-qty]').textContent) - 1;
-      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: qty});
-      if (out.ok){
-        if (out.quantity <= 0) row.remove();
-        else row.querySelector('[data-qty]').textContent = out.quantity;
-        setTotalItems(out.total_items);
+    if (!row) return;
+
+    const itemId = row.dataset.itemId;
+
+    // Increase quantity
+    if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')) {
+      const qtySpan = row.querySelector('[data-qty]');
+      const currentQty = Number(qtySpan.textContent);
+      const response = await postForm(
+        "{% url 'cart:set_qty' 999 %}".replace('999', itemId),
+        { quantity: currentQty + 1 }
+      );
+      if (response.ok) {
+        qtySpan.textContent = response.quantity;
+        updateTotals(response.total_items, response.selected_count);
       }
     }
-    // remove
-    if (row && e.target.matches('[data-remove]')){
-      const id = row.dataset.itemId;
-      const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
-      if (out.ok){ row.remove(); setTotalItems(out.total_items); }
+
+    // Decrease quantity
+    if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')) {
+      const qtySpan = row.querySelector('[data-qty]');
+      const currentQty = Number(qtySpan.textContent);
+      if (currentQty <= 1) return; // Prevent going below 1
+      
+      const response = await postForm(
+        "{% url 'cart:set_qty' 999 %}".replace('999', itemId),
+        { quantity: currentQty - 1 }
+      );
+      if (response.ok) {
+        if (response.quantity <= 0) {
+          row.remove();
+          loadCart(); // Reload to check empty state
+        } else {
+          qtySpan.textContent = response.quantity;
+          updateTotals(response.total_items, response.selected_count);
+        }
+      }
     }
-    // toggle select
-    if (row && e.target.matches('[data-select]')){
-      const id = row.dataset.itemId;
-      const checked = e.target.checked ? '1' : '0';
-      const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: checked});
-      // optional: kamu bisa update counter selected kalau ditampilkan
+
+    // Remove item
+    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
+      if (confirm('Remove this item from your cart?')) {
+        const response = await postForm(
+          "{% url 'cart:remove_ajax' 999 %}".replace('999', itemId)
+        );
+        if (response.ok) {
+          row.remove();
+          updateTotals(response.total_items, response.selected_count);
+          loadCart(); // Reload to check empty state
+        }
+      }
+    }
+
+    // Toggle selection
+    if (e.target.matches('[data-select]')) {
+      const isChecked = e.target.checked ? '1' : '0';
+      const response = await postForm(
+        "{% url 'cart:toggle_select' 999 %}".replace('999', itemId),
+        { is_selected: isChecked }
+      );
+      if (response.ok) {
+        updateTotals(response.total_items, response.selected_count);
+      }
     }
   });
 
-  // ===== Checkout: kirim hanya selected items =====
-  document.getElementById('checkoutForm')?.addEventListener('submit', async (e)=>{
+  // ===== Checkout Form =====
+  document.getElementById('checkoutForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const data = await getJSON("{% url 'cart:json' %}?selected=1");
-    if (data.ok){
-      const ids = data.items.map(x => x.id);
-      if (!ids.length){ alert('Please select at least one item.'); return; }
-      document.getElementById('selectedItemIds').value = ids.join(',');
-      e.target.submit(); // submit normal ke modul checkout
+    
+    try {
+      const data = await getJSON("{% url 'cart:json' %}?selected=1");
+      
+      if (data.ok && data.items.length > 0) {
+        const itemIds = data.items.map(item => item.id);
+        document.getElementById('selectedItemIds').value = itemIds.join(',');
+        e.target.submit();
+      } else {
+        alert('Please select at least one item to proceed to checkout.');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      alert('An error occurred. Please try again.');
     }
   });
 
-  // go!
+  // ===== Initialize =====
   loadCart();
 </script>
 {% endblock %}
-
-  
