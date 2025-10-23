@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% load humanize %}
-{% load widget_tweaks %}
 {% block title %}Checkout — Lume{% endblock %}
 
 {% block content %}
@@ -38,49 +37,49 @@
           <!-- Address line 1 -->
           <div class="sm:col-span-2">
             <label for="{{ form.address_line1.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Address</label>
-            {{ form.address_line1|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.address_line1 }}
             {% if form.address_line1.errors %}<p class="text-sm text-red-600 mt-1">{{ form.address_line1.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Address line 2 -->
           <div class="sm:col-span-2">
             <label for="{{ form.address_line2.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Address Line 2</label>
-            {{ form.address_line2|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.address_line2 }}
             {% if form.address_line2.errors %}<p class="text-sm text-red-600 mt-1">{{ form.address_line2.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- City -->
           <div>
             <label for="{{ form.city.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">City</label>
-            {{ form.city|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.city }}
             {% if form.city.errors %}<p class="text-sm text-red-600 mt-1">{{ form.city.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Province -->
           <div>
             <label for="{{ form.province.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Province</label>
-            {{ form.province|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.province }}
             {% if form.province.errors %}<p class="text-sm text-red-600 mt-1">{{ form.province.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Postal -->
           <div>
             <label for="{{ form.postal_code.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Postal Code</label>
-            {{ form.postal_code|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.postal_code }}
             {% if form.postal_code.errors %}<p class="text-sm text-red-600 mt-1">{{ form.postal_code.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Country -->
           <div>
             <label for="{{ form.country.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Country</label>
-            {{ form.country|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.country }}
             {% if form.country.errors %}<p class="text-sm text-red-600 mt-1">{{ form.country.errors|striptags }}</p>{% endif %}
           </div>
 
           <!-- Notes -->
           <div class="sm:col-span-2">
             <label for="{{ form.notes.id_for_label }}" class="text-sm block mb-1 text-[#3E4038]">Notes</label>
-            {{ form.notes|add_class:"w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]" }}
+            {{ form.notes }}
             {% if form.notes.errors %}<p class="text-sm text-red-600 mt-1">{{ form.notes.errors|striptags }}</p>{% endif %}
           </div>
         </div>
@@ -113,7 +112,9 @@
         <div class="space-y-3 mb-4 max-h-56 overflow-auto pr-1">
           {% for ci in cart_items %}
             <div class="flex items-center justify-between text-sm text-[#3E4038]">
-              <span class="truncate">{{ ci.product.name }} × {{ ci.quantity }}</span>
+              <span class="truncate">
+                {{ ci.quantity }} item(s)
+              </span>
               <span>Rp {{ ci.product.price|floatformat:0|intcomma }}</span>
             </div>
           {% endfor %}
