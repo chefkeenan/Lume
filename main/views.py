@@ -3,7 +3,7 @@ from django.shortcuts import render
 from catalog.models import Product
 from bookingkelas.models import ClassSessions, WEEKDAYS
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 
 PRICE_RANGES = [
     ("0-200k", "≤ Rp200.000", 0, 200_000),
@@ -82,9 +82,17 @@ def landing_view(request):
 
 
 def show_main(request):
+    q = (request.GET.get("q") or "").strip()                 
     qs = Product.objects.all().order_by("-id")
 
-    # === filter harga: single-select via dropdown ===
+    # SEARCH 
+    if q:
+        qs = qs.filter(
+            Q(product_name__icontains=q) |
+            Q(description__icontains=q)
+        )
+
+    # filter harga: single-select via dropdown
     selected_price = request.GET.get("price", "")
     if selected_price:
         for key, _label, lo, hi in PRICE_RANGES:
@@ -95,10 +103,10 @@ def show_main(request):
                     qs = qs.filter(price__lt=hi)
                 break
 
-    # === sort (opsional) ===
+    # sort (opsional)
     order = request.GET.get("order")
     if order in {"price", "-price"}:
-        qs = qs.order_by(order)
+        qs = qs.order_by(order, "-id")  # stabilkan dengan -id kedua
 
     # pagination
     paginator = Paginator(qs, 12)
@@ -106,7 +114,9 @@ def show_main(request):
 
     return render(request, "main.html", {
         "page_obj": page_obj,
-        "price_ranges": PRICE_RANGES,      # kirim (key, label, lo, hi)
-        "selected_price": selected_price,  # untuk label dropdown
+        "price_ranges": PRICE_RANGES,
+        "selected_price": selected_price,
         "order": order or "",
+        "q": q,                                  
+        "total_found": qs.count(),               
     })
