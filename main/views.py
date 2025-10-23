@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.db.models import Q
 from catalog.models import Product
+from bookingkelas.models import ClassSessions, WEEKDAYS
 
 PRICE_RANGES = [
     ("0-200k", "≤ Rp200.000",               0,        200_000),
@@ -11,6 +12,35 @@ PRICE_RANGES = [
     ("2m-5m", "Rp2.000.000 – Rp5.000.000",  2_000_000, 5_000_000),
     ("5m+", "≥ Rp5.000.000",                5_000_000, None),
 ]
+
+def _weekday_map():
+    return dict(WEEKDAYS)
+
+def landing_view(request):
+    highlights = Product.objects.all().order_by("-id")[:8]
+    weekday_map = _weekday_map()
+    sessions_qs = ClassSessions.objects.all().order_by("category", "time")[:4]
+    sessions = []
+    for s in sessions_qs:
+        days = s.days or []
+        days_names = [weekday_map.get(str(d), str(d)) for d in days]
+        sessions.append({
+            "id": s.id,
+            "title": s.title,
+            "category": s.category,            # "daily" / "weekly"
+            "instructor": s.instructor,
+            "time": s.time,
+            "capacity_current": s.capacity_current,
+            "capacity_max": s.capacity_max,
+            "price": s.price,
+            "days_names": days_names,
+        })
+
+    return render(request, "main/landing.html", {
+        "highlights": highlights,
+        "sessions": sessions,
+    })
+
 
 def show_main(request):
     qs = Product.objects.all()

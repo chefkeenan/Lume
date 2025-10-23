@@ -1,0 +1,52 @@
+:root{
+  --background: oklch(0.98 0.005 70);
+  --foreground: oklch(0.20 0.01 70);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.20 0.01 70);
+  --primary: oklch(0.58 0.19 265);
+  --primary-foreground: oklch(0.98 0.01 265);
+  --secondary: oklch(0.95 0.02 240);
+  --secondary-foreground: oklch(0.28 0.02 240);
+  --muted: oklch(0.96 0.01 70);
+  --muted-foreground: oklch(0.45 0.02 70);
+  --accent: oklch(0.92 0.03 200);
+  --accent-foreground: oklch(0.28 0.02 200);
+  --border: oklch(0.88 0.02 70);
+  --ring: color-mix(in oklab, var(--primary) 35%, white);
+}
+html, body { background-color: var(--background); color: var(--foreground); }
+.theme-bg { background-color: var(--background); color: var(--foreground); }
+.theme-navbar{ background-color: var(--secondary); color: var(--secondary-foreground) }
+.theme-card{ background-color: var(--card); color: var(--card-foreground) }
+.border-theme{ border-color: var(--border) }
+.btn-primary{
+  background-color: var(--primary); color: var(--primary-foreground);
+  border: 1px solid transparent; transition: filter .15s ease, transform .06s ease;
+}
+.btn-primary:hover{ filter: brightness(0.95) }
+.btn-primary:active{ transform: translateY(1px) }
+.btn-primary:focus-visible{ outline: none; box-shadow: 0 0 0 4px var(--ring) }
+.btn-ghost{
+  background-color: transparent; color: var(--primary); border: 1px solid var(--primary);
+  transition: background-color .15s ease, transform .06s ease;
+}
+.btn-ghost:hover{ background-color: color-mix(in oklab, var(--primary) 10%, white) }
+.btn-ghost:active{ transform: translateY(1px) }
+.btn-ghost:focus-visible{ outline: none; box-shadow: 0 0 0 4px var(--ring) }
+img{ max-width:100%; height:auto }
+.input, input[type="text"], input[type="tel"], input[type="email"], input[type="password"], select, textarea{
+  background-color:#fff; border:1px solid var(--border); color:var(--foreground);
+  border-radius: .75rem; padding:.625rem .875rem;
+}
+.input:focus, input:focus, select:focus, textarea:focus{
+  outline:none; border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+  box-shadow: 0 0 0 4px var(--ring);
+}
+.table{ width:100%; border-collapse: collapse }
+.table th, .table td{ padding:.75rem .5rem; border-top:1px solid var(--border) }
+.table thead th{ color:var(--muted-foreground); font-weight:600 }
+.shadow-card{ box-shadow: 0 8px 24px color-mix(in oklab, black 8%, transparent) }
+.badge{ display:inline-flex; align-items:center; gap:.375rem; background:var(--muted);
+  color:var(--muted-foreground); border:1px solid var(--border); border-radius:999px;
+  padding:.25rem .625rem; font-size:.8125rem;
+}
