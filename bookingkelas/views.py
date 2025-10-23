@@ -115,7 +115,6 @@ def book_class(request, session_id):
         messages.error(request, "Kelas sudah penuh.")
         return redirect("bookingkelas:catalog")
 
-    # larang double booking
     if Booking.objects.filter(user=request.user, session=s, is_cancelled=False).exists():
         messages.info(request, "Kamu sudah terdaftar di sesi ini.")
         return redirect("bookingkelas:catalog")
@@ -142,12 +141,10 @@ def choose_day(request, base_title):
 
     s_general = sessions_in_group.first()
     
-    # TAMBAHKAN INI: Gunakan fungsi _base_title yang sudah ada
     base_title_cleaned = _base_title(s_general.title)
     
     weekday_map = _weekday_map()
     
-    # 2. Buat day_options dari SEMUA sesi di grup itu
     day_options = []
     for s_item in sessions_in_group:
         # Asumsi s.days di database kamu itu ['mon'] atau ['tue']
