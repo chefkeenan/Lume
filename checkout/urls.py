@@ -9,7 +9,7 @@ urlpatterns = [
     path("cart/create/", views.checkout_cart_create, name="checkout_cart_create"),
 
     # Booking (single)
-    path("booking/<uuid:booking_id>/create/", views.checkout_booking_now, name="checkout_booking_now"),
+    path("booking/<int:booking_id>/create/", views.checkout_booking_now, name="checkout_booking_now"),
 
     # Order Confirmed (dipakai keduanya)
     path("confirmed/", views.order_confirmed, name="order_confirmed"),
