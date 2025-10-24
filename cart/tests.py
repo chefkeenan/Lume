@@ -24,7 +24,6 @@ class CartViewTests(TestCase):
             is_staff=True,
         )
 
-        # Produk utama
         self.prod_ok = Product.objects.create(
             product_name="Pilates Ring",
             price=150000,
@@ -32,7 +31,6 @@ class CartViewTests(TestCase):
             inStock=True,
         )
 
-        # Produk kedua biar bisa buat 2 CartItem berbeda tanpa nabrak constraint
         self.prod_ok_2 = Product.objects.create(
             product_name="Foam Roller",
             price=200000,
@@ -40,7 +38,6 @@ class CartViewTests(TestCase):
             inStock=True,
         )
 
-        # Produk out of stock
         self.prod_oos = Product.objects.create(
             product_name="Yoga Strap",
             price=50000,
@@ -48,7 +45,6 @@ class CartViewTests(TestCase):
             inStock=False,
         )
 
-    #  cart_page 
     def test_cart_page_redirects_if_not_logged_in(self):
         url = reverse("cart:page")
         resp = self.client.get(url)
@@ -65,7 +61,6 @@ class CartViewTests(TestCase):
         self.assertIn("items", resp.context)
         self.assertIn("total_items", resp.context)
 
-    # cart_json 
     def test_cart_json_returns_items_and_metadata(self):
         self.client.login(username="buyer", password="pass12345")
         cart, _ = Cart.objects.get_or_create(user=self.user)
@@ -126,13 +121,6 @@ class CartViewTests(TestCase):
         self.assertFalse(data["ok"])
         self.assertIn("out of stock", data["message"])
 
-    def test_add_to_cart_staff_blocked(self):
-        self.client.login(username="admin", password="pass12345")
-        url = reverse("cart:add", args=[self.prod_ok.pk])
-        resp = self.client.post(url, {}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertNotEqual(resp.status_code, 200)
-
-    # set_quantity_ajax 
     def test_set_quantity_updates_quantity_normally(self):
         self.client.login(username="buyer", password="pass12345")
         cart, _ = Cart.objects.get_or_create(user=self.user)

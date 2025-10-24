@@ -35,7 +35,6 @@ def product_edit_modal(request, pk):
     html = render_to_string("catalog/_product_form.html", {"form": form, "obj": obj}, request=request)
     return JsonResponse({"ok": True, "form_html": html})
 
-# catalog/views.py
 @login_required
 @user_passes_test(is_admin)
 @require_http_methods(["POST"])
@@ -43,15 +42,12 @@ def product_update(request, pk):
     obj = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST, request.FILES, instance=obj)
 
-    # Balas JSON bersih untuk request AJAX
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         if form.is_valid():
             obj = form.save()
             return JsonResponse({"ok": True, "id": str(obj.pk)})
-        # kirim error dalam bentuk dict: {field: [messages]}
         return JsonResponse({"ok": False, "errors": form.errors}, status=400)
 
-    # Fallback non-AJAX (opsional)
     if form.is_valid():
         form.save()
         return redirect("catalog:detail", id=obj.pk)
@@ -63,12 +59,9 @@ def product_update(request, pk):
 @require_POST
 def product_delete(request, pk):
     deleted, _ = Product.objects.filter(pk=pk).delete()
-
-    # Jika request dari fetch (AJAX), cukup balas 204 (No Content)
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         return HttpResponse(status=204)
 
-    # Fallback non-AJAX (misal user akses dari link biasa)
     return redirect("main:show_main")
 
 @login_required
@@ -79,14 +72,12 @@ def product_create(request):
     if request.method == "POST" and form.is_valid():
         obj = form.save()
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            # render kartu untuk grid di main.html
             card_html = render_to_string("product_card.html", {"p": obj}, request=request)
             return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
         return redirect("main:show_main")
-    # fallback non-AJAX (opsional)
     return render(request, "catalog/add_product.html", {"form": form})
 
 
 def product_detail(request, id):
-    p = get_object_or_404(Product, pk=id)  # id adalah UUID
+    p = get_object_or_404(Product, pk=id)
     return render(request, "catalog/product_detail.html", {"p": p})
