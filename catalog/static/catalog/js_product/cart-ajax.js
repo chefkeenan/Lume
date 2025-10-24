@@ -1,82 +1,114 @@
+// catalog/js_product/cart-ajax.js
 (function () {
+  // helper ambil CSRF dari cookie
   function getCsrf() {
     const m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
-    return m ? decodeURIComponent(m[1]) : '';
+    return m ? decodeURIComponent(m[1]) : "";
   }
 
-  function btnBusy(btn, busy) {
-    if (!btn) return;
-    btn.disabled = !!busy;
-    btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
-    btn.textContent = busy ? 'Adding…' : btn.dataset.originalText;
-    if (busy) btn.classList.add('opacity-70', 'cursor-wait');
-    else btn.classList.remove('opacity-70', 'cursor-wait');
-  }
-
-  function showToast(msg) {
-    let t = document.getElementById('inlineToast');
-    if (!t) {
-      t = document.createElement('div');
-      t.id = 'inlineToast';
-      t.style.position = 'fixed';
-      t.style.left = '50%';
-      t.style.bottom = '24px';
-      t.style.transform = 'translateX(-50%)';
-      t.style.zIndex = '1000';
-      t.style.background = 'rgba(20,20,20,.95)';
-      t.style.color = '#fff';
-      t.style.padding = '10px 14px';
-      t.style.borderRadius = '10px';
-      t.style.fontSize = '14px';
-      document.body.appendChild(t);
+  // update badge cart di navbar kalau ada
+  function updateCartBadge(newCount) {
+    const badge = document.querySelector("[data-cart-count]");
+    if (!badge) return;
+    if (typeof newCount === "number") {
+      badge.textContent = String(newCount);
     }
-    t.textContent = msg;
-    t.style.opacity = '1';
-    clearTimeout(t._hide);
-    t._hide = setTimeout(() => { t.style.opacity = '0'; }, 1500);
   }
 
-  function bumpCartBadge(qty) {
-    const el = document.querySelector('[data-cart-count]');
-    if (!el) return;
-    const n = parseInt(el.textContent || '0', 10) || 0;
-    el.textContent = String(n + (parseInt(qty, 10) || 1));
+  // loading state kecil di tombol biar keliatan responsive
+  function setBusy(btn, busy) {
+    if (!btn) return;
+    if (!btn.dataset.origText) {
+      btn.dataset.origText = btn.textContent;
+    }
+    if (busy) {
+      btn.disabled = true;
+      btn.textContent = "Adding…";
+      btn.classList.add("opacity-70", "cursor-wait");
+    } else {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.origText;
+      btn.classList.remove("opacity-70", "cursor-wait");
+    }
   }
 
-  document.addEventListener('submit', async (e) => {
+  // intercept SEMUA <form data-cart-ajax>
+  document.addEventListener("submit", async (e) => {
     const form = e.target;
-    if (!form.matches('form[data-cart-ajax]')) return;
+    if (!(form instanceof HTMLFormElement)) return;
+    if (!form.matches("form[data-cart-ajax]")) return;
 
     e.preventDefault();
 
     const btn = form.querySelector('button[type="submit"]');
-    const qty = (form.querySelector('input[name="qty"]') || {}).value || '1';
 
-    btnBusy(btn, true);
+    setBusy(btn, true);
+
     try {
       const res = await fetch(form.action, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCsrf(),
+          "X-Requested-With": "XMLHttpRequest",
+        },
         body: new FormData(form),
-        redirect: 'follow'
+        redirect: "follow", // biar tau kalau disuruh login
       });
 
-      if (res.status === 401 || res.status === 403 || res.url.includes('/user/login')) {
-        window.location.href = '/user/login/';
+      // case: belum login / expired session → server redirect ke login
+      // Django login_required ketika kena AJAX bakal kasih 302 redirect ke /user/login
+      if (res.redirected && res.url.includes("/login")) {
+        window.location.href = res.url;
         return;
       }
 
-      if (!res.ok) {
-        showToast('Failed to add. Try again.');
+      // kita expect JSON dari view add_to_cart
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        // kalau bukan JSON (aneh banget), fallback
+        if (window.showToast) {
+          window.showToast("Something went wrong.", "error");
+        }
         return;
       }
 
-      bumpCartBadge(qty);
-      showToast('Added to cart ✓');
+      // sekarang kita punya:
+      // {
+      //   ok: true/false,
+      //   message: "...",
+      //   warn: bool,
+      //   added: bool,
+      //   cart_count: int
+      // }
+
+      // update badge cart count dari server (lebih akurat daripada +1 manual)
+      if (typeof data.cart_count === "number") {
+        updateCartBadge(data.cart_count);
+      }
+
+      // pilih tone toast
+      let tone = "info";
+      if (data.ok) {
+        tone = "success";
+      } else if (data.warn) {
+        tone = "warning";
+      } else {
+        tone = "error";
+      }
+
+      // tampilkan toast pastel cantik di kanan atas 
+      if (window.showToast) {
+        window.showToast(data.message || "Something happened.", tone);
+      }
     } catch (err) {
-      showToast('Failed to add. Check connection.');
+      // network error / fetch gagal
+      if (window.showToast) {
+        window.showToast("Failed to add. Check your connection.", "error");
+      }
     } finally {
-      btnBusy(btn, false);
+      setBusy(btn, false);
     }
   });
 })();

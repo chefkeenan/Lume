@@ -59,4 +59,4 @@ Admin (Studio Owner / Staff)
 - (Future) Mengatur jadwal kelas dan instruktur
 
 Link PWS : https://juma-jordan-lume.pbp.cs.ui.ac.id/
-Link figma : https://www.figma.com/files/team/1510143807974722636/project/465240058/Lum%C3%A9?fuid=1510143805779277091 
+Link figma : https://www.figma.com/design/osIH3CEyPlh5W9PMRyY8Hz/Lum%C3%A9?node-id=0-1&t=QfRKmdLKiJh1yp1W-1 
