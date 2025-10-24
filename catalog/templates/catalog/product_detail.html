@@ -86,13 +86,11 @@
                     class="rounded-xl border px-4 py-2 text-sm hover:bg-stone-50">
               Edit
             </button>
-            <button type="button"
-                  data-delete-url="{% url 'catalog:product_delete' pk=p.id %}"
-                  data-card-id="card-{{ p.id }}"
-                  data-product-name="{{ p.product_name }}"
-                  class="rounded-xl border px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-            Delete
-          </button>
+            <form action="{% url 'catalog:product_delete' p.id %}" method="post" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="text-red-600 hover:text-red-800">Delete</button>
+            </form>
+
           </div>
         {% endif %}
       </div>
