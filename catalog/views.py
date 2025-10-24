@@ -1,10 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Product
 from .forms import ProductForm
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
+from django.shortcuts import redirect
+from catalog.models import Product
 
 def is_admin(u): return u.is_staff
 
@@ -54,13 +58,18 @@ def product_update(request, pk):
     return render(request, "catalog/product_detail.html", {"p": obj, "form": form})
 
 
-@login_required
-@user_passes_test(is_admin)
-@require_http_methods(["POST"])
+
+
+@require_POST
 def product_delete(request, pk):
-    obj = get_object_or_404(Product, pk=pk)
-    obj.delete()
-    return JsonResponse({"ok": True, "removed_id": str(pk)})
+    deleted, _ = Product.objects.filter(pk=pk).delete()
+
+    # Jika request dari fetch (AJAX), cukup balas 204 (No Content)
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return HttpResponse(status=204)
+
+    # Fallback non-AJAX (misal user akses dari link biasa)
+    return redirect("main:show_main")
 
 @login_required
 @user_passes_test(is_admin)
