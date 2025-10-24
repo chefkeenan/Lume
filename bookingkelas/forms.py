@@ -79,7 +79,7 @@ class AdminSessionsForm(ModelForm):
         category = self.cleaned_data.get("category")
         
         if category and category.lower() == 'daily':
-            instance.days = ['0', '1', '2', '3', '4', '5']
+            instance.days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat'] 
         else:
             instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
 
