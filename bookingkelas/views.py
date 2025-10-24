@@ -244,9 +244,17 @@ def class_edit(request, pk):
 @login_required
 @user_passes_test(admin_check)
 def class_delete(request, pk):
+    # Ambil objeknya dulu
     kelas = get_object_or_404(ClassSessions, pk=pk)
-    kelas.delete()
-    messages.success(request, "Session successfully deleted.")
+    
+    # [WAJIB] Hanya proses delete jika method-nya POST
+    if request.method == "POST":
+        kelas.delete()
+        messages.success(request, "Session successfully deleted.")
+        return redirect("bookingkelas:class_list")
+
+    # Jika GET request, tolak dan redirect
+    messages.error(request, "Invalid request method.")
     return redirect("bookingkelas:class_list")
 
 @login_required
