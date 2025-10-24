@@ -66,20 +66,54 @@ def api_users(request):
 @login_required(login_url="/user/login/")
 @user_passes_test(is_admin)
 def api_orders(request):
-    qs = ProductOrder.objects.prefetch_related("items", "user").order_by("-created_at")[:300]
+    qs = (
+        ProductOrder.objects
+        .select_related("user")
+        .prefetch_related("items")  # pastikan related_name='items' di ProductOrderItem
+        .order_by("-created_at")[:300]
+    )
+
     orders = []
     for o in qs:
-        items_summary = ", ".join(f"{it.product_name} x{it.quantity}" for it in o.items.all())
+        line_items = []
+        for it in o.items.all():
+            # harga/unit & subtotal dengan fallback aman
+            price = getattr(it, "price", None)
+            if price is None:
+                price = getattr(it, "unit_price", 0)
+
+            qty = int(getattr(it, "quantity", 0) or 0)
+            line_total = getattr(it, "line_total", None)
+            if line_total is not None:
+                subtotal = int(line_total)
+            else:
+                try:
+                    subtotal = int(qty * float(price))
+                except Exception:
+                    subtotal = 0
+
+            name = getattr(it, "product_name", None)
+            if not name and getattr(it, "product", None):
+                name = getattr(it.product, "product_name", "-")
+
+            line_items.append({
+                "name": name or "-",
+                "qty": qty,
+                "price": int(float(price) if price is not None else 0),
+                "subtotal": subtotal,
+            })
+
         orders.append({
             "id": str(o.id),
             "user_id": o.user_id,
             "user_name": o.user.username,
             "user_email": o.user.email,
-            "items": items_summary,
-            "amount": f"{o.total:.2f}",
-            "status": "completed",  # tidak ada field status di model, asumsikan completed
+            "amount": int(float(o.total) if o.total is not None else 0),
+            "status": "completed",  # sementara default
             "date": localtime(o.created_at).strftime("%Y-%m-%d %H:%M"),
+            "line_items": line_items,  # <<— KUNCI BARU
         })
+
     return JsonResponse({"ok": True, "orders": orders})
 
 @login_required(login_url="/user/login/")

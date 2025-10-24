@@ -12,11 +12,11 @@ WEEKDAYS = [
 ]
 
 TIME_SLOTS = [
-    ('Morning', '10.00 AM - 11.30 AM'),
-    ('Midday', '12.00 PM - 13.30 PM'),
-    ('Afternoon', '14.00 PM  - 15.30 PM'),
-    ('Noon', '16.00 PM - 17.30 PM'),
-    ('Evening', '18.00 PM - 19.30 PM')
+    ('10.00 AM - 11.30 AM', '10.00 AM - 11.30 AM'),
+    ('12.00 PM - 13.30 PM', '12.00 PM - 13.30 PM'),
+    ('14.00 PM - 15.30 PM', '14.00 PM - 15.30 PM'),
+    ('16.00 PM - 17.30 PM', '16.00 PM - 17.30 PM'),
+    ('18.00 PM - 19.30 PM', '18.00 PM - 19.30 PM')
 ]
 
 CATEGORY_CHOICES = [
@@ -25,14 +25,14 @@ CATEGORY_CHOICES = [
 ]
 
 class ClassSessions(models.Model):
-    title = models.CharField(max_length=255)  
+    title = models.CharField(max_length=50)  
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES)
-    instructor = models.CharField(max_length=100)
+    instructor = models.CharField(max_length=15)
     capacity_current = models.PositiveIntegerField(default=0)
     capacity_max = models.PositiveIntegerField(default=20)   
-    description = models.TextField()  
+    description = models.CharField(max_length=60, blank=True)  
     price = models.PositiveIntegerField() 
-    room = models.CharField(max_length=100)
+    room = models.CharField(max_length=5)
     days = models.JSONField(default=list, blank=True)
     time = models.CharField(max_length=20, choices=TIME_SLOTS)
     

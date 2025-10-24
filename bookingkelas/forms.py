@@ -58,7 +58,7 @@ class AdminSessionsForm(ModelForm):
 
     class Meta:
         model = ClassSessions
-        exclude = ['description', 'capacity_current']
+        exclude = ['description', 'capacity_current', 'days']
 
     def clean_title(self):
         title = self.cleaned_data.get("title", "")
@@ -83,7 +83,53 @@ class AdminSessionsForm(ModelForm):
         else:
             instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
 
+        instance.capacity_current = 0
+        instance.description = ""
+
         if commit:
             instance.save()
         
+        return instance
+    
+class AdminSessionEditForm(ModelForm):
+    days = forms.MultipleChoiceField(
+        choices=WEEKDAYS,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Pilih hari (hanya jika kategori 'Weekly')."
+    )
+
+    class Meta:
+        model = ClassSessions
+        fields = [
+            'title', 'category', 'instructor', 'capacity_max',
+            'capacity_current', 'description', 'price', 'room', 'time', 'days'
+        ]
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "")
+        return strip_tags(title).strip()
+
+    def clean_description(self):
+        description = self.cleaned_data.get("description", "")
+        return strip_tags(description).strip()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get("category")
+        days = cleaned_data.get("days", [])
+        if category and category.lower() == "weekly" and not days:
+            self.add_error("days", "Untuk kategori 'Weekly', pilih minimal satu hari.")
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        category = self.cleaned_data.get("category")
+        
+        if category and category.lower() == 'daily':
+            instance.days = ['mon', 'tue', 'wed', 'thur', 'fri', 'sat']
+        else:
+            instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
+
+        if commit:
+            instance.save()
         return instance

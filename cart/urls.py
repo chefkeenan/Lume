@@ -21,6 +21,6 @@ urlpatterns = [
     path("select-all/", views.select_all_ajax, name="select_all"),
     path("unselect-all/", views.unselect_all_ajax, name="unselect_all"),
 
-    # (opsional) add to cart dari katalog
+    # add to cart dari katalog
     path("add/<uuid:product_id>/", views.add_to_cart, name="add"),
 ]

@@ -34,21 +34,17 @@
     catch { return "Rp0"; }
   }
 
-  // toast minimalis
-  function toast(msg) {
-    let t = document.getElementById("toast");
-    if (!t) {
-      t = document.createElement("div");
-      t.id = "toast";
-      t.className = "fixed bottom-5 left-1/2 -translate-x-1/2 hidden rounded-full bg-black text-white px-4 py-2 text-sm z-[9999]";
-      document.body.appendChild(t);
+    // toast()
+    function toast(msg, type="info") {
+      // lempar aja ke sistem toast global kamu
+      if (window.showToast) {
+        window.showToast(msg, type);
+      } else {
+        console.log("TOAST:", msg);
+      }
     }
-    t.textContent = msg;
-    t.classList.remove("hidden");
-    clearTimeout(t._tid);
-    t._tid = setTimeout(() => t.classList.add("hidden"), 1400);
-  }
-
-  // expose global kecil
-  window.CATALOG_HELPERS = { getJSON, postForm, withId, priceIDR, toast };
-})();
+  
+    // expose global kecil
+    window.CATALOG_HELPERS = { getJSON, postForm, withId, priceIDR, toast };
+  })();
+  
