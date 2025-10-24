@@ -6,6 +6,7 @@ app_name = "catalog"
 urlpatterns = [
     path("products/", views.product_list, name="product_list"),
     path("products/add/", views.product_create, name="product_add"),
+    path("products/add-modal/", views.product_add_modal, name="product_add_modal"),
 
     # pakai uuid
     path("products/<uuid:pk>/edit-modal/", views.product_edit_modal, name="product_edit_modal"),
