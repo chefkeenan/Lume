@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load humanize %}
+{% url 'main:landing' as home_url %}{% firstof home_url '/' as home_url %}
 
 {% block title %}My Profile{% endblock %}
 
@@ -7,9 +8,21 @@
 <div class="min-h-screen bg-[#fbf8f5]">
   <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16">
     <!-- Header -->
+<a href="{% url 'main:landing' %}"
+   class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm
+          bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors
+          border border-stone-300 text-stone-800 shadow-sm
+          mb-8 md:mb-10">
+  <!-- arrow-left -->
+  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  </svg>
+  <span>Back to Home</span>
+</a>
+
     <div class="mb-12">
-      <h1 class="text-5xl font-light text-stone-900 mb-2">My Profile</h1>
-      <p class="text-stone-500">Manage your account and view your history</p>
+      <h1 class="text-5xl font-bold text-stone-900 mb-2">My Profile</h1>
+      <p class="font-bold text-stone-500">Manage your account and view your history</p>
     </div>
 
 <!-- Profile Information -->

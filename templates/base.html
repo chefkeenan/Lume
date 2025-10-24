@@ -91,6 +91,21 @@
         });
       </script>
   {% endif %}
+
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    try {
+      const s = localStorage.getItem("postRedirectToast");
+      if (s) {
+        const { type, text } = JSON.parse(s);
+        showToast(text || "Success.", type || "success");
+        localStorage.removeItem("postRedirectToast");
+      }
+    } catch (e) { }
+  });
+</script>
+
+
     {% block content %}{% endblock %}
   </main>
   {% include "footer.html" %}
