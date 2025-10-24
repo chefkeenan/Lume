@@ -17,6 +17,5 @@ urlpatterns = [
     path("classes/", views.class_list, name="class_list"),
     path("classes/<int:pk>/edit/", views.class_edit, name="class_edit"),
     path("classes/<int:pk>/delete/", views.class_delete, name="class_delete"),
-
+    path("classes/<int:pk>/get-form/", views.get_edit_form, name="get_edit_form"),
 ]
-

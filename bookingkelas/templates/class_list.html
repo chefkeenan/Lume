@@ -1,25 +1,112 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="mx-auto max-w-5xl px-6 py-10">
-  <h1 class="text-2xl font-bold mb-4">All Sessions</h1>
-  <table class="table">
-    <thead><tr><th>Title</th><th>Category</th><th>Time</th><th>Capacity</th><th></th></tr></thead>
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">All Sessions</h1>
+    <a href="{% url 'bookingkelas:catalog' %}" class="text-blue-600 hover:underline">&larr; Back to Catalog</a>
+  </div>
+  
+  <table class="table w-full border-collapse text-left">
+    <thead>
+      <tr class="border-b">
+        <th class="p-2">Title</th>
+        <th class="p-2">Category</th>
+        <th class="p-2">Time</th>
+        <th class="p-2">Capacity</th>
+        <th class="p-2"></th>
+      </tr>
+    </thead>
     <tbody>
       {% for s in classes %}
-      <tr>
-        <td>{{ s.title }}</td>
-        <td>{{ s.category|title }}</td>
-        <td>{{ s.time }}</td>
-        <td>{{ s.capacity_current }}/{{ s.capacity_max }}</td>
-        <td>
-          <a href="{% url 'bookingkelas:class_edit' s.pk %}">Edit</a> ·
-          <a href="{% url 'bookingkelas:class_delete' s.pk %}">Delete</a>
+      <tr class="border-b hover:bg-gray-50">
+        <td class="p-2">{{ s.title }}</td>
+        <td class="p-2">{{ s.category|title }}</td>
+        <td class="p-2">{{ s.time }}</td>
+        <td class="p-2">{{ s.capacity_current }}/{{ s.capacity_max }}</td>
+        <td class="p-2 text-right">
+          
+          <button 
+            type="button" 
+            class="edit-session-btn text-blue-600 hover:underline"
+            data-form-url="{% url 'bookingkelas:get_edit_form' s.pk %}"
+            data-post-url="{% url 'bookingkelas:class_edit' s.pk %}">
+            Edit
+          </button>
+          
+          ·
+          
+          <a href="{% url 'bookingkelas:class_delete' s.pk %}" 
+             class="text-red-600 hover:underline"
+             onclick="return confirm('Are you sure you want to delete this session?');">
+             Delete
+          </a>
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="5">Empty.</td></tr>
+      <tr><td colspan="5" class="p-2 text-center text-gray-500">Empty.</td></tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
+
+{% include "modal_edit.html" %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const editModal = document.getElementById('editSessionModal');
+  const editModalBody = document.getElementById('editModalBody');
+  const editModalForm = document.getElementById('editModalForm');
+  const editModalTitle = document.getElementById('editModalTitle');
+  const editModalClose = document.getElementById('editModalClose');
+  const editModalCancel = document.getElementById('editModalCancel');
+
+  const openModal = () => editModal.classList.remove('hidden');
+  const closeModal = () => {
+    editModal.classList.add('hidden');
+    editModalBody.innerHTML = '<div class="text-gray-500">Loading...</div>'; // Reset body
+    editModalForm.action = ""; // Reset form action
+    editModalTitle.innerText = "Loading..."; // Reset title
+  };
+
+  // 1. Event Listeners untuk menutup modal
+  editModalClose.addEventListener('click', closeModal);
+  editModalCancel.addEventListener('click', closeModal);
+  editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+      closeModal();
+    }
+  });
+
+  // 2. Event Delegation untuk semua tombol ".edit-session-btn"
+  document.body.addEventListener('click', (e) => {
+    if (e.target.matches('.edit-session-btn')) {
+      const formUrl = e.target.dataset.formUrl;
+      const postUrl = e.target.dataset.postUrl;
+      
+      // Set action form segera
+      editModalForm.action = postUrl;
+      
+      // Tampilkan modal
+      openModal();
+
+      // Fetch HTML form dari view baru kita
+      fetch(formUrl)
+        .then(response => response.text())
+        .then(html => {
+          // Masukkan HTML form ke body modal
+          editModalBody.innerHTML = html;
+          // (Opsional) Ambil judul dari data atau biarkan statis
+          editModalTitle.innerText = "Edit Session";
+        })
+        .catch(err => {
+          console.error('Failed to load form:', err);
+          editModalBody.innerHTML = '<div class="text-red-500">Failed to load form.</div>';
+        });
+    }
+  });
+});
+</script>
 {% endblock %}

@@ -68,32 +68,29 @@
   {% include "navbar.html" %}
   <main class="flex-1">
 
-    {% if messages %}
-    <div class="w-full max-w-7xl mx-auto px-6 lg:px-8 pt-4"> 
-      <ul class="messages space-y-2">
-        {% for message in messages %}
-          <li
-            {% if message.tags %}
-            class="flex items-center justify-between gap-4 rounded-lg 
-                   {% if message.tags == 'error' %} bg-red-100 text-red-800 border border-red-300
-                   {% elif message.tags == 'success' %} bg-green-100 text-green-800 border border-green-300
-                   {% else %} bg-blue-100 text-blue-800 border border-blue-300 {% endif %} 
-                   p-4 shadow-md"
-            {% endif %}
-            role="alert"
-          >
-            <p class="text-sm font-medium">{{ message }}</p>
-            <button
-              type="button"
-              class="opacity-70 hover:opacity-100 transition"
-              onclick="this.parentElement.remove()"
-            >
-              &times; </button>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
+  {% include "toast.html" %}
+
+  {% if messages %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          {% for message in messages %}
+            // Konversi Django message tags (cth: "success", "error")
+            // menjadi tipe toast yang kamu punya
+            let type = 'info'; // default
+            if ("{{ message.tags }}".includes("success")) {
+              type = 'success';
+            } else if ("{{ message.tags }}".includes("error")) {
+              type = 'error';
+            } else if ("{{ message.tags }}".includes("warning")) {
+              type = 'warning';
+            }
+            
+            // Tampilkan toast!
+            window.showToast("{{ message|escapejs }}", type);
+          {% endfor %}
+        });
+      </script>
+  {% endif %}
     {% block content %}{% endblock %}
   </main>
   {% include "footer.html" %}

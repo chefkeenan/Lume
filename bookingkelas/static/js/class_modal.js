@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", function() {
   const modalRoom = document.getElementById('modalRoom');
   const modalPrice = document.getElementById('modalPrice');
   const modalDayOptions = document.getElementById('modalDayOptions');
+  
+  // <-- BARU 1: Pilih elemen placeholder kapasitas
+  const modalCapacityInfo = document.getElementById('modalCapacityInfo');
 
   // =============== Modal Functions ===============
   function showModal() { modal.classList.remove('hidden'); }
@@ -21,6 +24,12 @@ document.addEventListener("DOMContentLoaded", function() {
     modalRoom.textContent = '...';
     modalPrice.textContent = 'Rp ...';
     modalDayOptions.innerHTML = '<div class="text-gray-500">Loading days...</div>';
+    
+    // <-- BARU 2: Kosongkan info kapasitas saat modal ditutup
+    if (modalCapacityInfo) {
+      modalCapacityInfo.textContent = '';
+      modalCapacityInfo.className = 'text-sm text-gray-700 h-6 mt-2 text-center font-medium'; // Reset style
+    }
   }
 
   modalClose?.addEventListener('click', closeModal);
@@ -50,16 +59,21 @@ document.addEventListener("DOMContentLoaded", function() {
             data.day_options.forEach(option => {
               const disabled = option.is_full ? 'disabled' : '';
               const opacity = option.is_full ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
+              
+              // <-- BARU 3: Tambahkan data- attributes ke input radio
               const label = `
                 <label class="block">
-                  <input type="radio" name="session_id" value="${option.value_id}" class="sr-only peer" ${disabled}>
+                  <input type="radio" name="session_id" value="${option.value_id}" class="sr-only peer" ${disabled}
+                         data-is-full="${option.is_full}"
+                         data-current="${option.capacity_current}"
+                         data-max="${option.capacity_max}">
                   <span class="block rounded-full border border-stone-300 bg-[#E9E3D6]
-                        px-3 py-2 text-center text-sm font-medium text-xs mr-1 shadow-lg 
-                        text-[#293027] 
-                        peer-checked:bg-[#D7D6D1] 
-                        peer-checked:border-[#C9C7C0] 
-                        peer-checked:text-[#5C5B57] 
-                        ${opacity}">
+                         px-3 py-2 text-center text-sm font-medium text-xs mr-1 shadow-lg 
+                         text-[#293027] 
+                         peer-checked:bg-[#D7D6D1] 
+                         peer-checked:border-[#C9C7C0] 
+                         peer-checked:text-[#5C5B57] 
+                         ${opacity}">
                     ${option.label}${option.is_full ? ' (Penuh)' : ''}
                   </span>
                 </label>`;
@@ -77,11 +91,22 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // =============== Form Submit Check ===============
-  bookingForm?.addEventListener('submit', function(event) {
-    if (typeof isUserLoggedIn !== "undefined" && !isUserLoggedIn) {
-      event.preventDefault();
-      alert('Kamu harus login terlebih dahulu untuk booking.');
+  // <-- BARU 4: Tambahkan event listener untuk menampilkan kapasitas
+  modalDayOptions.addEventListener('change', function(e) {
+    if (e.target.name === 'session_id' && modalCapacityInfo) {
+      const selectedRadio = e.target;
+      const isFull = selectedRadio.dataset.isFull === 'true'; // data- attributes adalah string
+      const current = selectedRadio.dataset.current;
+      const max = selectedRadio.dataset.max;
+
+      if (isFull) {
+        modalCapacityInfo.textContent = 'This class is full.';
+        modalCapacityInfo.className = 'text-sm text-red-600 h-6 mt-2 text-center font-semibold'; // Jadi merah
+      } else {
+        modalCapacityInfo.textContent = `Capacity: ${current} / ${max}`;
+        modalCapacityInfo.className = 'text-sm text-gray-700 h-6 mt-2 text-center font-medium'; // Style normal
+      }
     }
   });
+
 });

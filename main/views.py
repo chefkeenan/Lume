@@ -14,56 +14,44 @@ PRICE_RANGES = [
     ("5m+", "≥ Rp5.000.000", 5_000_000, None),
 ]
 
-def _weekday_map():
-    return dict(WEEKDAYS)
 
 def _base_title(title):
     import re
     m = re.match(r"^(.*?)(?:\s*-\s*(mon|tue|wed|thur|fri|sat))?$", title, flags=re.I)
     return m.group(1).strip() if m else title
 
+def _weekday_map():
+    """Helper function to map day codes to names."""
+    return {
+        'Mon': 'Senin', 'Tue': 'Selasa', 'Wed': 'Rabu',
+        'Thu': 'Kamis', 'Fri': 'Jumat', 'Sat': 'Sabtu', 'Sun': 'Minggu'
+    }
+
 def landing_view(request):
     highlights = Product.objects.all().order_by("-id")[:8]
     weekday_map = _weekday_map()
 
-    # Ambil data dengan jumlah booking
     qs = (
         ClassSessions.objects
         .annotate(num_bookings=Count("bookings", distinct=True))
         .order_by("-num_bookings")
     )
 
-    # Top 3 Daily dan Top 2 Weekly
     daily_top = qs.filter(category__iexact="daily")[:3]
     weekly_top = qs.filter(category__iexact="weekly")[:2]
 
-    def serialize_sessions(queryset):
-        data = []
-        for s in queryset:
-            days = s.days or []
-            days_names = [weekday_map.get(str(d), str(d)) for d in days]
-            data.append({
-                "title": s.title,
-                "instructor": s.instructor,
-                "time": s.time,
-                "room": s.room,
-                "price": s.price,
-                "capacity_current": s.capacity_current,
-                "capacity_max": s.capacity_max,
-                "num_bookings": s.num_bookings,
-                "days_names": days_names,
-                "instance_id": s.id,
-            })
-        return data
+    sessions = list(daily_top) + list(weekly_top)
+    
+    for s in sessions:
+        days_list = s.days or []
+        s.days_names_list = [weekday_map.get(str(d), str(d)) for d in days_list]
 
     context = {
         "highlights": highlights,
-        "daily_classes": serialize_sessions(daily_top),
-        "weekly_classes": serialize_sessions(weekly_top),
+        "sessions": sessions, 
     }
 
     return render(request, "main/landing.html", context)
-
 
 def show_main(request):
     q = (request.GET.get("q") or "").strip()                 

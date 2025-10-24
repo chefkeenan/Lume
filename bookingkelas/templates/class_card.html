@@ -16,6 +16,10 @@
      <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
             <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
+            <div><span class="block text-stone-400">Room</span>{{ c.room }}</div>
+            {% if c.category == "weekly" %}
+            <div><span class="block text-stone-400">Capacity</span>{{ c.capacity_current }}/{{ c.capacity_max }}</div>
+            {% endif %}
             
     <div class="col-span-2">
         {% if c.category == "daily" %}

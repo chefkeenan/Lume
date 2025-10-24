@@ -12,8 +12,10 @@ WEEKDAYS = [
 ]
 
 TIME_SLOTS = [
+    ('Morning', '10.00 AM - 11.30 AM'),
+    ('Midday', '12.00 PM - 13.30 PM'),
     ('Afternoon', '14.00 PM  - 15.30 PM'),
-    ('Noon', '16.00 PM - 17.30'),
+    ('Noon', '16.00 PM - 17.30 PM'),
     ('Evening', '18.00 PM - 19.30 PM')
 ]
 

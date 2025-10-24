@@ -122,11 +122,19 @@
           <p><span class="font-semibold text-stone-500">Price:</span> Rp {{ c.price|intcomma }}</p>
           <p><span class="font-semibold text-stone-500">Capacity:</span> {{ c.capacity_current }}/{{ c.capacity_max }}</p>
 
-          {% if c.category == "weekly" %}
-            <p><span class="font-semibold text-stone-500">Days:</span> {{ c.days }}</p>
-          {% else %}
-            <p><span class="font-semibold text-stone-500">Day:</span> {{ c.days }}</p>
-          {% endif %}
+          <p>
+              {% if c.category == "weekly" %}
+                <span class="font-semibold text-stone-500">Days:</span>
+              {% else %}
+                <span class="font-semibold text-stone-500">Day:</span>
+              {% endif %}
+              
+              {% for day_name in c.days_names_list %}
+                <span class="inline-flex rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700 shadow-sm ml-1">{{ day_name }}</span>
+              {% empty %}
+                <span class="ml-1 text-stone-500">—</span>
+              {% endfor %}
+            </p>
         </div>
 
         <!-- Footer -->
@@ -138,7 +146,7 @@
         </div>
 
         <!-- Popularity Ring -->
-        <div class="absolute top-4 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+        <div class="absolute top-16 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
           {{ c.num_bookings }} booked
         </div>
 
