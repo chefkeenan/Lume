@@ -11,7 +11,6 @@ from django.contrib import messages
 from .models import Cart, CartItem
 from .forms import CartItemQuantityForm
 from catalog.models import Product
-from core.decorators import block_staff_purchase
 
 
 # helpers 
@@ -222,7 +221,6 @@ def unselect_all_ajax(request):
 
 @login_required
 @transaction.atomic
-@block_staff_purchase
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product.objects.select_for_update(), pk=product_id)
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)

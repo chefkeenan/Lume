@@ -1,4 +1,3 @@
-# main/views.py
 from django.shortcuts import render
 from catalog.models import Product
 from bookingkelas.models import ClassSessions, WEEKDAYS
@@ -77,14 +76,12 @@ def show_main(request):
     q = (request.GET.get("q") or "").strip()                 
     qs = Product.objects.all().order_by("-id")
 
-    # SEARCH 
     if q:
         qs = qs.filter(
             Q(product_name__icontains=q) |
             Q(description__icontains=q)
         )
 
-    # filter harga: single-select via dropdown
     selected_price = request.GET.get("price", "")
     if selected_price:
         for key, _label, lo, hi in PRICE_RANGES:
@@ -95,12 +92,10 @@ def show_main(request):
                     qs = qs.filter(price__lt=hi)
                 break
 
-    # sort (opsional)
     order = request.GET.get("order")
     if order in {"price", "-price"}:
-        qs = qs.order_by(order, "-id")  # stabilkan dengan -id kedua
+        qs = qs.order_by(order, "-id")
 
-    # pagination
     paginator = Paginator(qs, 12)
     page_obj = paginator.get_page(request.GET.get("page"))
 

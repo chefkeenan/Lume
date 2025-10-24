@@ -8,7 +8,6 @@ from django.db import transaction
 from .forms import SessionsForm, AdminSessionsForm, AdminSessionEditForm
 from decimal import Decimal
 import re
-from core.decorators import block_staff_purchase
 
 def admin_check(u): return u.is_staff
 
@@ -145,7 +144,6 @@ def get_session_details_json(request, base_title):
     return JsonResponse(data)
 
 @login_required(login_url="/user/login/")
-@block_staff_purchase
 def book_class(request, session_id):
     s = get_object_or_404(ClassSessions.objects.select_for_update(), id=session_id)
 
@@ -165,7 +163,6 @@ def book_class(request, session_id):
     return redirect("checkout:booking_checkout", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
-@block_staff_purchase
 def book_daily_session(request):
     
     if request.method == "POST":

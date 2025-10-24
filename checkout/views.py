@@ -13,11 +13,9 @@ from bookingkelas.models import Booking, ClassSessions
 from decimal import Decimal
 from django.db.models import F
 from catalog.models import Product
-from core.decorators import block_staff_purchase
 
 
 @login_required(login_url="/user/login/")
-@block_staff_purchase
 def cart_checkout_page(request):
     cart = get_object_or_404(
         Cart.objects.prefetch_related("items__product"),
@@ -56,7 +54,6 @@ def cart_checkout_page(request):
     })
 
 @login_required(login_url="/user/login/")
-@block_staff_purchase
 def checkout_cart_create(request):
     if request.method != "POST":
         return HttpResponseBadRequest("POST required.")
@@ -157,7 +154,6 @@ def _weekday_map():
 
 
 @login_required(login_url="/user/login/")
-@block_staff_purchase
 def booking_checkout(request, booking_id):
     booking = get_object_or_404(
         Booking.objects.select_related("session"),
