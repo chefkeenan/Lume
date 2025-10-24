@@ -104,6 +104,7 @@ class Command(BaseCommand):
                 lookup = {"external_id": external_id} if external_id else {"product_name": product_name}
 
             defaults = {
+                "product_name": product_name,
                 "stock": stock,
                 "inStock": in_stock,
                 "thumbnail": thumbnail,
