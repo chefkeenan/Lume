@@ -28,21 +28,30 @@ def cart_checkout_page(request):
     items_qs = cart.items.select_related("product").filter(is_selected=True)
     items = list(items_qs)
 
-    if not items:  # tidak ada yang dipilih -> balik ke cart
+    if not items:
         messages.error(request, "Pilih dulu item yang mau di-checkout.")
         return redirect("cart:page")
 
+    # hitung subtotal/ongkir
     subtotal = sum(ci.product.price * ci.quantity for ci in items)
     shipping = ProductOrder.FLAT_SHIPPING if items else Decimal("0")
     total = subtotal + shipping
 
+    for ci in items:
+        ci.display_name = getattr(ci.product, "product_name",
+                            getattr(ci.product, "name", str(ci.product)))
+        ci.line_total = ci.product.price * ci.quantity
+
+    items_count = sum(ci.quantity for ci in items)  # total item (bukan jumlah SKU)
+
     form = CartCheckoutForm()
     return render(request, "checkout/cart_checkout_page.html", {
         "form": form,
-        "cart_items": items,        # hanya yang terpilih
+        "cart_items": items,
         "subtotal": subtotal,
         "shipping": shipping,
         "total": total,
+        "items_count": items_count,     # <<< NEW
         "payment_method": "Cash on Delivery",
     })
 
