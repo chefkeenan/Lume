@@ -8,28 +8,90 @@ from django.contrib.auth.decorators import login_required
 from .forms import ProfileForm
 from checkout.models import ProductOrder, BookingOrderItem
 from django.utils import timezone
+from django.http import JsonResponse
+from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.conf import settings
 
-def register_user(request):
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("main:landing")
-    else:
-        form = RegisterForm()
-    return render(request, "register.html", {"form": form})
+def _is_ajax(request):
+    return (
+        request.POST.get("ajax") == "1" or
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+    )
 
+
+def _safe_next(request, fallback_name="main:landing"):
+    nxt = (request.POST.get("next") or request.GET.get("next") or "").strip()
+    try:
+        login_path = reverse("user:login")
+    except Exception:
+        login_path = "/user/login/"
+    if not nxt or nxt == request.path or nxt == login_path:
+        return reverse(fallback_name)
+    return nxt
+
+@ensure_csrf_cookie
+@require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect("main:landing")
+            target = _safe_next(request)
+
+            if _is_ajax(request):
+                return JsonResponse({
+                    "ok": True,
+                    "redirect_url": target,
+                    "message": "Log in successful."
+                })
+            messages.success(request, "Log in successful.")
+            return redirect(target)
+        else:
+            if _is_ajax(request):
+                return JsonResponse(
+                    {"ok": False, "errors": form.errors, "non_field_errors": form.non_field_errors()},
+                    status=400
+                )
     else:
         form = AuthenticationForm(request)
     return render(request, "login.html", {"form": form})
+
+@ensure_csrf_cookie
+@require_http_methods(["GET", "POST"])
+def register_user(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # FIX: kasih backend biar login() nggak error 403
+            login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
+
+            if _is_ajax(request):
+                return JsonResponse({
+                    "ok": True,
+                    "redirect_url": reverse("main:landing"),
+                    "message": "Registration successful."
+                })
+            messages.success(request, "Registration successful.")
+            return redirect("main:landing")
+        else:
+            if _is_ajax(request):
+                return JsonResponse(
+                    {
+                        "ok": False,
+                        "errors": form.errors,
+                        "non_field_errors": form.non_field_errors(),
+                    },
+                    status=400
+                )
+    else:
+        form = RegisterForm()
+    return render(request, "register.html", {"form": form})
 
 def logout_user(request):
     logout(request)

@@ -1,18 +1,50 @@
 // static/js/admin-products.js
 (function () {
-  const editModal = document.getElementById('editModal');
-  const editBody  = document.getElementById('editModalBody');
+  const editModal   = document.getElementById('editModal');
+  const editBody    = document.getElementById('editModalBody');
 
-  const addModal  = document.getElementById('addModal');
-  const addBody   = document.getElementById('addModalBody');
+  const addModal    = document.getElementById('addModal');
+  const addBody     = document.getElementById('addModalBody');
+
+  // DELETE MODAL BARU
+  const deleteModal     = document.getElementById('deleteModal');
+  const deleteMessageEl = document.getElementById('deleteMessage');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+  // state sementara buat delete
+  let pendingDeleteUrl = null;
+  let pendingDeleteCardId = null;
+  let pendingDeleteBtnEl = null;
 
   function lockScroll(lock) {
     document.documentElement.style.overflow = lock ? 'hidden' : '';
   }
-  function open(el){ el && el.classList.remove('hidden'); el && el.classList.add('flex'); lockScroll(true); }
-  function close(el, bodyEl){ 
-    el && el.classList.add('hidden'); el && el.classList.remove('flex'); 
-    bodyEl && (bodyEl.innerHTML = ''); 
+
+  function open(el) {
+    if (!el) return;
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+    lockScroll(true);
+  }
+
+  function close(el, bodyEl) {
+    if (!el) return;
+    el.classList.add('hidden');
+    el.classList.remove('flex');
+
+    if (bodyEl) {
+      bodyEl.innerHTML = '';
+    }
+
+    // khusus delete modal, bersihin state
+    if (el === deleteModal) {
+      pendingDeleteUrl = null;
+      pendingDeleteCardId = null;
+      if (deleteMessageEl) {
+        deleteMessageEl.textContent = "Are you sure you want to delete this product?";
+      }
+    }
+
     lockScroll(false);
   }
 
@@ -53,39 +85,113 @@
       return;
     }
 
-    // === DELETE ===
+    
     const delBtn = e.target.closest('[data-delete-url]');
     if (delBtn) {
       e.preventDefault();
-      if (!confirm('Delete this product?')) return;
-      const url = delBtn.getAttribute('data-delete-url');
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'x-requested-with': 'XMLHttpRequest',
-          'X-CSRFToken': getCsrf()
-        }
-      });
-      if (res.ok) {
-        const id = delBtn.getAttribute('data-card-id');
-        const card = id ? document.getElementById(id) : null;
-        if (card) card.remove(); else location.reload();
+
+      // simpan info yg dibutuhin buat nanti pas confirm
+      pendingDeleteUrl    = delBtn.getAttribute('data-delete-url');
+      pendingDeleteCardId = delBtn.getAttribute('data-card-id') || null;
+      pendingDeleteBtnEl  = delBtn;
+
+      // Update text konfirmasi pakai nama produk
+      const productName = delBtn.getAttribute('data-product-name') || 'this product';
+      if (deleteMessageEl) {
+        deleteMessageEl.textContent = `Are you sure you want to delete “${productName}”? This action cannot be undone.`;
       }
+
+      open(deleteModal);
       return;
     }
 
-    // === CLOSE MODALS (backdrop / button) ===
-    if (e.target.dataset.closeEdit !== undefined) close(editModal, editBody);
-    if (e.target.dataset.closeAdd  !== undefined) close(addModal,  addBody);
+    // === CLOSE MODALS (backdrop / button X / Cancel btn) ===
+    if (e.target.dataset.closeEdit   !== undefined) close(editModal,   editBody);
+    if (e.target.dataset.closeAdd    !== undefined) close(addModal,    addBody);
+    if (e.target.dataset.closeDelete !== undefined) close(deleteModal, null);
   });
 
-  // klik backdrop langsung close
+  // klik backdrop -> close
   editModal && editModal.addEventListener('click', (e) => {
     if (e.target.dataset.closeEdit !== undefined) close(editModal, editBody);
   });
   addModal && addModal.addEventListener('click', (e) => {
     if (e.target.dataset.closeAdd !== undefined) close(addModal, addBody);
   });
+  deleteModal && deleteModal.addEventListener('click', (e) => {
+    if (e.target.dataset.closeDelete !== undefined) close(deleteModal, null);
+  });
+
+  
+  confirmDeleteBtn &&
+  confirmDeleteBtn.addEventListener('click', async () => {
+    if (!pendingDeleteUrl) { close(deleteModal, null); return; }
+
+    const res = await fetch(pendingDeleteUrl, {
+      method: 'POST',
+      headers: {
+        'x-requested-with': 'XMLHttpRequest',
+        'X-CSRFToken': getCsrf(),
+      },
+    });
+
+    if (res.ok) {
+      // --- HAPUS KARTU YANG DIKLIK ---
+      let node = null;
+      if (pendingDeleteBtnEl) {
+        node = pendingDeleteBtnEl.closest('[data-card-wrapper]');
+      }
+      if (!node) {
+        if (pendingDeleteCardId) node = document.getElementById(pendingDeleteCardId);
+        if (!node && pendingDeleteBtnEl) node = pendingDeleteBtnEl.closest('article[id^="card-"]');
+      }
+      if (node) {
+        node.remove();
+      } else {
+        // fallback terakhir
+        location.reload();
+      }
+
+      // ⬇️⬇️⬇️ TAMBAHKAN BLOK INI UNTUK LANDING: isi lagi sampai 6 produk ⬇️⬇️⬇️
+      try {
+        const grid = document.getElementById("productGrid"); // grid di landing
+        if (grid) {
+          const wrappers = Array.from(grid.querySelectorAll("[data-card-wrapper]"));
+          if (wrappers.length < 6) {
+            const shownIds = wrappers
+              .map(w => (w.id || "").replace("wrap-", ""))
+              .filter(Boolean)
+              .join(",");
+            const fetchUrl = grid.getAttribute("data-fetch-url"); // set di landing.html
+            if (fetchUrl) {
+              const url = new URL(fetchUrl, window.location.origin);
+              url.searchParams.set("exclude", shownIds);
+              url.searchParams.set("count", "1");
+
+              const r = await fetch(url.toString(), { headers: { "X-Requested-With": "XMLHttpRequest" } });
+              if (r.ok) {
+                const data = await r.json();
+                if (data.ok && data.cards && data.cards.length) {
+                  grid.insertAdjacentHTML("beforeend", data.cards.join(""));
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("gagal fetch kartu pengganti:", err);
+      }
+      // ⬆️⬆️⬆️ SAMPAI SINI ⬆️⬆️⬆️
+
+    } else {
+      alert('Failed to delete product.');
+    }
+
+    close(deleteModal, null);
+    pendingDeleteBtnEl = null;
+  });
+
+
 
   // === SUBMIT di dalam MODAL (edit/add) ===
   document.addEventListener('submit', async (e) => {
@@ -134,10 +240,10 @@
       const merged = Object.entries(data.errors)
         .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)
         .join("\n");
-      alert("Gagal menyimpan:\n" + merged);
+      alert("Failed to save:\n" + merged);
       return;
     }
 
-    alert('Gagal menyimpan perubahan.');
+    alert('Failed to save changes.');
   });
 })();

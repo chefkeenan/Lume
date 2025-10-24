@@ -9,11 +9,13 @@
     <form method="post" action="{% url 'user:register' %}" class="space-y-5" id="registerForm" novalidate>
       {% csrf_token %}
 
+      <!-- Non-field (SSR) -->
       {% if form.non_field_errors %}
         <div class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           {{ form.non_field_errors }}
         </div>
       {% endif %}
+
 
       <div>
         <label class="mb-2 block text-sm font-semibold text-stone-700">Username</label>
@@ -24,6 +26,7 @@
         {% if form.username.errors %}
           <p class="mt-2 text-sm text-red-600">{{ form.username.errors.0 }}</p>
         {% endif %}
+        <p id="err-username" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
       <div>
@@ -35,6 +38,7 @@
         {% if form.phone.errors %}
           <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
         {% endif %}
+        <p id="err-phone" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
       <div>
@@ -51,6 +55,7 @@
         {% if form.password1.errors %}
           <p class="mt-2 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
         {% endif %}
+        <p id="err-password1" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
       <div>
@@ -68,11 +73,13 @@
         {% if form.password2.errors %}
           <p class="mt-2 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
         {% endif %}
+        <p id="err-password2" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
+      <p id="err-__all__" class="mt-2 text-sm text-red-600 hidden"></p>
       <button type="submit"
               class="w-full rounded-full bg-[#A7B29C] px-4 py-3 text-base font-semibold text-white shadow-[inset_0_-4px_10px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[.99]">
-        Sign Up
+        Register
       </button>
 
       <p class="text-center text-sm text-stone-700">
@@ -90,25 +97,116 @@
     const form = document.getElementById('registerForm');
     const pw1 = document.getElementById('regPasswordInput');
     const pw2 = document.getElementById('regPasswordConfirm');
-    const err = document.getElementById('pwError');
+    const errMatch = document.getElementById('pwError');
     const t1 = document.getElementById('toggleRegPw');
     const t2 = document.getElementById('toggleRegPw2');
 
-    function toggle(el) { el.type = el.type === 'password' ? 'text' : 'password'; el.focus(); }
-    if (t1 && pw1) t1.addEventListener('click', () => toggle(pw1));
-    if (t2 && pw2) t2.addEventListener('click', () => toggle(pw2));
+    // ====== toggle eye password ======
+    function toggle(el, btn) {
+      el.type = el.type === 'password' ? 'text' : 'password';
 
+      if (el.type === 'text') {
+        el.style.webkitTextSecurity = 'none';
+        if (btn) btn.textContent = '🙈';
+      } else {
+        el.style.webkitTextSecurity = '';
+        if (btn) btn.textContent = '👁';
+      }
+
+      el.focus();
+      const v = el.value;
+      el.value = '';
+      el.value = v;
+    }
+    if (t1 && pw1) t1.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw1, t1); });
+    if (t2 && pw2) t2.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw2, t2); });
+
+    // ====== password match check ======
     function checkMatch() {
       const match = pw1.value === pw2.value;
-      err.classList.toggle('hidden', match);
+      errMatch.classList.toggle('hidden', match);
       return match;
     }
     pw1.addEventListener('input', checkMatch);
     pw2.addEventListener('input', checkMatch);
 
-    form.addEventListener('submit', function (e) {
-      if (!checkMatch()) e.preventDefault();
+    // ====== helper: ambil csrftoken dari cookie ======
+    function getCookie(name) {
+      const v = ; ${document.cookie}.split(; ${name}=);
+      if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
+    }
+
+    // ====== helper: tampilkan error dari server ======
+    function showErr(id, messages){
+      const el = document.getElementById(id);
+      if (!el) return;
+      const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
+      el.innerHTML = html;
+      el.classList.remove("hidden");
+    }
+
+    function clearErr(){
+      ["err-_all_", "err-username","err-phone","err-password1","err-password2"].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el){ el.classList.add("hidden"); el.innerHTML = ""; }
+      });
+    }
+
+    // ====== submit handler (AJAX) ======
+    form.addEventListener('submit', async function (e) {
+      // stop normal form submit
+      e.preventDefault();
+
+      // jangan lanjut kalau password mismatch
+      if (!checkMatch()) {
+        return;
+      }
+
+      clearErr();
+
+      const fd = new FormData(form);
+      fd.set("ajax", "1"); // biar view balikin JSON
+
+      const csrftoken = getCookie("csrftoken") || "";
+
+      const res = await fetch(form.action, {
+        method: "POST",
+        headers: {
+          "X-Requested-With":"XMLHttpRequest",
+          "X-CSRFToken": csrftoken,
+        },
+        body: fd,
+        credentials: "same-origin", // penting: kirim cookie CSRF ke server
+      });
+
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) {
+        showErr("err-_all_", "Registration failed. Please try again.");
+        return;
+      }
+
+      const data = await res.json().catch(()=> ({}));
+
+      if (res.ok && data.ok) {
+        // success
+        localStorage.setItem("postRedirectToast", JSON.stringify({
+          type: "success",
+          text: data.message || "Registration successful."
+        }));
+        window.location.href = data.redirect_url || "/";
+        return;
+      }
+
+      // kalau gagal validasi
+      const errs = data.errors || {};
+      if (errs._all)   showErr("err-all", errs.all_);
+      if (errs.username)  showErr("err-username", errs.username);
+      if (errs.phone)     showErr("err-phone", errs.phone);
+      if (errs.password1) showErr("err-password1", errs.password1);
+      if (errs.password2) showErr("err-password2", errs.password2);
+
+      if (data.non_field_errors) showErr("err-_all_", data.non_field_errors);
     });
   })();
 </script>
-{% endblock %}
+{% endblock %}

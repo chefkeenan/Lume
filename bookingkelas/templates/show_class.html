@@ -109,8 +109,8 @@
 <script src="{% static 'js/class_modal.js' %}"></script>
 <script>
   const isUserLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
-  {% if request.user.is_staff %}
-  document.addEventListener('DOMContentLoaded', () => {
+  if (request.user.is_staff){
+     document.addEventListener('DOMContentLoaded', () => {
     const addModal = document.getElementById('addSessionModal');
     const addBtn = document.getElementById('addSessionBtn');
     const addModalClose = document.getElementById('addModalClose');
@@ -130,7 +130,9 @@
       }
     });
   });
-  {% endif %}
+  } 
+ 
+
   // === END JS BARU ===
 </script>
 {% endblock %}

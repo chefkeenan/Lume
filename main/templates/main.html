@@ -89,13 +89,15 @@
 
 <!-- GRID PRODUK -->
 <section id="grid" class="relative z-0 mx-auto max-w-7xl px-6 py-8">
-  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-    {% for p in page_obj.object_list %}
+<div id="productGrid" class="flex flex-wrap justify-center gap-x-10 gap-y-12">
+  {% for p in page_obj.object_list %}
+    <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
       {% include "product_card.html" with p=p %}
-    {% empty %}
-      <p class="col-span-full text-stone-500">Belum ada produk.</p>
-    {% endfor %}
-  </div>
+    </div>
+  {% endfor %}
+</div>
+
+
 
   {% if page_obj.paginator.num_pages > 1 %}
   <div class="mt-8 flex items-center justify-center gap-1">
@@ -137,6 +139,8 @@
 {% include "product_modal.html" %}
 <script defer src="{% static 'js/helpers.js' %}"></script>
 <script defer src="{% static 'js/shop.js' %}"></script>
+<script defer src="{% static 'js/admin-producst.js' %}"></script>
+
 
 
 

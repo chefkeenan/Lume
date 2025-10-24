@@ -144,6 +144,7 @@ def get_session_details_json(request, base_title):
     return JsonResponse(data)
 
 @login_required(login_url="/user/login/")
+@transaction.atomic
 def book_class(request, session_id):
     s = get_object_or_404(ClassSessions.objects.select_for_update(), id=session_id)
 
@@ -163,6 +164,7 @@ def book_class(request, session_id):
     return redirect("checkout:booking_checkout", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
+@transaction.atomic
 def book_daily_session(request):
     
     if request.method == "POST":
@@ -241,9 +243,17 @@ def class_edit(request, pk):
 @login_required
 @user_passes_test(admin_check)
 def class_delete(request, pk):
+    # Ambil objeknya dulu
     kelas = get_object_or_404(ClassSessions, pk=pk)
-    kelas.delete()
-    messages.success(request, "Session successfully deleted.")
+    
+    # [WAJIB] Hanya proses delete jika method-nya POST
+    if request.method == "POST":
+        kelas.delete()
+        messages.success(request, "Session successfully deleted.")
+        return redirect("bookingkelas:class_list")
+
+    # Jika GET request, tolak dan redirect
+    messages.error(request, "Invalid request method.")
     return redirect("bookingkelas:class_list")
 
 @login_required

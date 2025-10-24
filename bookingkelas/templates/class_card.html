@@ -36,24 +36,60 @@
         </div>
 
     <div class="mt-auto pt-4">
-        {% if c.category == "daily" %}
+  {% if c.category == "daily" %}
+    {% if user.is_authenticated %}
+      {% if user.is_staff or user.is_superuser %}
+        {# ADMIN: disable Choose Day (jangan kasih class pemicu modal) #}
+        <button type="button" disabled title="Admin accounts cannot book classes"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+          Choose Day
+        </button>
+      {% else %}
+        {# USER BIASA: buka modal pilih hari #}
         <button type="button"
-        data-base-title="{{ c.base_title }}"
-        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] btn-open-modal">
-            Choose Day
+          data-base-title="{{ c.base_title }}"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] btn-open-modal">
+          Choose Day
         </button>
-        {% elif c.instance_id %}
-        <a href="{% url 'bookingkelas:book_class' c.instance_id %}"
+      {% endif %}
+    {% else %}
+      {# BELUM LOGIN: arahkan ke login #}
+      <a href="{% url 'user:login' %}?next={{ request.path }}"
         class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
-            Book Now
-        </a>
-        {% else %}
-        <button disabled
-          class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] opacity-60">
-            Unavailable
+        Choose Day
+      </a>
+    {% endif %}
+
+  {% elif c.instance_id %}
+    {% if user.is_authenticated %}
+      {% if user.is_staff or user.is_superuser %}
+        {# ADMIN: disable Book Now #}
+        <button type="button" disabled title="Admin accounts cannot book classes"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+          Book Now
         </button>
-        {% endif %}
-    </div>
+      {% else %}
+        {# USER BIASA: lanjut ke book_class #}
+        <a href="{% url 'bookingkelas:book_class' c.instance_id %}"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+          Book Now
+        </a>
+      {% endif %}
+    {% else %}
+      {# BELUM LOGIN: arahkan ke login lalu balik ke rute booking #}
+      <a href="{% url 'user:login' %}?next={% url 'bookingkelas:book_class' c.instance_id %}"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+        Book Now
+      </a>
+    {% endif %}
+  {% else %}
+    <button disabled
+      class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] opacity-60">
+      Unavailable
+    </button>
+  {% endif %}
+</div>
+
 
     <span class="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-black/10"></span>
 </article>

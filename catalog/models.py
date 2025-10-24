@@ -12,6 +12,13 @@ class Product(models.Model):
     inStock = models.BooleanField(default=True)
     description = models.TextField()
     price = models.PositiveIntegerField()
+    external_id = models.CharField(
+        max_length=64,
+        unique=True,
+        db_index=True,
+        null=True,
+        blank=True,
+        help_text="ID unik dari dataset/CSV (1 baris CSV = 1 produk).",)
 
     def __str__(self):
         return f"{self.product_name} - Rp{self.price:,}"
