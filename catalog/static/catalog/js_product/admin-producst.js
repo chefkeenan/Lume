@@ -14,6 +14,7 @@
   // state sementara buat delete
   let pendingDeleteUrl = null;
   let pendingDeleteCardId = null;
+  let pendingDeleteBtnEl = null;
 
   function lockScroll(lock) {
     document.documentElement.style.overflow = lock ? 'hidden' : '';
@@ -84,7 +85,7 @@
       return;
     }
 
-    // === OPEN DELETE MODAL (🔥 BARU) ===
+    
     const delBtn = e.target.closest('[data-delete-url]');
     if (delBtn) {
       e.preventDefault();
@@ -92,6 +93,7 @@
       // simpan info yg dibutuhin buat nanti pas confirm
       pendingDeleteUrl    = delBtn.getAttribute('data-delete-url');
       pendingDeleteCardId = delBtn.getAttribute('data-card-id') || null;
+      pendingDeleteBtnEl  = delBtn;
 
       // Update text konfirmasi pakai nama produk
       const productName = delBtn.getAttribute('data-product-name') || 'this product';
@@ -120,43 +122,76 @@
     if (e.target.dataset.closeDelete !== undefined) close(deleteModal, null);
   });
 
-  // === CONFIRM DELETE ACTION (🔥 BARU) ===
+  
   confirmDeleteBtn &&
-    confirmDeleteBtn.addEventListener('click', async () => {
-      if (!pendingDeleteUrl) {
-        close(deleteModal, null);
-        return;
-      }
+  confirmDeleteBtn.addEventListener('click', async () => {
+    if (!pendingDeleteUrl) { close(deleteModal, null); return; }
 
-      const res = await fetch(pendingDeleteUrl, {
-        method: 'POST',
-        headers: {
-          'x-requested-with': 'XMLHttpRequest',
-          'X-CSRFToken': getCsrf(),
-        },
-      });
-
-      if (res.ok) {
-        // hapus card dari DOM kalau ada
-        if (pendingDeleteCardId) {
-          const card = document.getElementById(pendingDeleteCardId);
-          if (card) {
-            card.remove();
-          } else {
-            // fallback reload kalau gak nemu card
-            location.reload();
-          }
-        } else {
-          // fallback reload kalau gak ada id
-          location.reload();
-        }
-      } else {
-        // optional: kamu bisa ganti alert ini dgn toast versi kamu
-        alert('Failed to delete product.');
-      }
-
-      close(deleteModal, null);
+    const res = await fetch(pendingDeleteUrl, {
+      method: 'POST',
+      headers: {
+        'x-requested-with': 'XMLHttpRequest',
+        'X-CSRFToken': getCsrf(),
+      },
     });
+
+    if (res.ok) {
+      // --- HAPUS KARTU YANG DIKLIK ---
+      let node = null;
+      if (pendingDeleteBtnEl) {
+        node = pendingDeleteBtnEl.closest('[data-card-wrapper]');
+      }
+      if (!node) {
+        if (pendingDeleteCardId) node = document.getElementById(pendingDeleteCardId);
+        if (!node && pendingDeleteBtnEl) node = pendingDeleteBtnEl.closest('article[id^="card-"]');
+      }
+      if (node) {
+        node.remove();
+      } else {
+        // fallback terakhir
+        location.reload();
+      }
+
+      // ⬇️⬇️⬇️ TAMBAHKAN BLOK INI UNTUK LANDING: isi lagi sampai 6 produk ⬇️⬇️⬇️
+      try {
+        const grid = document.getElementById("productGrid"); // grid di landing
+        if (grid) {
+          const wrappers = Array.from(grid.querySelectorAll("[data-card-wrapper]"));
+          if (wrappers.length < 6) {
+            const shownIds = wrappers
+              .map(w => (w.id || "").replace("wrap-", ""))
+              .filter(Boolean)
+              .join(",");
+            const fetchUrl = grid.getAttribute("data-fetch-url"); // set di landing.html
+            if (fetchUrl) {
+              const url = new URL(fetchUrl, window.location.origin);
+              url.searchParams.set("exclude", shownIds);
+              url.searchParams.set("count", "1");
+
+              const r = await fetch(url.toString(), { headers: { "X-Requested-With": "XMLHttpRequest" } });
+              if (r.ok) {
+                const data = await r.json();
+                if (data.ok && data.cards && data.cards.length) {
+                  grid.insertAdjacentHTML("beforeend", data.cards.join(""));
+                }
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("gagal fetch kartu pengganti:", err);
+      }
+      // ⬆️⬆️⬆️ SAMPAI SINI ⬆️⬆️⬆️
+
+    } else {
+      alert('Failed to delete product.');
+    }
+
+    close(deleteModal, null);
+    pendingDeleteBtnEl = null;
+  });
+
+
 
   // === SUBMIT di dalam MODAL (edit/add) ===
   document.addEventListener('submit', async (e) => {
