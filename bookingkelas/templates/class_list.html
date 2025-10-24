@@ -54,6 +54,70 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+  /* Container untuk form fields */
+  .modal-form-fields {
+    /* Gunakan CSS Grid untuk layout 2 kolom */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Membuat 2 kolom dengan lebar yang sama */
+    gap: 10px; /* Jarak antar kolom dan baris */
+  }
+
+  /* Styling untuk setiap field (dibungkus oleh <p>) */
+  .modal-form-fields p {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    /* Tambahkan ini jika ada field yang ingin tetap 1 kolom penuh, contoh description */
+    /* Contoh: .modal-form-fields p:has(label[for="id_description"]) { grid-column: span 2; } */
+  }
+
+  /* Lebar untuk beberapa field agar tidak terlalu panjang */
+  .modal-form-fields p:has(label[for="id_title"]),
+  .modal-form-fields p:has(label[for="id_description"]) {
+    grid-column: span 2; /* Buat Title dan Description mengambil 2 kolom penuh */
+  }
+  
+  /* Styling label, input, select, textarea */
+  .modal-form-fields label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #374151; 
+  }
+  .modal-form-fields input[type="text"],
+  .modal-form-fields input[type="number"],
+  .modal-form-fields select,
+  .modal-form-fields textarea {
+    width: 100%;
+    border: 1px solid #D1D5DB; 
+    border-radius: 8px;
+    padding: 8px 12px;
+  }
+  .modal-form-fields .helptext {
+    font-size: 0.8rem;
+    color: #6B7280; 
+  }
+
+  /* Merapikan layout checkbox 'Days' */
+  .modal-form-fields #id_days {
+    grid-column: span 2; /* Pastikan 'Days' selalu 2 kolom */
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .modal-form-fields #id_days li { display: block; }
+  .modal-form-fields #id_days label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+  }
+  .modal-form-fields #id_days input[type="checkbox"] { width: auto; }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const editModal = document.getElementById('editSessionModal');
@@ -66,40 +130,62 @@ document.addEventListener('DOMContentLoaded', () => {
   const openModal = () => editModal.classList.remove('hidden');
   const closeModal = () => {
     editModal.classList.add('hidden');
-    editModalBody.innerHTML = '<div class="text-gray-500">Loading...</div>'; // Reset body
-    editModalForm.action = ""; // Reset form action
-    editModalTitle.innerText = "Loading..."; // Reset title
+    editModalBody.innerHTML = '<div class="text-gray-500">Loading...</div>';
+    editModalForm.action = "";
+    editModalTitle.innerText = "Loading...";
   };
 
-  // 1. Event Listeners untuk menutup modal
   editModalClose.addEventListener('click', closeModal);
   editModalCancel.addEventListener('click', closeModal);
   editModal.addEventListener('click', (e) => {
-    if (e.target === editModal) {
-      closeModal();
-    }
+    if (e.target === editModal) closeModal();
   });
 
-  // 2. Event Delegation untuk semua tombol ".edit-session-btn"
+  // Event Delegation untuk semua tombol ".edit-session-btn"
   document.body.addEventListener('click', (e) => {
     if (e.target.matches('.edit-session-btn')) {
       const formUrl = e.target.dataset.formUrl;
       const postUrl = e.target.dataset.postUrl;
       
-      // Set action form segera
       editModalForm.action = postUrl;
-      
-      // Tampilkan modal
       openModal();
 
-      // Fetch HTML form dari view baru kita
       fetch(formUrl)
         .then(response => response.text())
         .then(html => {
-          // Masukkan HTML form ke body modal
           editModalBody.innerHTML = html;
-          // (Opsional) Ambil judul dari data atau biarkan statis
           editModalTitle.innerText = "Edit Session";
+          
+          // === LOGIKA JAVASCRIPT BARU DITARUH DI SINI ===
+          // Kita jalankan logika hide/show SETELAH form-nya berhasil di-load
+          const categorySelect = editModal.querySelector('#id_category');
+          const firstDayCheckbox = editModal.querySelector('input[name="days"]');
+          
+          if (!categorySelect || !firstDayCheckbox) {
+            console.warn('Field "category" atau "days" tidak ditemukan di modal edit.');
+            return;
+          }
+
+          const daysContainer = firstDayCheckbox.closest('p');
+          if (!daysContainer) {
+              console.warn('Container <p> untuk "days" tidak ditemukan.');
+              return;
+          }
+
+          const toggleDaysField = () => {
+            if (categorySelect.value.toLowerCase() === 'weekly') {
+              daysContainer.style.display = 'flex';
+            } else {
+              daysContainer.style.display = 'none';
+            }
+          };
+
+          // Tambahkan listener ke dropdown di modal edit
+          categorySelect.addEventListener('change', toggleDaysField);
+          // Jalankan saat pertama kali load
+          toggleDaysField();
+          // === AKHIR LOGIKA JAVASCRIPT BARU ===
+
         })
         .catch(err => {
           console.error('Failed to load form:', err);

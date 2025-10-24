@@ -5,18 +5,27 @@ from django.http import JsonResponse, HttpResponseBadRequest
 from checkout.models import BookingOrderItem
 from django.contrib import messages
 from django.db import transaction
-from .forms import SessionsForm, AdminSessionsForm
+from .forms import SessionsForm, AdminSessionsForm, AdminSessionEditForm
 from decimal import Decimal
 import re
 
 def admin_check(u): return u.is_staff
 
 def _weekday_map():
-    return dict(WEEKDAYS)
+    day_map = dict(WEEKDAYS)
+    day_map.update({
+        '0': 'Monday',
+        '1': 'Tuesday',
+        '2': 'Wednesday',
+        '3': 'Thursday',
+        '4': 'Friday',
+        '5': 'Saturday',
+        '6': 'Sunday',
+    })
+    return day_map
 
 def _base_title(title):
-    m = re.match(r"^(.*?)(?:\s*-\s*(mon|tue|wed|thur|fri|sat))?$", title, flags=re.I)
-    return m.group(1).strip() if m else title
+    return title.rsplit(' - ', 1)[0]
 
 def catalog(request):
     qs = ClassSessions.objects.all().order_by("title")
@@ -218,13 +227,16 @@ def class_list(request):
 @login_required
 @user_passes_test(admin_check)
 def class_edit(request, pk):
+    """
+    View ini menangani SUBMIT (POST) dari modal Edit.
+    """
     kelas = get_object_or_404(ClassSessions, pk=pk)
-    form = SessionsForm(request.POST or None, instance=kelas)
+    form = AdminSessionEditForm(request.POST or None, instance=kelas)
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Session successfully updated.")
         return redirect("bookingkelas:class_list")
-    return render(request, "class_edit.html", {"form": form})
+    return render(request, "edit_form.html", {"form": form})
 
 @login_required
 @user_passes_test(admin_check)
@@ -238,7 +250,7 @@ def class_delete(request, pk):
 @user_passes_test(admin_check)
 def get_edit_form(request, pk):
     kelas = get_object_or_404(ClassSessions, pk=pk)
-    form = SessionsForm(instance=kelas)
+    form = AdminSessionEditForm(instance=kelas) 
     return render(request, "edit_form.html", {"form": form, "pk": pk})
 
 @login_required
@@ -247,24 +259,11 @@ def add_session(request):
     if request.method != "POST":
         return redirect("bookingkelas:catalog") 
 
-    form = SessionsForm(request.POST)
+    form = AdminSessionsForm(request.POST)
     
     if form.is_valid():
-
-        category = form.cleaned_data.get('category')
-        instance = form.save(commit=False) 
-
-        if category and category.lower() == 'daily':
-            instance.days = ['0', '1', '2', '3', '4', '5'] 
-            messages.success(request, f"Daily Session '{instance.title}' berhasil dibuat untuk 6 hari seminggu.")
-        
-        elif category and category.lower() == 'weekly':
-            selected_days_count = len(instance.days)
-            messages.success(request, f"Weekly Session '{instance.title}' berhasil dibuat untuk {selected_days_count} hari per minggu.")
-        else:
-            messages.success(request, f"Session '{instance.title}' berhasil dibuat.")
-
-        instance.save()
+        instance = form.save() 
+        messages.success(request, f"Sesi '{instance.title}' berhasil dibuat.")
         return redirect("bookingkelas:catalog")
 
     else:
