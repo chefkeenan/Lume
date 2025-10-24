@@ -142,12 +142,26 @@
         </div>
 
         <!-- Footer -->
-        <div class="mt-5">
-          <a href="{% url 'bookingkelas:book_class' c.id %}"
-            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
-            Book Now
-          </a>
-        </div>
+<div class="mt-5">
+  {% if user.is_authenticated %}
+    {% if user.is_staff or user.is_superuser %}
+      <button type="button" disabled title="Admin accounts cannot book classes"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+        Book Now
+      </button>
+    {% else %}
+      <a href="{% url 'bookingkelas:book_class' c.id %}"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+        Book Now
+      </a>
+    {% endif %}
+  {% else %}
+    <a href="{% url 'user:login' %}?next={% url 'bookingkelas:book_class' c.id %}"
+      class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+      Book Now
+    </a>
+  {% endif %}
+</div>
 
         <!-- Popularity Ring -->
         <div class="absolute top-16 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
