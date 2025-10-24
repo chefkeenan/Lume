@@ -221,15 +221,6 @@ def unselect_all_ajax(request):
         "selected_qty": 0,
     })
 
-from django.contrib.auth.decorators import login_required
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect
-from django.http import JsonResponse
-from django.contrib import messages
-from django.urls import reverse
-from catalog.models import Product
-from .models import Cart, CartItem
-
 @login_required
 @transaction.atomic
 def add_to_cart(request, product_id):
