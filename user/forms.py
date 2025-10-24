@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User
 from django import forms
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 class RegisterForm(UserCreationForm):
     phone = forms.CharField(max_length=30, required=False, help_text="Opsional")
@@ -13,6 +14,11 @@ class RegisterForm(UserCreationForm):
 
     def clean_phone(self):
         p = (self.cleaned_data.get("phone") or "").strip()
+
+        if not p.isdigit():
+            raise ValidationError("Must be a number.")
+        if len(p) < 9:
+            raise ValidationError("Too short (min. 9 digits).")
         return p
 
     def save(self, commit=True):
