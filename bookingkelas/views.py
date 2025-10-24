@@ -144,6 +144,7 @@ def get_session_details_json(request, base_title):
     return JsonResponse(data)
 
 @login_required(login_url="/user/login/")
+@transaction.atomic
 def book_class(request, session_id):
     s = get_object_or_404(ClassSessions.objects.select_for_update(), id=session_id)
 
@@ -163,6 +164,7 @@ def book_class(request, session_id):
     return redirect("checkout:booking_checkout", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
+@transaction.atomic
 def book_daily_session(request):
     
     if request.method == "POST":
