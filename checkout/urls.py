@@ -7,6 +7,7 @@ urlpatterns = [
     # Produk (Cart)
     path("cart/", views.cart_checkout_page, name="cart_checkout_page"),
     path("cart/create/", views.checkout_cart_create, name="checkout_cart_create"),
+    path("cart/summary/", views.cart_summary_json, name="cart_summary_json"),
 
     # Booking (single)
     path("booking/<int:booking_id>/", views.booking_checkout, name="booking_checkout"),
