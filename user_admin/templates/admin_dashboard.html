@@ -4,17 +4,12 @@
 {% block title %}Admin Dashboard — Lume{% endblock %}
 
 {% block content %}
-<header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-stone-200">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-    <a href="/" class="font-semibold">Lume</a>
-    <nav class="text-sm text-stone-600">Admin &rsaquo; Dashboard</nav>
-  </div>
-</header>
+
 
 <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
   <div class="mb-10">
     <h1 class="text-4xl font-light text-stone-900 mb-2">Admin Dashboard</h1>
-    <p class="text-stone-600">Manage orders, bookings, users, and view analytics</p>
+    <p class="text-stone-600">View orders, bookings, users, and view analytics</p>
   </div>
 
   <!-- Stats -->
@@ -32,36 +27,30 @@
 
   <!-- Panels -->
   <section id="panel-overview" class="space-y-8">
-    <div class="bg-white border border-stone-200 rounded-xl p-6">
+    <div class="bg-[#ede9de] border border-stone-300 rounded-xl p-6">
       <h2 class="text-2xl font-light text-stone-900 mb-4">Recent Activity</h2>
-      <div id="recent-activity" class="divide-y divide-stone-200">
+      <div id="recent-activity" class="divide-y divide-stone-300">
         <!-- diisi via JS -->
       </div>
     </div>
   </section>
 
+  <!-- Orders Tab -->
   <section id="panel-orders" class="hidden">
-    <div class="overflow-x-auto bg-white border border-stone-200 rounded-xl">
-      <table class="w-full text-left">
-        <thead class="border-b border-stone-200">
-          <tr>
-            <th class="py-3 px-4 font-semibold">Order ID</th>
-            <th class="py-3 px-4 font-semibold">Customer</th>
-            <th class="py-3 px-4 font-semibold">Items</th>
-            <th class="py-3 px-4 font-semibold">Amount</th>
-            <th class="py-3 px-4 font-semibold">Date</th>
-            <th class="py-3 px-4 font-semibold">Status</th>
-          </tr>
-        </thead>
-        <tbody id="orders-body" class="divide-y divide-stone-100"></tbody>
-      </table>
+    <div class="rounded-2xl p-6 border border-stone-300 bg-[#fbf8f5]">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-stone-900">All Orders</h3>
+        <p class="text-sm text-stone-600">Click an order to view items</p>
+      </div>
+      <div id="orders-list" class="space-y-6"></div>
     </div>
   </section>
 
+  <!-- Bookings Tab -->
   <section id="panel-bookings" class="hidden">
-    <div class="overflow-x-auto bg-white border border-stone-200 rounded-xl">
+    <div class="overflow-x-auto bg-[#ede9de] border border-stone-300 rounded-xl p-4">
       <table class="w-full text-left">
-        <thead class="border-b border-stone-200">
+        <thead class="border-b border-stone-300">
           <tr>
             <th class="py-3 px-4 font-semibold">Booking ID</th>
             <th class="py-3 px-4 font-semibold">Student</th>
@@ -71,23 +60,23 @@
             <th class="py-3 px-4 font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody id="bookings-body" class="divide-y divide-stone-100"></tbody>
+        <tbody id="bookings-body" class="divide-y divide-stone-300"></tbody>
       </table>
     </div>
   </section>
 
+  <!-- Users Tab -->
   <section id="panel-users" class="hidden">
     <div class="mb-4 flex items-center gap-2">
       <input id="user-search" type="text" placeholder="Search username…" class="w-full md:w-80 rounded-lg border border-stone-300 px-3 py-2">
       <button id="user-search-btn" class="px-4 py-2 rounded-lg bg-stone-900 text-white">Search</button>
     </div>
-    <div class="overflow-x-auto bg-white border border-stone-200 rounded-xl">
+    <div class="overflow-x-auto bg-[#ede9de] border border-stone-300 rounded-xl p-4">
       <table class="w-full text-left">
-        <thead class="border-b border-stone-200">
+        <thead class="border-b border-stone-300">
           <tr>
             <th class="py-3 px-4 font-semibold">User ID</th>
             <th class="py-3 px-4 font-semibold">Username</th>
-            <th class="py-3 px-4 font-semibold">Email</th>
             <th class="py-3 px-4 font-semibold">Phone</th>
             <th class="py-3 px-4 font-semibold">Join Date</th>
             <th class="py-3 px-4 font-semibold">Orders</th>
@@ -95,7 +84,7 @@
             <th class="py-3 px-4 font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody id="users-body" class="divide-y divide-stone-100"></tbody>
+        <tbody id="users-body" class="divide-y divide-stone-300"></tbody>
       </table>
     </div>
   </section>
@@ -104,17 +93,29 @@
 <script>
   // util kelas status
   function pill(status) {
+    const s = String(status || "").toLowerCase();
+
+    if (s === "completed" || s === "active") {
+      return `
+        <span
+          class="inline-flex items-center justify-center px-4 py-1.5 rounded-full
+                 bg-[#DFEAD7] text-[#6F7F6F] border border-[#97A590]
+                 text-sm font-semibold tracking-wide">
+          ${status}
+        </span>
+      `;
+    }
+
     const map = {
-      completed: "bg-green-100 text-green-800",
-      active: "bg-green-100 text-green-800",
-      upcoming: "bg-yellow-100 text-yellow-800",
-      pending: "bg-yellow-100 text-yellow-800",
-      cancelled: "bg-red-100 text-red-800",
-      inactive: "bg-red-100 text-red-800",
-      default: "bg-stone-100 text-stone-800",
+      upcoming: "bg-yellow-100 text-yellow-800 border border-yellow-300",
+      pending: "bg-yellow-100 text-yellow-800 border border-yellow-300",
+      cancelled: "bg-red-100 text-red-800 border border-red-300",
+      inactive: "bg-red-100 text-red-800 border border-red-300",
+      default: "bg-stone-100 text-stone-800 border border-stone-300",
     };
-    const cls = map[status] || map.default;
-    return `<span class="px-3 py-1 rounded-full text-xs font-semibold ${cls}">${status}</span>`;
+    const cls = map[s] || map.default;
+
+    return `<span class="inline-flex items-center justify-center px-3 py-1.5 rounded-full ${cls} text-xs font-semibold">${status}</span>`;
   }
 
   // Tabs
@@ -150,24 +151,21 @@
     const s = j.data;
     const el = document.getElementById("stats");
     el.innerHTML = `
-      ${statCard("Total Users", s.total_users, "bg-blue-100 text-blue-800")}
-      ${statCard("Total Income", "Rp " + formatRp(s.total_income), "bg-green-100 text-green-800")}
-      ${statCard("Total Orders", s.total_orders, "bg-orange-100 text-orange-800")}
-      ${statCard("Total Bookings", s.total_bookings, "bg-purple-100 text-purple-800")}
+      ${statCard("Total Users", s.total_users)}
+      ${statCard("Total Income", "Rp " + formatRp(s.total_income))}
+      ${statCard("Total Orders", s.total_orders)}
+      ${statCard("Total Bookings", s.total_bookings)}
     `;
   }
 
-  function statCard(label, value, color) {
-    return `
-      <div class="bg-white border border-stone-200 rounded-xl p-6">
-        <div class="w-12 h-12 rounded-lg ${color} flex items-center justify-center mb-3">
-          <span class="text-sm font-semibold">${label.split(' ')[0][0]}</span>
-        </div>
-        <p class="text-stone-500 text-sm mb-1">${label}</p>
-        <p class="text-2xl font-light text-stone-900">${value}</p>
-      </div>
-    `;
-  }
+function statCard(label, value) {
+  return `
+    <div class="bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors border border-stone-300 rounded-xl p-6">
+      <p class="text-xs uppercase tracking-wider text-stone-700 font-semibold mb-1">${label}</p>
+      <p class="text-3xl md:text-4xl font-bold text-stone-900 leading-tight">${value}</p>
+    </div>
+  `;
+}
 
   async function loadActivity() {
     const r = await fetch("{% url 'useradmin:api_activity' %}");
@@ -187,20 +185,87 @@
   async function loadOrders() {
     const r = await fetch("{% url 'useradmin:api_orders' %}");
     const j = await r.json();
-    const el = document.getElementById("orders-body");
-    el.innerHTML = (j.orders || []).map(o => `
-      <tr class="hover:bg-stone-50 transition">
-        <td class="py-3 px-4 font-light">#${o.id}</td>
-        <td class="py-3 px-4">
-          <p class="font-semibold">${o.user_name}</p>
-          <p class="text-sm text-stone-500">${o.user_email || ""}</p>
-        </td>
-        <td class="py-3 px-4 text-sm">${o.items}</td>
-        <td class="py-3 px-4 text-stone-900">Rp ${formatRp(o.amount)}</td>
-        <td class="py-3 px-4">${o.date}</td>
-        <td class="py-3 px-4">${pill(o.status)}</td>
-      </tr>
-    `).join("");
+    const list = document.getElementById("orders-list");
+    const orders = j.orders || [];
+
+    list.innerHTML = orders.map(o => {
+      const cardId = `order-${o.id}`;
+      return `
+        <div class="rounded-2xl border border-stone-200 bg-[#ede9de] shadow-sm">
+          <button type="button"
+                  class="w-full flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-300 hover:bg-[#e4dfd2] transition"
+                  data-toggle="#${cardId}">
+            <div>
+              <p class="text-sm text-stone-500">Order ID</p>
+              <p class="font-semibold tracking-wide">#${o.id}</p>
+            </div>  
+            <div>
+              <p class="text-sm text-stone-500">Customer</p>
+              <p class="font-medium">${o.user_name}</p>
+            </div>
+            <div>
+              <p class="text-sm text-stone-500">Date</p>
+              <p class="font-medium">${o.date}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm text-stone-500">Total</p>
+              <p class="text-lg font-semibold">Rp ${Number(o.amount||0).toLocaleString("id-ID")}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              ${pill(o.status)}
+              <svg class="w-5 h-5 text-stone-600 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9l6 6 6-6"/>
+              </svg>
+            </div>
+          </button>
+
+          <div id="${cardId}" class="px-5 py-4 hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left">
+                <thead>
+                  <tr class="text-sm text-stone-500 border-b border-stone-300">
+                    <th class="py-2 pr-3">Item</th>
+                    <th class="py-2 pr-3">Qty</th>
+                    <th class="py-2 pr-3">Price</th>
+                    <th class="py-2 pr-0 text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-300">
+                  ${(o.line_items || []).map(it => `
+                    <tr class="align-top">
+                      <td class="py-3 pr-3"><div class="font-medium">${it.name}</div></td>
+                      <td class="py-3 pr-3">${it.qty}</td>
+                      <td class="py-3 pr-3">Rp ${Number(it.price||0).toLocaleString("id-ID")}</td>
+                      <td class="py-3 pr-0 text-right">Rp ${Number(it.subtotal||0).toLocaleString("id-ID")}</td>
+                    </tr>
+                  `).join("")}
+                  ${(!o.line_items || o.line_items.length===0) ? `
+                    <tr><td colspan="4" class="py-4 text-sm text-stone-500">No items for this order.</td></tr>` : ""
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    bindOrderToggles();
+  }
+
+  function bindOrderToggles() {
+    document.querySelectorAll('#panel-orders [data-toggle]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sel = btn.getAttribute('data-toggle');
+        const panel = document.querySelector(sel);
+        if (!panel) return;
+        const chevron = btn.querySelector('[data-chevron]');
+        panel.classList.toggle('hidden');
+        if (chevron) {
+          chevron.style.transform = panel.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+      }, { once: false });
+    });
   }
 
   async function loadBookings() {
@@ -208,7 +273,7 @@
     const j = await r.json();
     const el = document.getElementById("bookings-body");
     el.innerHTML = (j.bookings || []).map(b => `
-      <tr class="hover:bg-stone-50 transition">
+      <tr class="border-b border-stone-300 hover:bg-[#e4dfd2] transition">
         <td class="py-3 px-4 font-light">#${b.id}</td>
         <td class="py-3 px-4">${b.user_name}</td>
         <td class="py-3 px-4 text-sm">${b.class_name}</td>
@@ -231,10 +296,9 @@
     const j = await r.json();
     const el = document.getElementById("users-body");
     el.innerHTML = (j.users || []).map(u => `
-      <tr class="hover:bg-stone-50 transition">
+      <tr class="border-b border-stone-300 hover:bg-[#e4dfd2] transition">
         <td class="py-3 px-4 font-light">#${u.id}</td>
         <td class="py-3 px-4 font-semibold">${u.username}</td>
-        <td class="py-3 px-4 text-sm">${u.email || ""}</td>
         <td class="py-3 px-4 text-sm">${u.phone || "-"}</td>
         <td class="py-3 px-4">${u.join_date}</td>
         <td class="py-3 px-4 text-center">${u.total_orders}</td>
@@ -250,7 +314,6 @@
   });
 
   function formatRp(n) {
-    // n string "12345.00" -> 12.345
     const f = parseFloat(n || "0");
     return f.toLocaleString("id-ID", { maximumFractionDigits: 0 });
   }
