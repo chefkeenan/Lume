@@ -87,10 +87,12 @@
               Edit
             </button>
             <button type="button"
-                    data-delete-url="{% url 'catalog:product_delete' p.id %}"
-                    class="rounded-xl border px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-              Delete
-            </button>
+                  data-delete-url="{% url 'catalog:product_delete' pk=p.id %}"
+                  data-card-id="card-{{ p.id }}"
+                  data-product-name="{{ p.product_name }}"
+                  class="rounded-xl border px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+            Delete
+          </button>
           </div>
         {% endif %}
       </div>
@@ -107,4 +109,7 @@
 {% include "product_modal.html" %}
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/admin-products.js' %}"></script>
+{% endblock %}
+
