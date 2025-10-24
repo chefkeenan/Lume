@@ -89,11 +89,13 @@
 
 <!-- GRID PRODUK -->
 <section id="grid" class="relative z-0 mx-auto max-w-7xl px-6 py-8">
-  <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+  <div class="flex flex-wrap justify-center gap-6">
     {% for p in page_obj.object_list %}
-      {% include "product_card.html" with p=p %}
+      <div class="w-[312px]">
+        {% include "product_card.html" with p=p %}
+      </div>
     {% empty %}
-      <p class="col-span-full text-stone-500">Belum ada produk.</p>
+      <p class="text-stone-500">Belum ada produk.</p>
     {% endfor %}
   </div>
 
