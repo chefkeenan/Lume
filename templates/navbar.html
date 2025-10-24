@@ -67,18 +67,28 @@
           {% if cart_count %}<span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>{% endif %}
         </a>
 
-        {% if request.user.is_authenticated %}
-          {# Profile #}
-          <a href="{{ profile_url }}" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Profile">
-            <img src="{% static 'assets/user.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
-          </a>
-          {# Logout as POST #}
-          <form method="post" action="{{ logout_url }}" class="m-0">
-            {% csrf_token %}
-            <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
-              <img src="{% static 'assets/logout.svg' %}" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
-            </button>
-          </form>
+{% if request.user.is_authenticated %}
+  {% if request.user.is_staff or request.user.is_superuser %}
+    {% url 'useradmin:dashboard' as admin_dashboard_url %}
+    {% firstof admin_dashboard_url '/useradmin/dashboard/' as target_profile_url %}
+  {% else %}
+    {% firstof profile_url '/user/profile/' as target_profile_url %}
+  {% endif %}
+
+  <a href="{{ target_profile_url }}"
+     class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
+     aria-label="Profile">
+    <img src="{% static 'assets/user.svg' %}" alt="" class="h-4 w-4"
+         onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
+  </a>
+  {# Logout as POST #}
+  <form method="post" action="{{ logout_url }}" class="m-0">
+    {% csrf_token %}
+    <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
+      <img src="{% static 'assets/logout.svg' %}" alt="" class="h-4 w-4"
+           onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
+    </button>
+  </form>
         {% else %}
             {% url 'user:login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
   <button type="button" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50" data-open-login data-login-href="{{ login_url }}">Login</button>
