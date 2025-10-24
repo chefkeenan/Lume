@@ -30,7 +30,7 @@ class ClassSessions(models.Model):
     instructor = models.CharField(max_length=15)
     capacity_current = models.PositiveIntegerField(default=0)
     capacity_max = models.PositiveIntegerField(default=20)   
-    description = models.CharField(max_length=60, blank=True)  
+    description = models.CharField(max_length=200, blank=True)  
     price = models.PositiveIntegerField() 
     room = models.CharField(max_length=5)
     days = models.JSONField(default=list, blank=True)
