@@ -1,10 +1,10 @@
-# catalog/management/commands/import_catalog_csv.py
 import csv
 import re
 from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from catalog.models import Product
+from django.conf import settings
 
 def _clean_price(v):
     if v is None:
@@ -41,7 +41,14 @@ class Command(BaseCommand):
     help = "Import produk ke catalog.Product dari file CSV."
 
     def add_arguments(self, parser):
-        parser.add_argument("csv_path", type=str, help="Path ke file CSV.")
+        default_csv = Path(settings.BASE_DIR) / "catalog" / "management" / "data" / "dataset_pilates.csv"
+        parser.add_argument(
+            "csv_path",
+            nargs="?",
+            default=str(default_csv),
+            type=str,
+            help=f"Path ke file CSV. (optional) Default: {default_csv}",
+        )
         parser.add_argument(
             "--dedupe-by",
             default="external_id",
@@ -70,8 +77,6 @@ class Command(BaseCommand):
 
         for raw in rows:
             row = _strip_keys(raw)
-
-            # mapping kolom CSV -> field model
             external_id = (row.get("id") or "").strip() or None
             product_name = (row.get("product_name") or "").strip()
             thumbnail = (row.get("image_url") or row.get("thumbnail") or "").strip() or None
@@ -84,7 +89,6 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
-            # siapkan lookup untuk upsert (update_or_create)
             lookup = {}
             for f in dedupe_fields:
                 if f == "external_id":
@@ -96,11 +100,9 @@ class Command(BaseCommand):
                 elif f == "thumbnail":
                     lookup["thumbnail"] = thumbnail
                 else:
-                    # field dedupe lain diabaikan
                     pass
 
             if not lookup:
-                # fallback aman: pakai external_id kalau ada, kalau tidak pakai product_name
                 lookup = {"external_id": external_id} if external_id else {"product_name": product_name}
 
             defaults = {
@@ -110,7 +112,7 @@ class Command(BaseCommand):
                 "thumbnail": thumbnail,
                 "description": description,
                 "price": price,
-                "external_id": external_id,  # simpan juga ke defaults
+                "external_id": external_id,  
             }
 
             obj, was_created = Product.objects.update_or_create(defaults=defaults, **lookup)
@@ -120,8 +122,10 @@ class Command(BaseCommand):
                 updated += 1
 
         if dry_run:
-            self.stdout.write(self.style.WARNING("Dry-run aktif: semua perubahan dibatalkan."))
-            raise CommandError(f"Preview selesai. created={created}, updated={updated}, skipped={skipped}")
+            transaction.set_rollback(True)
+            self.stdout.write(self.style.WARNING("Dry-run aktif: semua perubahan akan dibatalkan (rollback)."))
+            self.stdout.write(self.style.SUCCESS(f"Preview selesai. created={created}, updated={updated}, skipped={skipped}"))
+            return
 
         self.stdout.write(self.style.SUCCESS(
             f"Import selesai. created={created}, updated={updated}, skipped={skipped}"

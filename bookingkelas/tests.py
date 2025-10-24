@@ -1,11 +1,15 @@
+# bookingkelas/tests/test.py
 from django.test import TestCase, RequestFactory
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from django.http import Http404
 from unittest.mock import patch, MagicMock
 import bookingkelas.views as views
 from decimal import Decimal
 import json
+
+User = get_user_model()
 
 class ViewsUnitTest(TestCase):
     def setUp(self):
@@ -49,7 +53,6 @@ class ViewsUnitTest(TestCase):
         request.user = AnonymousUser()
 
         resp = views.catalog(request)
-
         self.assertEqual(resp.status_code, 200)
 
     @patch('bookingkelas.views.ClassSessions')
@@ -73,7 +76,7 @@ class ViewsUnitTest(TestCase):
         mock_ClassSessions.objects.all.return_value = mock_qs
 
         request = self.rf.get("/sessions_json")
-        request.user = self.user 
+        request.user = self.user
         resp = views.sessions_json(request)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
@@ -82,12 +85,10 @@ class ViewsUnitTest(TestCase):
         sess = data["sessions"][0]
         self.assertEqual(sess["title"], "Pilates - Intro")
         self.assertEqual(sess["days"], [1, 3])
-
         self.assertEqual(len(sess["days_names"]), 2)
 
     @patch('bookingkelas.views.ClassSessions')
     def test_get_session_details_json_found_and_404(self, mock_ClassSessions):
-  
         mock_qs = MagicMock()
         mock_qs.exists.return_value = False
         mock_ClassSessions.objects.filter.return_value = mock_qs
@@ -127,19 +128,16 @@ class ViewsUnitTest(TestCase):
     @patch('bookingkelas.views.get_object_or_404')
     @patch('bookingkelas.views.Booking')
     def test_book_class_success_and_full(self, mock_BookingModel, mock_get_object):
-        # Successful booking path
         fake_session = MagicMock()
         fake_session.is_full = False
         fake_session.id = 333
         fake_session.price = Decimal("20.00")
         mock_get_object.return_value = fake_session
 
-        # Simulate Booking.objects.filter(...).exists() returns False
         booking_qs = MagicMock()
         booking_qs.filter.return_value.exists.return_value = False
         mock_BookingModel.objects = booking_qs
 
-        # Patch Booking.objects.create to return a booking with id
         created_booking = MagicMock()
         created_booking.id = 999
         booking_qs.create.return_value = created_booking
@@ -148,47 +146,38 @@ class ViewsUnitTest(TestCase):
         request.user = self.user
 
         resp = views.book_class(request, session_id=333)
-        # Expect redirect to checkout:booking_checkout with new booking id
         self.assertEqual(resp.status_code, 302)
-        # Ensure create called with expected args (user, session, price_at_booking)
         booking_qs.create.assert_called_once()
         called_kwargs = booking_qs.create.call_args.kwargs
         self.assertIn('user', called_kwargs)
         self.assertIn('session', called_kwargs)
         self.assertIn('price_at_booking', called_kwargs)
 
-        # Now test when session is full
         fake_session_full = MagicMock()
         fake_session_full.is_full = True
         mock_get_object.return_value = fake_session_full
 
-        # calling view should redirect back to catalog (messages added)
         resp2 = views.book_class(request, session_id=444)
         self.assertEqual(resp2.status_code, 302)
 
     @patch('bookingkelas.views.get_object_or_404')
     @patch('bookingkelas.views.Booking')
     def test_book_daily_session_various_paths(self, mock_BookingModel, mock_get_object):
-        # Prepare fake session to be returned by get_object_or_404
         s = MagicMock()
         s.id = 777
         s.days = ["1"]
         s.price = Decimal("15.00")
         s.capacity_max = 2
         s.bookings = MagicMock()
-        # for confirmed_count use s.bookings.filter(...).count()
         s.bookings.filter.return_value.count.return_value = 0
         mock_get_object.return_value = s
 
         request = self.rf.post("/book_daily", data={})
         request.user = self.user
 
-        # Case: no session_id in POST -> redirect with message (redirect)
         resp = views.book_daily_session(request)
         self.assertEqual(resp.status_code, 302)
 
-        # Case: provided session_id but user already has confirmed booking -> messages.info & redirect
-        # Simulate Booking.objects.filter(... order_items__isnull=False).exists() returns True
         qb = MagicMock()
         qb.filter.return_value.exists.return_value = True
         mock_BookingModel.objects = qb
@@ -198,10 +187,7 @@ class ViewsUnitTest(TestCase):
         resp2 = views.book_daily_session(request2)
         self.assertEqual(resp2.status_code, 302)
 
-        # Case: pending booking exists (order_items__isnull=True) -> should redirect to checkout with existing id
-        # Now filter(... order_items__isnull=False).exists() -> False
         qb.filter.return_value.exists.return_value = False
-        # pending_booking: first() returns an object with id
         pending = MagicMock()
         pending.id = 555
         qb.filter.return_value.first.return_value = pending
@@ -209,16 +195,12 @@ class ViewsUnitTest(TestCase):
         request3 = self.rf.post("/book_daily", data={"session_id": "777"})
         request3.user = self.user
         resp3 = views.book_daily_session(request3)
-        # Should redirect to checkout
         self.assertEqual(resp3.status_code, 302)
 
-        # Case: no pending booking, but confirmed_count >= capacity_max -> class full
         qb.filter.return_value.first.return_value = None
-        # set s.bookings.filter(...).count() to simulate full
-        s.bookings.filter.return_value.count.return_value = 2  # equal to capacity_max
+        s.bookings.filter.return_value.count.return_value = 2
         resp4 = views.book_daily_session(request3)
         self.assertEqual(resp4.status_code, 302)
-
 
         s.bookings.filter.return_value.count.return_value = 0
         created = MagicMock()
@@ -232,7 +214,7 @@ class ViewsUnitTest(TestCase):
         request4.user = self.user
         resp5 = views.book_daily_session(request4)
         self.assertEqual(resp5.status_code, 302)
-        qb.create.assert_called()  
+        qb.create.assert_called()
 
     @patch('bookingkelas.views.ClassSessions')
     def test_admin_views_require_staff_and_render(self, mock_ClassSessions):
@@ -240,14 +222,11 @@ class ViewsUnitTest(TestCase):
         mock_qs.order_by.return_value = []
         mock_ClassSessions.objects.all.return_value = mock_qs
 
-        # class_list with staff user
         request = self.rf.get("/admin/classes")
         request.user = self.staff
         resp = views.class_list(request)
         self.assertEqual(resp.status_code, 200)
 
-        # get_edit_form - ensure it returns 200 for existing pk
-        # patch get_object_or_404 to return an instance
         with patch('bookingkelas.views.get_object_or_404') as mock_get:
             fake_kelas = MagicMock()
             mock_get.return_value = fake_kelas
@@ -256,17 +235,14 @@ class ViewsUnitTest(TestCase):
             resp2 = views.get_edit_form(req2, pk=1)
             self.assertEqual(resp2.status_code, 200)
 
-        # class_delete: GET should redirect with error (as view does)
         with patch('bookingkelas.views.get_object_or_404') as mock_get2:
             fake_kelas = MagicMock()
             mock_get2.return_value = fake_kelas
             req3 = self.rf.get("/admin/delete/1")
             req3.user = self.staff
             resp3 = views.class_delete(req3, pk=1)
-            # view redirects (messages.error + redirect)
             self.assertEqual(resp3.status_code, 302)
 
-        # class_delete: POST should delete and redirect
         with patch('bookingkelas.views.get_object_or_404') as mock_get3:
             fake_kelas = MagicMock()
             mock_get3.return_value = fake_kelas
