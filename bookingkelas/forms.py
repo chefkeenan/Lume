@@ -43,8 +43,47 @@ class SessionsForm(ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        # Simpan sebagai list of string, sesuai model JSONField
         instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
         if commit:
             instance.save()
+        return instance
+
+class AdminSessionsForm(ModelForm):
+    days = forms.MultipleChoiceField(
+        choices=WEEKDAYS,
+        required=False,  
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Pilih hari (hanya jika kategori 'Weekly')."
+    )
+
+    class Meta:
+        model = ClassSessions
+        exclude = ['description', 'capacity_current']
+
+    def clean_title(self):
+        title = self.cleaned_data.get("title", "")
+        return strip_tags(title).strip()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get("category")
+        days = cleaned_data.get("days", [])
+
+        if category and category.lower() == "weekly" and not days:
+            self.add_error("days", "Untuk kategori 'Weekly', pilih minimal satu hari.")
+        
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        category = self.cleaned_data.get("category")
+        
+        if category and category.lower() == 'daily':
+            instance.days = ['0', '1', '2', '3', '4', '5']
+        else:
+            instance.days = [str(d) for d in self.cleaned_data.get("days", [])]
+
+        if commit:
+            instance.save()
+        
         return instance

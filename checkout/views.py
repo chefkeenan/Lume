@@ -6,15 +6,14 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-
 from .forms import CartCheckoutForm
 from .models import ProductOrder, ProductOrderItem, BookingOrder, BookingOrderItem
 from cart.models import Cart
-from bookingkelas.models import Booking
-
+from bookingkelas.models import Booking, ClassSessions
 from decimal import Decimal
 from django.db.models import F
 from catalog.models import Product
+
 
 @login_required(login_url="/user/login/")
 def cart_checkout_page(request):
@@ -135,68 +134,50 @@ def checkout_cart_create(request):
         selected_ids = list(selected_qs.values_list("id", flat=True))
         transaction.on_commit(lambda: cart.items.filter(id__in=selected_ids).delete())
 
-    messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
 
-
-#BOOKING CLASS -> CHECKOUT (single, tanpa ongkir) 
-@login_required(login_url="/user/login/")
-def checkout_booking_now(request, booking_id):
-    # Terima GET/POST agar kompatibel dengan redirect dari modul booking
-    b = get_object_or_404(
-        Booking.objects.select_related("session"),
-        id=booking_id, user=request.user, is_cancelled=False
-    )
-
-    # Sudah pernah di-checkout? langsung ke confirmed (idempotent)
-    if BookingOrderItem.objects.filter(booking=b).exists():
-        messages.info(request, "Booking ini sudah pernah di-checkout.")
-        return redirect("checkout:order_confirmed")
-
-    with transaction.atomic():
-        order = BookingOrder.objects.create(user=request.user, notes="")
-        title = b.session.title
-        if getattr(b, "day_selected", ""):
-            title = f"{title} ({b.day_selected})"
-
-        BookingOrderItem.objects.create(
-            order=order,
-            booking=b,
-            session_title=title,
-            occurrence_date=None,
-            occurrence_start_time=None,
-            unit_price=b.price_at_booking,
-            quantity=1,
-        )
-        order.recalc_totals()
-        order.save(update_fields=["subtotal", "total"])
-
-    messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
-    return redirect("checkout:order_confirmed")
+#BOOKING CLASS -> CHECKOUT (single, tanpa ongkir)
+def _weekday_map():
+    return {
+        'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
+        'Thu': 'Thursday', 'Fri': 'Friday', 'Sat': 'Saturday', 'Sun': 'Sunday'
+    }
 
 @login_required(login_url="/user/login/")
 def booking_checkout(request, booking_id):
-    """
-    Menangani halaman checkout untuk satu item booking.
-    GET: Menampilkan halaman konfirmasi.
-    POST: Membuat order (mirip 'checkout_booking_now' lama).
-    """
     booking = get_object_or_404(
         Booking.objects.select_related("session"),
         id=booking_id, user=request.user, is_cancelled=False
     )
 
-    # Cek apakah sudah pernah di-checkout
+    # Cek apakah sudah pernah di-checkout (logika ini sudah benar)
     if BookingOrderItem.objects.filter(booking=booking).exists():
         messages.info(request, "Booking ini sudah pernah di-checkout.")
         return redirect("checkout:order_confirmed")
 
     # Logika untuk POST (saat user klik "Place Order")
     if request.method == "POST":
+        
+        # Gunakan transaction.atomic() DI SINI
         with transaction.atomic():
-            # TODO: Ambil 'notes' dari form jika ada
-            # notes = request.POST.get('notes', '')
-            order = BookingOrder.objects.create(user=request.user, notes="") # Tambahkan field lain jika perlu
+            # Kunci sesi yang mau di-book untuk dicek kapasitasnya
+            session_to_book = ClassSessions.objects.select_for_update().get(id=booking.session.id)
+            
+            # Cek kapasitas SEKALI LAGI (final check)
+            confirmed_count = session_to_book.bookings.filter(
+                is_cancelled=False,
+                order_items__isnull=False
+            ).count()
+
+            if confirmed_count >= session_to_book.capacity_max:
+                messages.error(request, "Maaf, kelas sudah penuh saat Anda checkout.")
+                # Hapus booking pending yang gagal
+                booking.delete() 
+                return redirect("bookingkelas:catalog")
+            
+            # --- Lanjutkan jika kapasitas aman ---
+            
+            order = BookingOrder.objects.create(user=request.user, notes="") 
             
             title = booking.session.title
             if getattr(booking, "day_selected", ""):
@@ -204,22 +185,39 @@ def booking_checkout(request, booking_id):
 
             BookingOrderItem.objects.create(
                 order=order,
-                booking=booking,
+                booking=booking, # Ini menghubungkan Booking ke Order
                 session_title=title,
                 occurrence_date=None,
                 occurrence_start_time=None,
                 unit_price=booking.price_at_booking,
                 quantity=1,
             )
-            order.recalc_totals() # Asumsi method ini ada di model BookingOrder
+            
+            # --- PINDAHKAN LOGIKA KAPASITAS & SUKSES KE SINI ---
+            
+            # 1. Hitung ulang kapasitas DAN SIMPAN
+            # (Kita hitung ulang dari session_to_book yang sudah di-lock)
+            session_to_book.capacity_current = session_to_book.bookings.filter(
+                is_cancelled=False, 
+                order_items__isnull=False
+            ).count()
+            session_to_book.save(update_fields=["capacity_current"])
+            
+            # 2. Kalkulasi total order
+            order.recalc_totals() 
             order.save(update_fields=["subtotal", "total"])
 
-        messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
+            # 3. KIRIM PESAN SUKSES DI SINI
+            weekday_map = _weekday_map() # Panggil helper map hari
+            day_label_success = weekday_map.get(booking.day_selected, booking.day_selected)
+        
+        # (END of transaction)
+        
         return redirect("checkout:order_confirmed")
 
     # Logika untuk GET (menampilkan halaman)
     subtotal = booking.price_at_booking
-    shipping = 0  # Tidak ada biaya shipping untuk kelas
+    shipping = 0 
     total = subtotal + shipping
 
     context = {
@@ -227,10 +225,8 @@ def booking_checkout(request, booking_id):
         'subtotal': subtotal,
         'shipping': shipping,
         'total': total,
-        # 'form': ... (jika kamu mau tambah form 'notes')
     }
     return render(request, "checkout/booking_checkout.html", context)
-
 # JSON ringkasan cart, untuk AJAX
 @login_required(login_url="/user/login/")
 def cart_summary_json(request):

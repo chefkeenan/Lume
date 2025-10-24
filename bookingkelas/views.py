@@ -1,13 +1,15 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .models import ClassSessions, WEEKDAYS, Booking, CATEGORY_CHOICES
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponseBadRequest
-from django.contrib.auth.decorators import login_required
+from checkout.models import BookingOrderItem
 from django.contrib import messages
+from django.db import transaction
+from .forms import SessionsForm, AdminSessionsForm
 from decimal import Decimal
-from django.db import transaction
 import re
-from .models import ClassSessions, WEEKDAYS, Booking, CATEGORY_CHOICES
-from .forms import SessionsForm
-from django.db import transaction
+
+def admin_check(u): return u.is_staff
 
 def _weekday_map():
     return dict(WEEKDAYS)
@@ -20,11 +22,11 @@ def catalog(request):
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
 
+    add_form = AdminSessionsForm()
+
     category_filter = request.GET.get("category")
     if category_filter and category_filter != "all":
         qs = qs.filter(category__iexact=category_filter)
-
-    # group daily/weekly (punyamu)
     groups = {}
     for s in qs:
         base = _base_title(s.title)
@@ -68,7 +70,12 @@ def catalog(request):
             "instance_id": inst0.id,  
         })
     grouped_sessions = sorted(grouped_sessions, key=lambda x: (x["category"], x["time"], x["base_title"]))
-    return render(request, "show_class.html", {"sessions": grouped_sessions})
+
+    context = {
+        "sessions": grouped_sessions,
+        "add_form": add_form, 
+    }
+    return render(request, "show_class.html", context)
 
 @login_required(login_url="/user/login/")
 def sessions_json(request):
@@ -95,29 +102,15 @@ def sessions_json(request):
         })
     return JsonResponse({"sessions": data})
 
-@login_required(login_url="/user/login/")
-def add_session(request):
-    if request.method == "POST":
-        form = SessionsForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Sesi berhasil dibuat.")
-            return redirect("bookingkelas:catalog")
-    else:
-        form = SessionsForm()
-    return render(request, "add_session.html", {"form": form})
-
 def get_session_details_json(request, base_title):
     sessions_in_group = ClassSessions.objects.filter(title__startswith=base_title)
     
     if not sessions_in_group.exists():
-        return JsonResponse({"error": "Sesi tidak ditemukan"}, status=404)
+        return JsonResponse({"error": "Sessions not Found"}, status=404)
 
     s_general = sessions_in_group.first()
     base_title_cleaned = _base_title(s_general.title)
     weekday_map = _weekday_map()
-    
-    # 1. Buat day_options
     day_options = []
     for s_item in sessions_in_group:
         if s_item.days:
@@ -126,20 +119,19 @@ def get_session_details_json(request, base_title):
             day_options.append({
                 "value_id": s_item.id,
                 "label": day_label,
-                "is_full": s_item.is_full
+                "is_full": s_item.is_full,
+                'capacity_current': s_item.capacity_current,
+                'capacity_max': s_item.capacity_max,
             })
-
-    # 2. Siapkan data untuk dikirim sebagai JSON
     data = {
         "base_title_cleaned": base_title_cleaned,
         "instructor": s_general.instructor,
         "time": s_general.time,
         "room": s_general.room,
         "price": s_general.price,
-        "description": s_general.description, # <-- Asumsi kamu mau nambahin ini
+        "description": s_general.description, 
         "day_options": day_options
     }
-    
     return JsonResponse(data)
 
 @login_required(login_url="/user/login/")
@@ -147,11 +139,11 @@ def book_class(request, session_id):
     s = get_object_or_404(ClassSessions.objects.select_for_update(), id=session_id)
 
     if s.is_full:
-        messages.error(request, "Kelas sudah penuh.")
+        messages.error(request, "Class is Full.")
         return redirect("bookingkelas:catalog")
 
     if Booking.objects.filter(user=request.user, session=s, is_cancelled=False).exists():
-        messages.info(request, "Kamu sudah terdaftar di sesi ini.")
+        messages.info(request, "You have already booked this class.")
         return redirect("bookingkelas:catalog")
 
     new_booking = Booking.objects.create(
@@ -159,8 +151,6 @@ def book_class(request, session_id):
         session=s,
         price_at_booking=Decimal(s.price),
     )
-    # ... (update capacity) ...
-    messages.success(request, f"Berhasil booking {s.title}.")
     return redirect("checkout:booking_checkout", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
@@ -169,75 +159,118 @@ def book_daily_session(request):
     if request.method == "POST":
         selected_session_id = request.POST.get("session_id")
         if not selected_session_id:
-            messages.error(request, "Pilih satu hari terlebih dahulu.")
+            messages.error(request, "Choose one of the available days to proceed.")
             return redirect("bookingkelas:catalog") 
-        
         try:
-            # Gunakan atomic transaction untuk mencegah race condition
-            with transaction.atomic():
-                # Kunci baris session ini di database untuk di-update
-                # Jika ada request lain yang mencoba mengakses ini, ia akan menunggu
-                s_to_book = ClassSessions.objects.select_for_update().get(id=selected_session_id)
-                
-                # Cek is_full dan user_booked DI DALAM transaction
-                if s_to_book.is_full:
-                    messages.error(request, "Kelas pada hari tersebut sudah penuh.")
-                    return redirect("bookingkelas:catalog")
+            s_to_book = get_object_or_404(ClassSessions, id=selected_session_id)
+            is_confirmed = Booking.objects.filter(
+                user=request.user, 
+                session=s_to_book, 
+                is_cancelled=False,
+                order_items__isnull=False 
+            ).exists()
 
-                if Booking.objects.filter(user=request.user, session=s_to_book, is_cancelled=False).exists():
-                    messages.info(request, "Kamu sudah terdaftar di sesi ini.")
-                    return redirect("bookingkelas:catalog")
+            if is_confirmed:
+                messages.info(request, "You have already booked this class.")
+                return redirect("bookingkelas:catalog")
 
-                # Buat Booking (sudah benar)
-                new_booking = Booking.objects.create(
-                    user=request.user,
-                    session=s_to_book,
-                    day_selected=s_to_book.days[0], # Asumsi [0] sudah benar
-                    price_at_booking=Decimal(s_to_book.price),
-                )
-                
-                # Hitung ulang kapasitas dan simpan
-                s_to_book.capacity_current = s_to_book.bookings.filter(is_cancelled=False).count()
-                s_to_book.save(update_fields=["capacity_current"])
+            pending_booking = Booking.objects.filter(
+                user=request.user, 
+                session=s_to_book, 
+                is_cancelled=False,
+                order_items__isnull=True
+            ).first()
+
+            if pending_booking:
+                return redirect("checkout:booking_checkout", booking_id=pending_booking.id)
+            confirmed_count = s_to_book.bookings.filter(
+                is_cancelled=False, 
+                order_items__isnull=False
+            ).count()
             
-            # (END of transaction)
-            
-            # Redirect setelah transaction selesai
-            weekday_map = _weekday_map()
-            day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
-            messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
+            if confirmed_count >= s_to_book.capacity_max:
+                 messages.error(request, "Class is Full.")
+                 return redirect("bookingkelas:catalog")
+
+            new_booking = Booking.objects.create(
+                user=request.user,
+                session=s_to_book,
+                day_selected=s_to_book.days[0], 
+                price_at_booking=Decimal(s_to_book.price),
+            )
             return redirect("checkout:booking_checkout", booking_id=new_booking.id)
         
         except ClassSessions.DoesNotExist:
-            messages.error(request, "Sesi yang dipilih tidak valid.")
+            messages.error(request, "Session invalid")
             return redirect("bookingkelas:catalog")
         except Exception as e:
-            # Menangkap error lain jika terjadi selama transaksi
-            messages.error(request, f"Terjadi kesalahan saat booking: {e}")
+            messages.error(request, f"Problem while booking{e}")
             return redirect("bookingkelas:catalog")
 
-    # Jika ada yang akses via GET, lempar ke katalog
     return redirect("bookingkelas:catalog")
 
-
-@login_required(login_url="/user/login/")
+@login_required
+@user_passes_test(admin_check)
 def class_list(request):
     classes = ClassSessions.objects.all().order_by("title")
     return render(request, "class_list.html", {"classes": classes})
 
-@login_required(login_url="/user/login/")
+@login_required
+@user_passes_test(admin_check)
 def class_edit(request, pk):
     kelas = get_object_or_404(ClassSessions, pk=pk)
     form = SessionsForm(request.POST or None, instance=kelas)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Sesi diperbarui.")
+        messages.success(request, "Session successfully updated.")
         return redirect("bookingkelas:class_list")
-    return render(request, "class_form.html", {"form": form})
+    return render(request, "class_edit.html", {"form": form})
 
-@login_required(login_url="/user/login/")
+@login_required
+@user_passes_test(admin_check)
 def class_delete(request, pk):
     kelas = get_object_or_404(ClassSessions, pk=pk)
     kelas.delete()
-    messages.success(request, "Sesi dihapus.")
+    messages.success(request, "Session successfully deleted.")
     return redirect("bookingkelas:class_list")
+
+@login_required
+@user_passes_test(admin_check)
+def get_edit_form(request, pk):
+    kelas = get_object_or_404(ClassSessions, pk=pk)
+    form = SessionsForm(instance=kelas)
+    return render(request, "edit_form.html", {"form": form, "pk": pk})
+
+@login_required
+@user_passes_test(admin_check)
+def add_session(request):
+    if request.method != "POST":
+        return redirect("bookingkelas:catalog") 
+
+    form = SessionsForm(request.POST)
+    
+    if form.is_valid():
+
+        category = form.cleaned_data.get('category')
+        instance = form.save(commit=False) 
+
+        if category and category.lower() == 'daily':
+            instance.days = ['0', '1', '2', '3', '4', '5'] 
+            messages.success(request, f"Daily Session '{instance.title}' berhasil dibuat untuk 6 hari seminggu.")
+        
+        elif category and category.lower() == 'weekly':
+            selected_days_count = len(instance.days)
+            messages.success(request, f"Weekly Session '{instance.title}' berhasil dibuat untuk {selected_days_count} hari per minggu.")
+        else:
+            messages.success(request, f"Session '{instance.title}' berhasil dibuat.")
+
+        instance.save()
+        return redirect("bookingkelas:catalog")
+
+    else:
+        error_str = "Gagal menambah sesi. "
+        for field, errors in form.errors.items():
+            error_str += f"{field.replace('_', ' ').title()}: {' '.join(errors)} "
+        
+        messages.error(request, error_str)
+        return redirect("bookingkelas:catalog")
