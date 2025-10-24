@@ -10,6 +10,7 @@ urlpatterns = [
 
     # Booking (single)
     path("booking/<int:booking_id>/create/", views.checkout_booking_now, name="checkout_booking_now"),
+    path("booking/<int:booking_id>/", views.booking_checkout, name="booking_checkout"),
 
     # Order Confirmed (dipakai keduanya)
     path("confirmed/", views.order_confirmed, name="order_confirmed"),

@@ -174,6 +174,63 @@ def checkout_booking_now(request, booking_id):
     messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
     return redirect("checkout:order_confirmed")
 
+@login_required(login_url="/user/login/")
+def booking_checkout(request, booking_id):
+    """
+    Menangani halaman checkout untuk satu item booking.
+    GET: Menampilkan halaman konfirmasi.
+    POST: Membuat order (mirip 'checkout_booking_now' lama).
+    """
+    booking = get_object_or_404(
+        Booking.objects.select_related("session"),
+        id=booking_id, user=request.user, is_cancelled=False
+    )
+
+    # Cek apakah sudah pernah di-checkout
+    if BookingOrderItem.objects.filter(booking=booking).exists():
+        messages.info(request, "Booking ini sudah pernah di-checkout.")
+        return redirect("checkout:order_confirmed")
+
+    # Logika untuk POST (saat user klik "Place Order")
+    if request.method == "POST":
+        with transaction.atomic():
+            # TODO: Ambil 'notes' dari form jika ada
+            # notes = request.POST.get('notes', '')
+            order = BookingOrder.objects.create(user=request.user, notes="") # Tambahkan field lain jika perlu
+            
+            title = booking.session.title
+            if getattr(booking, "day_selected", ""):
+                title = f"{title} ({booking.day_selected})"
+
+            BookingOrderItem.objects.create(
+                order=order,
+                booking=booking,
+                session_title=title,
+                occurrence_date=None,
+                occurrence_start_time=None,
+                unit_price=booking.price_at_booking,
+                quantity=1,
+            )
+            order.recalc_totals() # Asumsi method ini ada di model BookingOrder
+            order.save(update_fields=["subtotal", "total"])
+
+        messages.success(request, "Checkout sukses! Metode pembayaran: Cash on Delivery.")
+        return redirect("checkout:order_confirmed")
+
+    # Logika untuk GET (menampilkan halaman)
+    subtotal = booking.price_at_booking
+    shipping = 0  # Tidak ada biaya shipping untuk kelas
+    total = subtotal + shipping
+
+    context = {
+        'booking': booking,
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'total': total,
+        # 'form': ... (jika kamu mau tambah form 'notes')
+    }
+    return render(request, "checkout/booking_checkout.html", context)
+
 # JSON ringkasan cart, untuk AJAX
 @login_required(login_url="/user/login/")
 def cart_summary_json(request):

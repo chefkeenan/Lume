@@ -1,56 +1,59 @@
+{% load static %}
 {% load humanize %}
 
-<article class="relative w-full max-w-[312px] flex flex-col rounded-[18px]
-         border border-[#CFC8BA] bg-[#E9E3D6] p-4 shadow-md
-         transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+<article class="relative w-full h-full flex flex-col rounded-[18px] border border-[#CFC8BA] bg-[#E9E3D6] p-4 shadow-md transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
 
-    <!-- HEADER -->
     <header class="mb-3 flex justify-between items-start">
         <div>
-            <h3 class="text-[18px] font-semibold leading-6 text-neutral-900">
-                {{ c.title }}
+            <h3 class="text-[20px] font-bold leading-6 text-neutral-900">
+                {{ c.base_title }}
             </h3>
-            <p class="text-sm text-gray-700">{{ c.instructor }}</p>
+            <p class="text-sm text-gray-700">By <a class="text-sm text-[#293027] font-semibold">{{ c.instructor }}</a> </p>
         </div>
-        <span class="rounded-full bg-stone-100 px-3 py-1 text-xs">{{ c.category|title }}</span>
+        <span class="rounded-full bg-stone-100 px-3 py-1 text-xs uppercase shadow-[0_1px_0_#0f0f0f]">{{ c.category|title }}</span>
     </header>
 
-    <!-- DETAIL -->
-    <div class="text-sm space-y-1">
-        <div>Time: {{ c.time }}</div>
-        <div>Room: {{ c.room }}</div>
-        <div>Price: Rp {{ c.price|intcomma }}</div>
-        <div>Days:
+     <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
+            <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
+            
+    <div class="col-span-2">
+        {% if c.category == "daily" %}
+        <span class="block text-stone-400">Days to Choose:</span>
+        {% else %}
+        <span class="block text-stone-400">Days to Attend:</span>
+        {% endif %}
             {% for d in c.days_names %}
-            <span class="inline-flex rounded-full border px-2 py-0.5 text-xs mr-1">{{ d }}</span>
+            <span class="inline-flex rounded-full border border-stone-300 bg-stone-100 px-2 py-0.5 font-semibold text-xs mr-1 shadow-lg">{{ d }}</span>
             {% empty %}
             <span class="text-gray-500">—</span>
             {% endfor %}
         </div>
-        <div>Slot: {{ c.capacity_current }}/{{ c.capacity_max }}</div>
-    </div>
+        </div>
 
-    <!-- FOOTER -->
-    <div class="mt-4">
+    <div class="mt-auto pt-4">
         {% if c.category == "daily" %}
         <button type="button"
-            class="inline-flex items-center justify-center w-full rounded-xl bg-[#8B5E3C] text-white py-2.5 font-semibold hover:bg-[#734C30] btn-open-modal"
-            data-base-title="{{ c.base_title }}">
+        data-base-title="{{ c.base_title }}"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] btn-open-modal">
             Choose Day
         </button>
         {% elif c.instance_id %}
         <a href="{% url 'bookingkelas:book_class' c.instance_id %}"
-            class="inline-flex items-center justify-center w-full rounded-xl bg-[#8B5E3C] text-white py-2.5 font-semibold hover:bg-[#734C30]">
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
             Book Now
         </a>
         {% else %}
         <button disabled
-            class="inline-flex items-center justify-center w-full rounded-xl bg-gray-400 text-white py-2.5 font-semibold cursor-not-allowed">
+          class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] opacity-60">
             Unavailable
         </button>
         {% endif %}
-
     </div>
 
     <span class="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-black/10"></span>
 </article>
+
+<script src="{% static 'js/class_modal.js' %}"></script>
+
+

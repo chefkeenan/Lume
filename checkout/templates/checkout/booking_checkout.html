@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Checkout Booking — Lume{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-7xl px-6 lg:px-8 py-10 bg-[#F7F7F3]">
+
+  <div class="mb-6">
+    <a href="{% url 'bookingkelas:catalog' %}"
+       class="inline-flex items-center gap-2 rounded-full border border-[#E2E4DA] bg-white px-5 py-2 text-sm text-[#3E4038]
+              shadow-[0_2px_8px_rgba(126,128,115,0.10)] hover:bg-[#F1F2EC] hover:border-[#D2D4C9] transition">
+      ← Back to Catalog
+    </a>
+  </div>
+
+  <h1 class="text-3xl font-semibold tracking-tight text-[#3E4038]">Checkout Booking</h1>
+  <p class="text-[#7A7C72] mt-1">Complete your class booking</p>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+
+    <form method="post" action="{% url 'checkout:booking_checkout' booking.id %}" class="lg:col-span-2 space-y-6" id="checkout-form">
+      {% csrf_token %}
+
+      <div class="rounded-3xl border border-[#E6E7E1] bg-[#F4F2EA] p-6 shadow-[0_6px_18px_rgba(126,128,115,0.08)]">
+        <h2 class="text-lg font-medium mb-3 text-[#3E4038]">Payment Method</h2>
+        <label class="flex items-center gap-3 rounded-2xl border border-[#D9DBD0] bg-white px-4 py-3 cursor-pointer hover:bg-[#F7F7F3]">
+          <input type="radio" name="payment_method" value="COD" checked
+                 class="h-4 w-4 text-[#7E8073] focus:ring-[#7E8073]">
+          <span class="text-sm text-[#3E4038]">Cash on Delivery (COD)</span>
+        </label>
+        <p class="text-xs text-gray-500 mt-2">Pembayaran dilakukan di tempat saat sesi kelas.</p>
+      </div>
+      
+      <button type="submit"
+              class="w-full inline-flex items-center justify-center rounded-full bg-[#7E8073] px-6 py-3 text-white font-semibold
+                     shadow-[0_6px_14px_rgba(126,128,115,0.25)] hover:bg-[#6F7166] active:bg-[#64665C] transition">
+        Place Order
+      </button>
+    </form>
+
+    <aside class="lg:col-span-1">
+      <div class="sticky top-6 rounded-3xl border border-[#E6E7E1] bg-white p-6 shadow-[0_6px_18px_rgba(126,128,115,0.08)]">
+        <h2 class="text-lg font-medium mb-4 text-[#3E4038]">Order Summary</h2>
+
+        <div class="space-y-3 mb-4 pr-1">
+            <div class="flex items-start justify-between text-sm text-[#3E4038]">
+              <span class="font-medium">
+                {{ booking.session.title }}
+                {% if booking.day_selected %}
+                  <span class="block text-xs text-gray-600 font-normal">Hari: {{ booking.day_selected }}</span>
+                {% endif %}
+                <span class="block text-xs text-gray-600 font-normal">Instruktur: {{ booking.session.instructor }}</span>
+              </span>
+              <span class="text-right tabular-nums">Rp {{ booking.price_at_booking|floatformat:0|intcomma }}</span>
+            </div>
+        </div>
+
+        <dl class="space-y-2 text-sm text-[#3E4038]">
+          <div class="flex justify-between"><dt>Subtotal</dt><dd class="tabular-nums">Rp {{ subtotal|floatformat:0|intcomma }}</dd></div>
+          <div class="flex justify-between"><dt>Shipping</dt><dd class="tabular-nums">Rp {{ shipping|floatformat:0|intcomma }}</dd></div>
+          <div class="my-3 h-px bg-[#E6E7E1]"></div>
+          <div class="flex justify-between text-base font-semibold">
+            <dt>Total</dt><dd class="tabular-nums">Rp {{ total|floatformat:0|intcomma }}</dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<script>
+  // Anti double-click
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('checkout-form');
+    if (!form) return;
+    form.addEventListener('submit', function () {
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Processing…'; }
+    });
+  });
+</script>
+{% endblock %}
