@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const baseTitle = this.dataset.baseTitle;
       showModal();
 
-      fetch(`/bookingkelas/get-details/${baseTitle}/`)
+      fetch(`/bookingkelas/get-details/${encodeURIComponent(baseTitle)}/`)
         .then(r => {
           if (!r.ok) throw new Error('Network response not ok');
           return r.json();
@@ -53,10 +53,12 @@ document.addEventListener("DOMContentLoaded", function() {
               const label = `
                 <label class="block">
                   <input type="radio" name="session_id" value="${option.value_id}" class="sr-only peer" ${disabled}>
-                  <span class="block rounded-full px-3 py-2 text-center text-sm font-medium
-                        bg-gray-200 text-gray-800 
-                        peer-checked:bg-[var(--primary)] 
-                        peer-checked:text-[var(--primary-foreground)]
+                  <span class="block rounded-full border border-stone-300 bg-[#E9E3D6]
+                        px-3 py-2 text-center text-sm font-medium text-xs mr-1 shadow-lg 
+                        text-[#293027] 
+                        peer-checked:bg-[#D7D6D1] 
+                        peer-checked:border-[#C9C7C0] 
+                        peer-checked:text-[#5C5B57] 
                         ${opacity}">
                     ${option.label}${option.is_full ? ' (Penuh)' : ''}
                   </span>

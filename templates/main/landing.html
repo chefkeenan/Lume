@@ -45,7 +45,7 @@
       <a href="{% url 'main:show_main' %}"
          class="inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95"
          style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
-        View All Products ↗
+        View All Products 
       </a>
     </div>
   </div>
@@ -87,57 +87,81 @@
 </section>  
 
 
+{% load static %}
+{% load humanize %}
+
 <section id="upcoming-classes" class="relative isolate bg-gradient-to-b from-stone-100 to-stone-200 border-t border-stone-300">
   <div class="mx-auto max-w-7xl px-6 py-20">
-    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B]">Upcoming Classes</h2>
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B] mb-10">
+      Most Popular Classes
+    </h2>
 
-    <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
       {% for c in sessions %}
-      <div class="rounded-2xl border border-stone-200 bg-white shadow-md hover:shadow-lg transition-transform hover:-translate-y-1 overflow-hidden">
-        <div class="p-5">
-          <div class="flex items-center justify-between">
-            <h5 class="font-semibold text-stone-900">{{ c.base_title }}</h5>
-            <span class="text-[10px] uppercase tracking-wider rounded-full bg-stone-100 px-2 py-1 text-stone-600">{{ c.category }}</span>
-          </div>
-          <p class="mt-2 text-sm text-stone-500">by {{ c.instructor }}</p>
+      <article class="group relative rounded-[18px] border border-[#CFC8BA] bg-[#F1ECE2] p-6 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-[#E8E2D6]">
 
-          <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
-            <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
-            <div class="col-span-2">
-              <span class="block text-stone-400">Days</span>
-              {% if c.days_names %}
-                {% for d in c.days_names %}
-                  <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs mr-1">{{ d }}</span>
-                {% endfor %}
-              {% else %}
-                <span class="text-stone-500">—</span>
-              {% endif %}
-            </div>
+        <!-- Badge + Header -->
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-[#2C3028] group-hover:text-[#4F5A47] transition">
+              {{ c.title }}
+            </h3>
+            <p class="text-sm text-gray-700">
+              By <span class="font-semibold text-[#273225]">{{ c.instructor }}</span>
+            </p>
           </div>
+          <span class="rounded-full bg-stone-100 px-3 py-1 text-xs uppercase tracking-wide shadow">
+            {{ c.category|title }}
+          </span>
+        </div>
 
-          <a href="{% if c.category == 'daily' %}javascript:void(0);{% else %}{% url 'bookingkelas:book_class' c.instance_id %}{% endif %}"
-             class="mt-4 inline-flex items-center justify-center w-full rounded-full px-5 py-2.5 font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95 {% if c.category == 'daily' %}btn-open-modal{% endif %}"
-             {% if c.category == 'daily' %}data-base-title="{{ c.base_title }}"{% endif %}
-             style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
-            {% if c.category == 'daily' %}Choose Day{% else %}Book Now{% endif %}
+        <!-- Content -->
+        <div class="space-y-2 text-sm text-gray-800">
+          <p><span class="font-semibold text-stone-500">Room:</span> {{ c.room }}</p>
+          <p><span class="font-semibold text-stone-500">Time:</span> {{ c.time }}</p>
+          <p><span class="font-semibold text-stone-500">Price:</span> Rp {{ c.price|intcomma }}</p>
+          <p><span class="font-semibold text-stone-500">Capacity:</span> {{ c.capacity_current }}/{{ c.capacity_max }}</p>
+
+          {% if c.category == "weekly" %}
+            <p><span class="font-semibold text-stone-500">Days:</span> {{ c.days }}</p>
+          {% else %}
+            <p><span class="font-semibold text-stone-500">Day:</span> {{ c.days }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-5">
+          <a href="{% url 'bookingkelas:book_class' c.id %}"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+            Book Now
           </a>
         </div>
-      </div>
+
+        <!-- Popularity Ring -->
+        <div class="absolute top-4 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+          {{ c.num_bookings }} booked
+        </div>
+
+      </article>
       {% empty %}
-        <div class="text-gray-500">Belum ada jadwal kelas tersedia.</div>
+      <div class="text-gray-500 text-center col-span-full">
+        Belum ada jadwal kelas tersedia.
+      </div>
       {% endfor %}
     </div>
 
-    <div class="mt-12 text-center">
+    <!-- CTA -->
+    <div class="mt-14 text-center">
       <a href="{% url 'bookingkelas:catalog' %}"
-         class="inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95"
-         style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
-        View All Classes ↗
+        class="inline-flex items-center gap-2 rounded-full px-8 py-3 text-lg font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95 transition"
+        style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
+        View All Classes
       </a>
     </div>
   </div>
 </section>
+
+<script src="{% static 'js/class_modal.js' %}"></script>
 
 
 {% endblock %}

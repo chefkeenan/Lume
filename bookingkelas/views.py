@@ -7,6 +7,7 @@ from django.db import transaction
 import re
 from .models import ClassSessions, WEEKDAYS, Booking, CATEGORY_CHOICES
 from .forms import SessionsForm
+from django.db import transaction
 
 def _weekday_map():
     return dict(WEEKDAYS)
@@ -153,56 +154,67 @@ def book_class(request, session_id):
         messages.info(request, "Kamu sudah terdaftar di sesi ini.")
         return redirect("bookingkelas:catalog")
 
-    Booking.objects.create(
+    new_booking = Booking.objects.create(
         user=request.user,
         session=s,
         price_at_booking=Decimal(s.price),
     )
-    s.capacity_current = s.bookings.filter(is_cancelled=False).count()
-    s.save(update_fields=["capacity_current"])
-
+    # ... (update capacity) ...
     messages.success(request, f"Berhasil booking {s.title}.")
-    return redirect("checkout:checkout_booking_now", booking_id=s.bookings.latest('created_at').id)
+    return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
 def book_daily_session(request):
     
-    # Logic POST kita pindah ke sini
     if request.method == "POST":
         selected_session_id = request.POST.get("session_id")
         if not selected_session_id:
             messages.error(request, "Pilih satu hari terlebih dahulu.")
-            # Jika error, kembali ke katalog (karena modalnya sudah ditutup)
             return redirect("bookingkelas:catalog") 
         
         try:
-            s_to_book = ClassSessions.objects.get(id=selected_session_id)
+            # Gunakan atomic transaction untuk mencegah race condition
+            with transaction.atomic():
+                # Kunci baris session ini di database untuk di-update
+                # Jika ada request lain yang mencoba mengakses ini, ia akan menunggu
+                s_to_book = ClassSessions.objects.select_for_update().get(id=selected_session_id)
+                
+                # Cek is_full dan user_booked DI DALAM transaction
+                if s_to_book.is_full:
+                    messages.error(request, "Kelas pada hari tersebut sudah penuh.")
+                    return redirect("bookingkelas:catalog")
+
+                if Booking.objects.filter(user=request.user, session=s_to_book, is_cancelled=False).exists():
+                    messages.info(request, "Kamu sudah terdaftar di sesi ini.")
+                    return redirect("bookingkelas:catalog")
+
+                # Buat Booking (sudah benar)
+                new_booking = Booking.objects.create(
+                    user=request.user,
+                    session=s_to_book,
+                    day_selected=s_to_book.days[0], # Asumsi [0] sudah benar
+                    price_at_booking=Decimal(s_to_book.price),
+                )
+                
+                # Hitung ulang kapasitas dan simpan
+                s_to_book.capacity_current = s_to_book.bookings.filter(is_cancelled=False).count()
+                s_to_book.save(update_fields=["capacity_current"])
+            
+            # (END of transaction)
+            
+            # Redirect setelah transaction selesai
+            weekday_map = _weekday_map()
+            day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
+            messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
+            return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
+
         except ClassSessions.DoesNotExist:
             messages.error(request, "Sesi yang dipilih tidak valid.")
             return redirect("bookingkelas:catalog")
-            
-        if s_to_book.is_full:
-            messages.error(request, "Kelas pada hari tersebut sudah penuh.")
-            return redirect("bookingkelas:catalog") # <-- Redirect ke katalog
-
-        if Booking.objects.filter(user=request.user, session=s_to_book, is_cancelled=False).exists():
-            messages.info(request, "Kamu sudah terdaftar di sesi ini.")
+        except Exception as e:
+            # Menangkap error lain jika terjadi selama transaksi
+            messages.error(request, f"Terjadi kesalahan saat booking: {e}")
             return redirect("bookingkelas:catalog")
-
-        # Buat Booking (sudah benar)
-        new_booking = Booking.objects.create(
-            user=request.user,
-            session=s_to_book,
-            day_selected=s_to_book.days[0],
-            price_at_booking=Decimal(s_to_book.price),
-        )
-        s_to_book.capacity_current = s_to_book.bookings.filter(is_cancelled=False).count()
-        s_to_book.save(update_fields=["capacity_current"])
-        
-        weekday_map = _weekday_map()
-        day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
-        messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
-        return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
 
     # Jika ada yang akses via GET, lempar ke katalog
     return redirect("bookingkelas:catalog")

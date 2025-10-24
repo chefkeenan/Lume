@@ -26,25 +26,24 @@ def landing_view(request):
     highlights = Product.objects.all().order_by("-id")[:8]
     weekday_map = _weekday_map()
 
-    # Ambil semua sesi dan hitung jumlah booking
+    # Ambil data dengan jumlah booking
     qs = (
         ClassSessions.objects
         .annotate(num_bookings=Count("bookings", distinct=True))
-        .order_by("-num_bookings", "category", "time")
+        .order_by("-num_bookings")
     )
 
-    # === Kelompokkan daily/weekly berdasarkan base title dan waktu ===
-    groups = {}
-    for s in qs:
-        base = _base_title(s.title)
-        key = (base, s.time, s.category)
-        days = s.days or []
-        days_names = [weekday_map.get(str(d), str(d)) for d in days]
+    # Top 3 Daily dan Top 2 Weekly
+    daily_top = qs.filter(category__iexact="daily")[:3]
+    weekly_top = qs.filter(category__iexact="weekly")[:2]
 
-        if key not in groups:
-            groups[key] = {
-                "base_title": base,
-                "category": s.category,
+    def serialize_sessions(queryset):
+        data = []
+        for s in queryset:
+            days = s.days or []
+            days_names = [weekday_map.get(str(d), str(d)) for d in days]
+            data.append({
+                "title": s.title,
                 "instructor": s.instructor,
                 "time": s.time,
                 "room": s.room,
@@ -52,33 +51,18 @@ def landing_view(request):
                 "capacity_current": s.capacity_current,
                 "capacity_max": s.capacity_max,
                 "num_bookings": s.num_bookings,
-                "days_keys": set(days),
-                "days_names": set(days_names),
-                "instances": [s],
+                "days_names": days_names,
                 "instance_id": s.id,
-            }
-        else:
-            groups[key]["instances"].append(s)
-            groups[key]["days_keys"].update(days)
-            groups[key]["days_names"].update(days_names)
-            groups[key]["num_bookings"] += s.num_bookings
+            })
+        return data
 
-    grouped = list(groups.values())
-
-    # === Pisahkan daily dan weekly ===
-    daily_classes = [g for g in grouped if g["category"] == "daily"]
-    weekly_classes = [g for g in grouped if g["category"] == "weekly"]
-
-    # Urutkan berdasarkan popularitas (num_bookings)
-    daily_sorted = sorted(daily_classes, key=lambda x: x["num_bookings"], reverse=True)[:3]
-    weekly_sorted = sorted(weekly_classes, key=lambda x: x["num_bookings"], reverse=True)[:2]
-
-    sessions = daily_sorted + weekly_sorted
-
-    return render(request, "main/landing.html", {
+    context = {
         "highlights": highlights,
-        "sessions": sessions,
-    })
+        "daily_classes": serialize_sessions(daily_top),
+        "weekly_classes": serialize_sessions(weekly_top),
+    }
+
+    return render(request, "main/landing.html", context)
 
 
 def show_main(request):
