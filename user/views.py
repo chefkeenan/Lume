@@ -54,13 +54,42 @@ def my_profile(request):
 
     product_orders = []
     for o in po_qs:
-        items = list(o.items.all())
-        items_summary = ", ".join(f"{it.product_name} x{it.quantity}" for it in items)
+        line_items = []
+        for it in o.items.all():
+            price = getattr(it, "price", None)
+            if price is None:
+                price = getattr(it, "unit_price", 0)
+
+            qty = int(getattr(it, "quantity", 0) or 0)
+
+            line_total = getattr(it, "line_total", None)
+            if line_total is not None:
+                subtotal = int(line_total)
+            else:
+                try:
+                    subtotal = int(qty * float(price))
+                except Exception:
+                    subtotal = 0
+
+            name = getattr(it, "product_name", None)
+            if not name and getattr(it, "product", None):
+                name = getattr(it.product, "product_name", "-")
+
+            line_items.append({
+                "name": name or "-",
+                "qty": qty,
+                "price": int(float(price) if price is not None else 0),
+                "subtotal": subtotal,
+            })
+
         product_orders.append({
+            "id": o.id,
             "created_at": o.created_at,
-            "items_summary": items_summary,
-            "total": o.total,
+            "total": int(float(o.total) if o.total is not None else 0),
+            "line_items": line_items,
         })
+
+    product_orders.sort(key=lambda x: x["created_at"], reverse=True)
 
     boi_qs = (
         BookingOrderItem.objects
