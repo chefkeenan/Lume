@@ -32,6 +32,25 @@
     }
   }
 
+  async function postJSON(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCookie("csrftoken") },
+    body
+  });
+  if (res.status === 403) {
+    let msg = "Forbidden.";
+    try {
+      const j = await res.json();
+      msg = j.error || msg;
+    } catch (e) {}
+    if (window.showToast) showToast(msg, "error");
+    throw new Error("Forbidden");
+  }
+  return res.json();
+}
+
+
   // intercept SEMUA <form data-cart-ajax>
   document.addEventListener("submit", async (e) => {
     const form = e.target;
@@ -73,15 +92,6 @@
         }
         return;
       }
-
-      // sekarang kita punya:
-      // {
-      //   ok: true/false,
-      //   message: "...",
-      //   warn: bool,
-      //   added: bool,
-      //   cart_count: int
-      // }
 
       // update badge cart count dari server (lebih akurat daripada +1 manual)
       if (typeof data.cart_count === "number") {

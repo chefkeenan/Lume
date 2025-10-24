@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 def _is_ajax(request):
     return (
@@ -30,6 +31,7 @@ def _safe_next(request, fallback_name="main:landing"):
         return reverse(fallback_name)
     return nxt
 
+@ensure_csrf_cookie
 @require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == "POST":
@@ -57,6 +59,7 @@ def login_user(request):
         form = AuthenticationForm(request)
     return render(request, "login.html", {"form": form})
 
+@ensure_csrf_cookie
 @require_http_methods(["GET", "POST"])
 def register_user(request):
     if request.method == "POST":

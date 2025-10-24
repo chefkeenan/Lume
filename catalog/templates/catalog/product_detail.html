@@ -50,33 +50,43 @@
           </div>
         </div>
 
-        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-          {% if p.inStock and user.is_authenticated %}
-            <form method="post" action="{% url 'cart:add' p.id %}" class="w-full sm:flex-1" data-cart-ajax data-product-id="{{ p.id }}">
-              {% csrf_token %}
-              <input type="hidden" name="qty" value="1">
-              <button type="submit"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14"/></svg>
-                Add to Cart
-              </button>
-            </form>
+<div class="mt-6 flex flex-col gap-3 sm:flex-row">
+  {% if not p.inStock %}
+    <button disabled
+      class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] opacity-60">
+      Out of Stock
+    </button>
 
-          {% elif not p.inStock %}
-            <button disabled
-              class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] opacity-60">
-              Out of Stock
-            </button>
-          {% else %}
-            <a href="{% url 'user:login' %}"
-              class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14"/></svg>
-              Add to Cart
-            </a>
-          {% endif %}
+  {% elif user.is_authenticated %}
+    {% if user.is_staff or user.is_superuser %}
+      <button type="button" disabled title="Admin accounts cannot purchase"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+        Add to Cart
+      </button>
+    {% else %}
+      <form method="post" action="{% url 'cart:add' p.id %}" class="w-full sm:flex-1" data-cart-ajax data-product-id="{{ p.id }}">
+        {% csrf_token %}
+        <input type="hidden" name="qty" value="1">
+        <button type="submit"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14"/></svg>
+          Add to Cart
+        </button>
+      </form>
+    {% endif %}
 
-          <a href="/#produk" class="btn-ghost rounded-xl px-5 py-3 text-sm font-medium">Back to Products</a>
-        </div>
+  {% else %}
+    <a href="{% url 'user:login' %}"
+      class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-5 py-3 text-sm font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M7 4H4v2h2l3.6 7.6-1.2 2.2A2 2 0 0 0 10 19h10v-2H10.4l1-2H18a2 2 0 0 0 1.8-1.1l3.2-6.5A1 1 0 0 0 22 6H6.2L5.3 4.2A1 1 0 0 0 4.4 4H2v2h1.6l3.2 6.4L5.2 15.2A4 4 0 0 0 10 21h11v-2H10a2 2 0 0 1-1.8-2.9L9 14"/></svg>
+      Add to Cart
+    </a>
+  {% endif %}
+
+  <a href="/#produk" class="btn-ghost rounded-xl px-5 py-3 text-sm font-medium">Back to Products</a>
+</div>
+
+
 
         {% if request.user.is_authenticated and request.user.is_superuser %}
           <div class="mt-4 flex gap-2">

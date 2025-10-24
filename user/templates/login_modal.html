@@ -88,7 +88,9 @@
     e.preventDefault();
     clearErr();
 
-    const csrftoken = getCookie("csrftoken");
+    const csrftoken =
+    (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
+    (window.CSRF_TOKEN) || '';
     const fd = new FormData(form);
     fd.set("ajax", "1"); // guard tambahan
 
