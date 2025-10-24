@@ -113,16 +113,28 @@
         <h2 class="text-lg font-medium mb-4 text-[#3E4038]">Order Summary</h2>
 
         {% if cart_items %}
-        <div class="space-y-3 mb-4 max-h-56 overflow-auto pr-1">
-          {% for ci in cart_items %}
-            <div class="flex items-center justify-between text-sm text-[#3E4038]">
-              <span class="truncate">
-                {{ ci.quantity }} item(s)
-              </span>
-              <span>Rp {{ ci.product.price|floatformat:0|intcomma }}</span>
-            </div>
-          {% endfor %}
-        </div>
+        <details class="mb-4 rounded-xl border border-[#E6E7E1] bg-[#FAFAF7] p-3" open>
+          <summary class="flex cursor-pointer items-center justify-between text-sm text-[#3E4038] list-none">
+            <span class="font-medium">{{ items_count }} item{{ items_count|pluralize:"(s)" }}</span>
+            <span class="text-xs text-[#7A7C72] caret">Show details</span>
+          </summary>
+
+          <div class="mt-3 space-y-2">
+            {% for ci in cart_items %}
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-baseline gap-2 min-w-0">
+                  <span class="truncate max-w-[70%]">
+                    {% firstof ci.display_name ci.product.product_name ci.product.name ci.product %}
+                  </span>
+                  <span class="shrink-0 text-[#7A7C72]">× {{ ci.quantity }}</span>
+                </div>
+                <span class="tabular-nums whitespace-nowrap">
+                  Rp {{ ci.line_total|default:0|floatformat:0|intcomma }}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        </details>
         {% endif %}
 
         <dl class="space-y-2 text-sm text-[#3E4038]">
@@ -138,6 +150,11 @@
 
   </div>
 </section>
+
+<style>
+  details[open] .caret::after { content:" ▲"; }
+  details:not([open]) .caret::after { content:" ▾"; }
+</style>
 
 <script>
   // Anti double-click
