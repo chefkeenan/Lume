@@ -77,7 +77,9 @@
     form.addEventListener("submit", async (e)=>{
       e.preventDefault();
       clearErr();
-      const csrftoken = getCookie("csrftoken");
+      const csrftoken =
+      (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
+      (window.CSRF_TOKEN) || '';
       const fd = new FormData(form);
 
       const res = await fetch(form.action || "", {
