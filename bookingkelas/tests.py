@@ -10,20 +10,13 @@ import json
 class ViewsUnitTest(TestCase):
     def setUp(self):
         self.rf = RequestFactory()
-        # normal user
         self.user = User.objects.create_user(username="user1", password="pass")
-        # staff user
         self.staff = User.objects.create_user(username="staff1", password="pass")
         self.staff.is_staff = True
         self.staff.save()
 
     @patch('bookingkelas.views.ClassSessions')
     def test_catalog_groups_sessions_and_renders(self, mock_ClassSessions):
-        """
-        Test catalog view groups sessions by base title/time/category and renders context.
-        We patch ClassSessions.objects.all().order_by(...) to return fake sessions.
-        """
-        # create fake session objects
         s1 = MagicMock()
         s1.title = "Yoga - Beginner"
         s1.time = "09:00"
@@ -48,7 +41,6 @@ class ViewsUnitTest(TestCase):
         s2.days = [4]
         s2.id = 102
 
-        # chain .objects.all().order_by("title")
         mock_qs = MagicMock()
         mock_qs.order_by.return_value = [s1, s2]
         mock_ClassSessions.objects.all.return_value = mock_qs
@@ -57,18 +49,11 @@ class ViewsUnitTest(TestCase):
         request.user = AnonymousUser()
 
         resp = views.catalog(request)
-        # render returns HttpResponse; status 200
+
         self.assertEqual(resp.status_code, 200)
-        # context should include grouped sessions; we can inspect rendered context_data
-        # Django test client not used, but template rendering via view returns HttpResponse
-        # Ensure the view built 'sessions' in context by calling view function's context via response.content check
-        # More robust: call sessions_json flow separately. At minimum assert response is 200.
 
     @patch('bookingkelas.views.ClassSessions')
     def test_sessions_json_returns_expected_structure(self, mock_ClassSessions):
-        """
-        sessions_json should build JSON with sessions and weekday names mapping.
-        """
         s = MagicMock()
         s.id = 1
         s.title = "Pilates - Intro"
@@ -88,7 +73,7 @@ class ViewsUnitTest(TestCase):
         mock_ClassSessions.objects.all.return_value = mock_qs
 
         request = self.rf.get("/sessions_json")
-        request.user = self.user  # sessions_json requires login
+        request.user = self.user 
         resp = views.sessions_json(request)
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
@@ -97,15 +82,12 @@ class ViewsUnitTest(TestCase):
         sess = data["sessions"][0]
         self.assertEqual(sess["title"], "Pilates - Intro")
         self.assertEqual(sess["days"], [1, 3])
-        # days_names should be filled with weekday mapping (Tuesday, Thursday) -> check length
+
         self.assertEqual(len(sess["days_names"]), 2)
 
     @patch('bookingkelas.views.ClassSessions')
     def test_get_session_details_json_found_and_404(self, mock_ClassSessions):
-        """
-        get_session_details_json should return details when sessions found; 404 when not.
-        """
-        # Case: not found -> return 404 JSON
+  
         mock_qs = MagicMock()
         mock_qs.exists.return_value = False
         mock_ClassSessions.objects.filter.return_value = mock_qs
@@ -116,7 +98,6 @@ class ViewsUnitTest(TestCase):
         data = json.loads(resp.content)
         self.assertIn("error", data)
 
-        # Case: found -> returns expected fields
         s_item = MagicMock()
         s_item.title = "Meditation - 1"
         s_item.instructor = "Carl"
@@ -124,7 +105,6 @@ class ViewsUnitTest(TestCase):
         s_item.room = "Room Z"
         s_item.price = Decimal("5.00")
         s_item.description = "desc"
-        # days stored maybe list of strings; view expects s_item.days and uses lower().strip() on first
         s_item.days = ["0"]
         s_item.id = 201
         s_item.is_full = False
@@ -134,7 +114,6 @@ class ViewsUnitTest(TestCase):
         mock_qs2 = MagicMock()
         mock_qs2.exists.return_value = True
         mock_qs2.first.return_value = s_item
-        # filter should be iterable; set __iter__ to yield s_item
         mock_qs2.__iter__.return_value = iter([s_item])
         mock_ClassSessions.objects.filter.return_value = mock_qs2
 
@@ -148,10 +127,6 @@ class ViewsUnitTest(TestCase):
     @patch('bookingkelas.views.get_object_or_404')
     @patch('bookingkelas.views.Booking')
     def test_book_class_success_and_full(self, mock_BookingModel, mock_get_object):
-        """
-        Test book_class view when session available and when full.
-        We'll patch get_object_or_404 to return a fake session object.
-        """
         # Successful booking path
         fake_session = MagicMock()
         fake_session.is_full = False
@@ -194,15 +169,6 @@ class ViewsUnitTest(TestCase):
     @patch('bookingkelas.views.get_object_or_404')
     @patch('bookingkelas.views.Booking')
     def test_book_daily_session_various_paths(self, mock_BookingModel, mock_get_object):
-        """
-        Test book_daily_session POST behavior for:
-         - missing session_id
-         - already confirmed booking (order_items present)
-         - pending booking (order_items null) -> redirect to checkout existing
-         - capacity full
-         - successful creation
-        We'll mock Booking queries to simulate these cases.
-        """
         # Prepare fake session to be returned by get_object_or_404
         s = MagicMock()
         s.id = 777
@@ -253,13 +219,12 @@ class ViewsUnitTest(TestCase):
         resp4 = views.book_daily_session(request3)
         self.assertEqual(resp4.status_code, 302)
 
-        # Case: successful new booking creation
+
         s.bookings.filter.return_value.count.return_value = 0
         created = MagicMock()
         created.id = 4242
         qb.create.return_value = created
 
-        # Ensure Booking.objects.create will be called in view
         qb.filter.return_value.first.return_value = None
         qb.create.return_value = created
 
@@ -267,15 +232,10 @@ class ViewsUnitTest(TestCase):
         request4.user = self.user
         resp5 = views.book_daily_session(request4)
         self.assertEqual(resp5.status_code, 302)
-        qb.create.assert_called()  # called to create new Booking
+        qb.create.assert_called()  
 
     @patch('bookingkelas.views.ClassSessions')
     def test_admin_views_require_staff_and_render(self, mock_ClassSessions):
-        """
-        Test class_list and class_edit/get_edit_form/class_delete minimal behaviors for staff user.
-        We will not test form saving logic deeply here, just that staff access returns something.
-        """
-        # Mock ClassSessions.objects.all().order_by(...)
         mock_qs = MagicMock()
         mock_qs.order_by.return_value = []
         mock_ClassSessions.objects.all.return_value = mock_qs
@@ -313,6 +273,5 @@ class ViewsUnitTest(TestCase):
             req4 = self.rf.post("/admin/delete/1")
             req4.user = self.staff
             resp4 = views.class_delete(req4, pk=1)
-            # delete called on object
             fake_kelas.delete.assert_called_once()
             self.assertEqual(resp4.status_code, 302)
