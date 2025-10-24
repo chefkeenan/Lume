@@ -161,7 +161,7 @@ def book_class(request, session_id):
     )
     # ... (update capacity) ...
     messages.success(request, f"Berhasil booking {s.title}.")
-    return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
+    return redirect("checkout:booking_checkout", booking_id=new_booking.id)
 
 @login_required(login_url="/user/login/")
 def book_daily_session(request):
@@ -206,8 +206,8 @@ def book_daily_session(request):
             weekday_map = _weekday_map()
             day_label_success = weekday_map.get(s_to_book.days[0], s_to_book.days[0])
             messages.success(request, f"Berhasil booking {s_to_book.title} ({day_label_success}).")
-            return redirect("checkout:checkout_booking_now", booking_id=new_booking.id)
-
+            return redirect("checkout:booking_checkout", booking_id=new_booking.id)
+        
         except ClassSessions.DoesNotExist:
             messages.error(request, "Sesi yang dipilih tidak valid.")
             return redirect("bookingkelas:catalog")
