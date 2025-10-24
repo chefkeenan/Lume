@@ -5,153 +5,201 @@
 
 {% block content %}
 
-<!-- ========== HERO (full-bleed image + overlay) ========== -->
 <section class="relative isolate">
-  <div class="absolute inset-0 -z-10">
-    <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20"></div>
-    <img src="{% static 'hero/hero-landing.png' %}" alt="Lume Hero"
-         class="h-[640px] w-full object-cover" />
+  <div class="absolute inset-0 -z-10 overflow-hidden rounded-b-[28px]">
+    <img src="{% static 'hero/hero-landing.png' %}" alt="" class="h-[640px] w-full object-cover">
+    <div
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.55)_0%,rgba(0,0,0,.28)_55%,rgba(0,0,0,.12)_100%)]">
+    </div>
   </div>
 
   <div class="mx-auto max-w-7xl px-6 pt-36 pb-16">
-    <div class="max-w-xl text-white">
+    <div class="max-w-2xl text-white">
       <h1 class="text-5xl md:text-6xl font-extrabold leading-tight drop-shadow">
-        Find Your<br/> Flow <span class="font-light">with Lume.</span>
+        Find Your<br /> Flow <span class="font-light">with Lume.</span>
       </h1>
-      <p class="mt-5 text-white/85 max-w-lg">
-        Feel stronger, move freely, and unwind with us. Join our Pilates family and discover a space
-        where your body and mind can thrive at their own pace.
+      <p class="mt-4 text-white/85 max-w-xl">
+        Feel stronger, move freely, and unwind with us. Join our Pilates family and discover a space where your body and
+        mind can thrive at their own pace.
       </p>
-      <div class="mt-8 flex gap-3">
+      <div class="mt-7 flex flex-wrap gap-3">
         <a href="{% url 'bookingkelas:catalog' %}"
-           class="rounded-full bg-white text-stone-900 px-5 py-3 font-semibold shadow hover:bg-stone-100">
-          Book a Class
-        </a>
-        <a href="#our-products"
-           class="rounded-full bg-white/10 text-white px-5 py-3 font-semibold ring-1 ring-white/40 hover:bg-white/20">
-          Shop Products
-        </a>
+          class="rounded-full bg-white text-stone-900 px-5 py-3 font-semibold shadow hover:bg-stone-100">Book a
+          Class</a>
+        <a href="{% url 'main:show_main' %}"
+          class="rounded-full border border-white/60 bg-white/10 text-white px-5 py-3 font-semibold hover:bg-white/20">Shop
+          Products</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ========== OUR PRODUCTS ========== -->
-<section id="our-products" class="mx-auto max-w-7xl px-6 py-16">
-  <h2 class="text-center text-4xl md:text-5xl font-extrabold tracking-tight text-stone-800">Our Products</h2>
+<section id="our-products" class="bg-gradient-to-b from-stone-50 to-stone-100">
+  <div class="mx-auto max-w-7xl px-6 py-16">
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B]">Our Products</h2>
 
-  <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-    {% for p in highlights %}
-    <a href="{% url 'catalog:detail' p.id %}"
-       class="group rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm hover:shadow-lg transition overflow-hidden">
-      <div class="aspect-[4/3] bg-stone-100">
-        <img src="{{ p.proxied_thumbnail|default:'https://picsum.photos/seed/pilates/600/450' }}"
-             alt="{{ p.product_name }}"
-             class="h-full w-full object-cover"
-             onerror="this.onerror=null;this.src='https://picsum.photos/seed/pilates-fallback/600/450';">
-      </div>
-      <div class="p-4">
-        <div class="flex items-start justify-between gap-4">
-          <h5 class="font-semibold line-clamp-2">{{ p.product_name }}</h5>
-          <button class="text-stone-400 hover:text-stone-700" aria-label="favorite">♡</button>
-        </div>
-        <div class="mt-2 text-sm text-stone-700">Rp {{ p.price|intcomma }}</div>
-        <span class="mt-3 inline-flex items-center justify-center w-full rounded-xl bg-stone-900 text-white py-2.5 font-semibold hover:bg-black">
-          View Detail
-        </span>
-      </div>
-    </a>
-    {% empty %}
-      {% for i in "1234" %}
-      <div class="group rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm overflow-hidden">
-        <div class="aspect-[4/3] bg-stone-100 grid place-content-center"><div class="h-12 w-12 rounded-xl bg-stone-200"></div></div>
-        <div class="p-4">
-          <h5 class="font-semibold">Coming Soon</h5>
-          <div class="mt-2 text-sm text-stone-500">Rp -</div>
-          <span class="mt-3 inline-flex items-center justify-center w-full rounded-xl bg-stone-300 text-stone-700 py-2.5 font-semibold">—</span>
-        </div>
+    <div id="productGrid" class="mt-10 flex flex-wrap justify-center gap-x-[80px] gap-y-[64px]"
+      data-fetch-url="{% url 'main:landing_highlights' %}">
+      {% for p in highlights|slice:":6" %}
+      <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
+        {% include "product_card.html" with p=p %}
       </div>
       {% endfor %}
-    {% endfor %}
-  </div>
+    </div>
 
-  <div class="mt-8 text-center">
-    <a href="{% url 'main:show_main' %}"
-       class="inline-flex items-center gap-2 rounded-full bg-stone-900 text-white px-5 py-3 font-semibold hover:bg-black">
-      View All Products ↗
-    </a>
+
+
+
+
+    <div class="mt-10 text-center">
+      <a href="{% url 'main:show_main' %}"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95"
+        style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
+        View All Products
+      </a>
+    </div>
   </div>
 </section>
 
-<!-- ========== WHY CHOOSE LUME ========== -->
-<section id="why-lume" class="relative overflow-hidden">
-  <div class="absolute inset-0 -z-10 bg-gradient-to-b from-stone-100 to-stone-200"></div>
+<section class="relative isolate">
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <img src="{% static 'hero/hero-lume2.png' %}" alt="Why Choose Lume" class="w-full h-full object-cover">
+  </div>
+
   <div class="mx-auto max-w-7xl px-6 py-20">
-    <h2 class="text-center text-4xl md:text-5xl font-extrabold">Why Choose<br/>Lume?</h2>
-    <div class="mt-12 grid gap-8 md:grid-cols-3">
-      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
-        <h4 class="font-semibold">Properti Terkurasi</h4>
-        <p class="mt-2 text-sm text-stone-600">Kualitas alat & layanan teruji.</p>
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-white">
+      Why Choose Lume?
+    </h2>
+
+    <div class="relative mt-10 grid gap-10 md:grid-cols-3 text-stone-700">
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Effortless Balance</h3>
+        <p class="mt-2 text-sm">
+          Find harmony in every move. Lume combines mindful pilates practice with curated essentials, helping you create
+          balance—in body, space, and style.
+        </p>
       </div>
-      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
-        <h4 class="font-semibold">Transaksi Mudah</h4>
-        <p class="mt-2 text-sm text-stone-600">Proses cepat & transparan.</p>
+
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Seamless Experience</h3>
+        <p class="mt-2 text-sm">
+          Shop or book classes your way. Whether you’re here to move or to browse, Lume keeps it simple, intuitive, and
+          beautifully effortless.
+        </p>
       </div>
-      <div class="rounded-2xl bg-white/70 backdrop-blur p-6 shadow-sm border border-stone-200">
-        <h4 class="font-semibold">Solusi Personal</h4>
-        <p class="mt-2 text-sm text-stone-600">Instruktur & dukungan komunitas.</p>
+
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Your Modern Sanctuary</h3>
+        <p class="mt-2 text-sm">
+          More than a studio, Lume is your daily ritual. From minimalist design to premium essentials, every detail is
+          made to elevate your wellness journey.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ========== UPCOMING CLASSES ========== -->
-<section id="upcoming-classes" class="mx-auto max-w-7xl px-6 py-16">
-  <h2 class="text-center text-4xl md:text-5xl font-extrabold tracking-tight">Upcoming Classes</h2>
 
-  <div class="mt-10 grid gap-6 md:grid-cols-2">
-    {% for c in sessions %}
-    <div class="rounded-2xl border border-stone-200 bg-white/70 backdrop-blur shadow-sm overflow-hidden">
-      <div class="p-5">
-        <div class="flex items-center justify-between">
-          <h5 class="font-semibold">{{ c.title }}</h5>
-          <span class="text-[10px] uppercase tracking-wider rounded-full bg-stone-100 px-2 py-1 text-stone-600">
-            {{ c.category }}
+{% load static %}
+{% load humanize %}
+
+<section id="upcoming-classes"
+  class="relative isolate bg-gradient-to-b from-stone-100 to-stone-200 border-t border-stone-300">
+  <div class="mx-auto max-w-7xl px-6 py-20">
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B] mb-10">
+      Most Popular Classes
+    </h2>
+
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {% for c in sessions %}
+      <article
+        class="group relative rounded-[18px] border border-[#CFC8BA] bg-[#F1ECE2] p-6 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-[#E8E2D6]">
+
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-[#2C3028] group-hover:text-[#4F5A47] transition">
+              {{ c.title }}
+            </h3>
+            <p class="text-sm text-gray-700">
+              By <span class="font-semibold text-[#273225]">{{ c.instructor }}</span>
+            </p>
+          </div>
+          <span class="rounded-full bg-stone-100 px-3 py-1 text-xs uppercase tracking-wide shadow">
+            {{ c.category|title }}
           </span>
         </div>
-        <p class="mt-2 text-sm text-stone-500">by {{ c.instructor }}</p>
-        <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-          <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
-          <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
-          <div class="col-span-2">
-            <span class="block text-stone-400">Days</span>
-            {% if c.days_names %}
-              {% for d in c.days_names %}
-                <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs mr-1">{{ d }}</span>
-              {% endfor %}
-            {% else %}
-              <span class="text-stone-500">—</span>
-            {% endif %}
-          </div>
-        </div>
-        <a href="{% if c.category == 'daily' %}{% url 'bookingkelas:choose_day' c.id %}{% else %}{% url 'bookingkelas:book_class' c.id %}{% endif %}"
-           class="mt-4 inline-flex items-center justify-center w-full rounded-xl bg-stone-900 text-white py-2.5 font-semibold hover:bg-black">
-          {% if c.category == 'daily' %}Choose Day{% else %}Book Now{% endif %}
-        </a>
-      </div>
-    </div>
-    {% empty %}
-      <div class="text-gray-500">Belum ada jadwal.</div>
-    {% endfor %}
-  </div>
 
-  <div class="mt-8 text-center">
-    <a href="{% url 'bookingkelas:catalog' %}"
-       class="inline-flex items-center gap-2 rounded-full bg-stone-900 text-white px-5 py-3 font-semibold hover:bg-black">
-      View All Classes ↗
-    </a>
+        <div class="space-y-2 text-sm text-gray-800">
+          <p><span class="font-semibold text-stone-500">Room:</span> {{ c.room }}</p>
+          <p><span class="font-semibold text-stone-500">Time:</span> {{ c.time }}</p>
+          <p><span class="font-semibold text-stone-500">Price:</span> Rp {{ c.price|intcomma }}</p>
+          <p><span class="font-semibold text-stone-500">Capacity:</span> {{ c.capacity_current }}/{{ c.capacity_max }}
+          </p>
+
+          <p>
+            {% if c.category == "weekly" %}
+            <span class="font-semibold text-stone-500">Days:</span>
+            {% else %}
+            <span class="font-semibold text-stone-500">Day:</span>
+            {% endif %}
+
+            {% for day_name in c.days_names_list %}
+            <span
+              class="inline-flex rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700 shadow-sm ml-1">{{ day_name }}</span>
+            {% empty %}
+            <span class="ml-1 text-stone-500">—</span>
+            {% endfor %}
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-5">
+          {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser %}
+          <button type="button" disabled title="Admin accounts cannot book classes"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+            Book Now
+          </button>
+          {% else %}
+          <a href="{% url 'bookingkelas:book_class' c.id %}"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+            Book Now
+          </a>
+          {% endif %}
+          {% else %}
+          <a href="{% url 'user:login' %}?next={% url 'bookingkelas:book_class' c.id %}"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+            Book Now
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- Popularity Ring -->
+        <div class="absolute top-16 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+          {{ c.num_bookings }} booked
+        </div>
+
+      </article>
+      {% empty %}
+      <div class="text-gray-500 text-center col-span-full">
+        Belum ada jadwal kelas tersedia.
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-14 text-center">
+      <a href="{% url 'bookingkelas:catalog' %}"
+        class="inline-flex items-center gap-2 rounded-full px-8 py-3 text-lg font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95 transition"
+        style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
+        View All Classes
+      </a>
+    </div>
   </div>
 </section>
-
+{% include "product_modal.html" %}
+<script src="{% static 'js/class_modal.js' %}"></script>
+<script defer src="{% static 'js/admin-producst.js' %}"></script>
+<script defer src="{% static 'js/helpers.js' %}"></script>
 
 {% endblock %}

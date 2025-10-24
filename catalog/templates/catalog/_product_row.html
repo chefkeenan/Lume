@@ -1,0 +1,13 @@
+{% load humanize %}
+
+<tr class="border-b" data-row-id="{{ p.id }}">
+  <td class="p-2 text-xs">{{ p.id }}</td>
+  <td class="p-2">{{ p.product_name }}</td>
+  <td class="p-2">Rp{{ p.price|intcomma }}</td>
+  <td class="p-2">
+    <div class="flex gap-2">
+      <button type="button" class="px-3 py-1 border rounded" data-action="edit" data-id="{{ p.id }}">Edit</button>
+      <button type="button" class="px-3 py-1 border rounded text-red-600" data-action="delete" data-id="{{ p.id }}">Delete</button>
+    </div>
+  </td>
+</tr>

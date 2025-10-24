@@ -1,0 +1,99 @@
+{% load static %}
+{% load humanize %}
+
+<article class="relative w-full h-full flex flex-col rounded-[18px] border border-[#CFC8BA] bg-[#E9E3D6] p-4 shadow-md transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+
+    <header class="mb-3 flex justify-between items-start">
+        <div>
+            <h3 class="text-[20px] font-bold leading-6 text-neutral-900">
+                {{ c.base_title }}
+            </h3>
+            <p class="text-sm text-gray-700">By <a class="text-sm text-[#293027] font-semibold">{{ c.instructor }}</a> </p>
+        </div>
+        <span class="rounded-full bg-stone-100 px-3 py-1 text-xs uppercase shadow-[0_1px_0_#0f0f0f]">{{ c.category|title }}</span>
+    </header>
+
+     <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+            <div><span class="block text-stone-400">Time</span>{{ c.time }}</div>
+            <div><span class="block text-stone-400">Price</span>Rp {{ c.price|intcomma }}</div>
+            <div><span class="block text-stone-400">Room</span>{{ c.room }}</div>
+            {% if c.category == "weekly" %}
+            <div><span class="block text-stone-400">Capacity</span>{{ c.capacity_current }}/{{ c.capacity_max }}</div>
+            {% endif %}
+            
+    <div class="col-span-2">
+        {% if c.category == "daily" %}
+        <span class="block text-stone-400">Days to Choose:</span>
+        {% else %}
+        <span class="block text-stone-400">Days to Attend:</span>
+        {% endif %}
+            {% for d in c.days_names %}
+            <span class="inline-flex rounded-full border border-stone-300 bg-stone-100 px-2 py-0.5 font-semibold text-xs mr-1 shadow-lg">{{ d }}</span>
+            {% empty %}
+            <span class="text-gray-500">—</span>
+            {% endfor %}
+        </div>
+        </div>
+
+    <div class="mt-auto pt-4">
+  {% if c.category == "daily" %}
+    {% if user.is_authenticated %}
+      {% if user.is_staff or user.is_superuser %}
+        {# ADMIN: disable Choose Day (jangan kasih class pemicu modal) #}
+        <button type="button" disabled title="Admin accounts cannot book classes"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+          Choose Day
+        </button>
+      {% else %}
+        {# USER BIASA: buka modal pilih hari #}
+        <button type="button"
+          data-base-title="{{ c.base_title }}"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] btn-open-modal">
+          Choose Day
+        </button>
+      {% endif %}
+    {% else %}
+      {# BELUM LOGIN: arahkan ke login #}
+      <a href="{% url 'user:login' %}?next={{ request.path }}"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+        Choose Day
+      </a>
+    {% endif %}
+
+  {% elif c.instance_id %}
+    {% if user.is_authenticated %}
+      {% if user.is_staff or user.is_superuser %}
+        {# ADMIN: disable Book Now #}
+        <button type="button" disabled title="Admin accounts cannot book classes"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+          Book Now
+        </button>
+      {% else %}
+        {# USER BIASA: lanjut ke book_class #}
+        <a href="{% url 'bookingkelas:book_class' c.instance_id %}"
+          class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+          Book Now
+        </a>
+      {% endif %}
+    {% else %}
+      {# BELUM LOGIN: arahkan ke login lalu balik ke rute booking #}
+      <a href="{% url 'user:login' %}?next={% url 'bookingkelas:book_class' c.instance_id %}"
+        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8]">
+        Book Now
+      </a>
+    {% endif %}
+  {% else %}
+    <button disabled
+      class="w-full cursor-not-allowed rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-[14px] font-semibold text-[#5C5B57] opacity-60">
+      Unavailable
+    </button>
+  {% endif %}
+</div>
+
+
+    <span class="pointer-events-none absolute inset-0 rounded-[18px] ring-1 ring-black/10"></span>
+</article>
+
+<script src="{% static 'js/class_modal.js' %}"></script>
+
+

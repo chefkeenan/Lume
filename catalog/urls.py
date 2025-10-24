@@ -1,13 +1,18 @@
-# catalog/urls.py
 from django.urls import path
 from . import views
 
 app_name = "catalog"
 
 urlpatterns = [
-    path("json/", views.show_json, name="json"),
-    path("add/", views.add_product, name="add"),
-    path("<uuid:id>/", views.product_detail, name="detail"),
-    path("update/<uuid:id>/", views.update_product_ajax, name="update_ajax"),
-    path("delete/<uuid:id>/", views.delete_product_ajax, name="delete_ajax"),
+    path("products/", views.product_list, name="product_list"),
+    path("products/add/", views.product_create, name="product_add"),
+    path("products/add-modal/", views.product_add_modal, name="product_add_modal"),
+
+    # pakai uuid
+    path("products/<uuid:pk>/edit-modal/", views.product_edit_modal, name="product_edit_modal"),
+    path("products/<uuid:pk>/edit/",       views.product_update,     name="product_edit"),
+    path("products/<uuid:pk>/delete/", views.product_delete, name="product_delete"),
+
+    # route detail untuk kartu produk
+    path("products/<uuid:id>/", views.product_detail, name="detail"),
 ]
