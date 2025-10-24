@@ -21,7 +21,7 @@
       </p>
       <div class="mt-7 flex flex-wrap gap-3">
         <a href="{% url 'bookingkelas:catalog' %}" class="rounded-full bg-white text-stone-900 px-5 py-3 font-semibold shadow hover:bg-stone-100">Book a Class</a>
-        <a href="#our-products" class="rounded-full border border-white/60 bg-white/10 text-white px-5 py-3 font-semibold hover:bg-white/20">Shop Products</a>
+        <a href="{% url 'main:show_main' %}" class="rounded-full border border-white/60 bg-white/10 text-white px-5 py-3 font-semibold hover:bg-white/20">Shop Products</a>
       </div>
     </div>
   </div>
@@ -31,15 +31,19 @@
   <div class="mx-auto max-w-7xl px-6 py-16">
     <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B]">Our Products</h2>
 
-    <div class="mt-10 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(312px,1fr))]">
-      {% for p in highlights %}
-        {% include "product_card.html" with p=p %}
-      {% empty %}
-        {% for i in "12345678" %}
-          <div class="rounded-[18px] border border-[#CFC8BA] bg-[#E9E3D6] p-4 h-[360px]"></div>
-        {% endfor %}
-      {% endfor %}
+<div class="mt-10 flex flex-wrap justify-center gap-6">
+  {% for p in highlights|slice:":6" %}
+    <div class="w-[312px]">
+      {% include "product_card.html" with p=p %}
     </div>
+  {% empty %}
+    {% for i in "123456" %}
+      <div class="w-[312px] h-[360px] rounded-[18px] border border-[#CFC8BA] bg-[#E9E3D6]"></div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+
 
     <div class="mt-10 text-center">
       <a href="{% url 'main:show_main' %}"
@@ -53,7 +57,7 @@
 
 <section class="relative isolate">
   <div class="absolute inset-0 -z-10 overflow-hidden">
-    <img src="{% static 'hero/hero-lume.png' %}" alt="Why Choose Lume" class="w-full h-full object-cover">
+    <img src="{% static 'hero/hero-lume2.png' %}" alt="Why Choose Lume" class="w-full h-full object-cover">
   </div>
 
   <div class="mx-auto max-w-7xl px-6 py-20">
@@ -168,7 +172,7 @@
     </div>
   </div>
 </section>
-
+{% include "product_modal.html" %}
 <script src="{% static 'js/class_modal.js' %}"></script>
 
 

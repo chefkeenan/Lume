@@ -11,13 +11,13 @@ from django.contrib import messages
 from .models import Cart, CartItem
 from .forms import CartItemQuantityForm
 from catalog.models import Product
+from core.decorators import block_staff_purchase
 
 
 # helpers 
 def _selected_qty(cart) -> int:
     """Jumlah total quantity yang TERPILIH (is_selected=True)."""
     return cart.items.filter(is_selected=True).aggregate(q=Sum("quantity"))["q"] or 0
-
 
 # page (redirect ke login kalau belum login)
 def cart_page(request):
@@ -36,7 +36,6 @@ def cart_page(request):
         "items": items,
         "total_items": cart.total_items(),  
     })
-
 
 # data (untuk render via JS) 
 @require_GET
@@ -73,7 +72,7 @@ def cart_json(request):
     })
 
 
-# actions: set quantity 
+# set quantity 
 @require_POST
 @login_required
 @transaction.atomic
@@ -83,67 +82,63 @@ def set_quantity_ajax(request, item_id: int):
         CartItem.objects.select_for_update().select_related("product"),
         pk=item_id, cart=cart
     )
+    # ambil quantity target
     try:
         qty = int(request.POST.get("quantity", item.quantity))
     except (TypeError, ValueError):
-        return HttpResponseBadRequest("bad quantity")
+        return JsonResponse({
+            "ok": False,
+            "message": "Invalid quantity.",
+        }, status=200)  
 
     product = item.product
 
+    # kalo out of stock, hapus row
     if not getattr(product, "inStock", True) or product.stock <= 0:
         item.delete()
         return JsonResponse({
             "ok": False,
-            "reason": "out_of_stock",
             "message": "Product is out of stock.",
             "item_id": item_id,
             "quantity": 0,
-            "total_items": cart.total_items(),
-            "selected_count": cart.items.filter(is_selected=True).count(),
-            "selected_qty": _selected_qty(cart),
-        }, status=400)
+            "selected_qty": _selected_qty(cart)
+        }, status=200) 
 
+    # kalau qty minta lebih besar dr stok
     if qty > product.stock:
         return JsonResponse({
             "ok": False,
-            "reason": "exceed_stock",
             "message": f"Exceeding stock. Only {product.stock} left.",
             "item_id": item_id,
             "quantity": item.quantity,
-            "available": product.stock,
-            "total_items": cart.total_items(),
-            "selected_count": cart.items.filter(is_selected=True).count(),
-            "selected_qty": _selected_qty(cart),
-        }, status=400)
+            "selected_qty": _selected_qty(cart)
+        }, status=200) 
 
-    # hapus jika <= 0
+    # kalau qty <= 0 -> remove
     if qty <= 0:
         item.delete()
         return JsonResponse({
             "ok": True,
-            "message": "Item removed.",
+            "message": "Item removed from cart.",
             "item_id": item_id,
             "quantity": 0,
-            "total_items": cart.total_items(),
-            "selected_count": cart.items.filter(is_selected=True).count(),
-            "selected_qty": _selected_qty(cart),
-        })
+            "selected_qty": _selected_qty(cart)
+        }, status=200)
 
-    # update normal
+    # normal update
     item.quantity = qty
     item.save(update_fields=["quantity"])
+
     return JsonResponse({
         "ok": True,
-        "message": "Quantity updated.",
+        "message": None,
         "item_id": item_id,
         "quantity": qty,
-        "total_items": cart.total_items(),
-        "selected_count": cart.items.filter(is_selected=True).count(),
-        "selected_qty": _selected_qty(cart),
-    })
+       "selected_qty": _selected_qty(cart)
+    }, status=200)
 
 
-# actions: remove / clear
+# remove / clear
 @require_POST
 @login_required
 @transaction.atomic
@@ -160,8 +155,6 @@ def remove_item_ajax(request, item_id: int):
         "selected_count": cart.items.filter(is_selected=True).count(),
     })
 
-
-
 @require_POST
 @login_required
 @transaction.atomic
@@ -176,8 +169,7 @@ def clear_cart_ajax(request):
         "selected_qty": 0,
     })
 
-
-# actions: select / unselect 
+# select / unselect 
 @require_POST
 @login_required
 @transaction.atomic
@@ -228,31 +220,97 @@ def unselect_all_ajax(request):
         "selected_qty": 0,
     })
 
-
-# non-AJAX add_to_cart (dipanggil dari katalog)
 @login_required
 @transaction.atomic
+@block_staff_purchase
 def add_to_cart(request, product_id):
-    """
-    Tambah 1 unit produk ke cart dari katalog.
-    Pesan sukses/gagal dikirim via Django messages -> akan muncul sebagai toast.
-    """
     product = get_object_or_404(Product.objects.select_for_update(), pk=product_id)
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
 
-    try:
-        item = cart.items.select_for_update().get(product=product)
-        if item.quantity >= product.stock:
-            messages.error(request, "Exceeding stock. Quantity already at maximum available.")
-        else:
-            item.quantity = item.quantity + 1
-            item.save(update_fields=["quantity"])
-            messages.success(request, f"'{product.product_name}' added to cart.")
-    except CartItem.DoesNotExist:
-        if product.stock <= 0 or not getattr(product, "inStock", True):
-            messages.error(request, "Product is out of stock.")
-        else:
-            cart.items.create(product=product, quantity=1, is_selected=True)
-            messages.success(request, f"'{product.product_name}' added to cart.")
+    is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
-    return redirect(request.META.get("HTTP_REFERER") or reverse("cart:page"))
+    def respond(ok, msg, warn=False, added=False):
+        if is_ajax:
+            return JsonResponse(
+                {
+                    "ok": ok,
+                    "message": msg,
+                    "warn": warn,
+                    "added": added,
+                    "cart_count": cart.total_items(),
+                },
+                status=200,  
+            )
+
+        # fallback non-AJAX (misal JS mati)
+        if ok:
+            messages.success(request, msg)
+        else:
+            if warn:
+                messages.warning(request, msg)
+            else:
+                messages.error(request, msg)
+
+        return redirect(request.META.get("HTTP_REFERER") or reverse("cart:page"))
+
+    # ga bisa dibeli sama sekali
+    if product.stock <= 0 or not getattr(product, "inStock", True):
+        return respond(
+            ok=False,
+            msg="Product is out of stock.",
+            warn=False,
+            added=False,
+        )
+
+    try:
+        # item udah ada di cart
+        item = cart.items.select_for_update().get(product=product)
+
+        remaining = product.stock - item.quantity
+
+        if remaining <= 0:
+            # sudah pegang semua stock terakhir
+            return respond(
+                ok=False,
+                msg="You're already holding the last available stock for this item.",
+                warn=True,     
+                added=False,
+            )
+
+        # masih boleh nambah 1
+        item.quantity = item.quantity + 1
+        item.save(update_fields=["quantity"])
+
+        now_remaining = product.stock - item.quantity
+        if now_remaining <= 0:
+            # abis ini udah last stock banget
+            return respond(
+                ok=True,
+                msg=f"'{product.product_name}' added to cart. That's the last one in stock!",
+                warn=False,
+                added=True,
+            )
+
+        # normal success
+        return respond(
+            ok=True,
+            msg=f"'{product.product_name}' added to cart.",
+            warn=False,
+            added=True,
+        )
+
+    except CartItem.DoesNotExist:
+        # item belum ada di cart sama sekali -> add 1
+        cart.items.create(product=product, quantity=1, is_selected=True)
+
+        if product.stock == 1:
+            msg = f"'{product.product_name}' added to cart. That's the last one in stock!"
+        else:
+            msg = f"'{product.product_name}' added to cart."
+
+        return respond(
+            ok=True,
+            msg=msg,
+            warn=False,
+            added=True,
+        )

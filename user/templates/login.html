@@ -8,11 +8,15 @@
 
     <form method="post" action="{% url 'user:login' %}" class="space-y-5" id="loginPageForm">
       {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.GET.next|default:request.path }}"/>
+      <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}"/>
+
+      <!-- Non-field (mis. kombinasi username/password salah) -->
+      <p id="err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
 
       <div>
         <label class="mb-2 block text-sm font-semibold text-stone-700">Username</label>
         <input type="text" name="username" autocomplete="username" required class="w-full rounded-xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/20" placeholder="Your username" />
+        <p id="err-username" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
       <div>
@@ -24,6 +28,7 @@
         <div class="mt-2 text-right">
           <a href="#" class="text-sm font-medium text-stone-700 underline-offset-2 hover:underline">Forgot Password?</a>
         </div>
+        <p id="err-password" class="mt-2 text-sm text-red-600 hidden"></p>
       </div>
 
       <button type="submit" class="w-full rounded-full bg-[#A7B29C] px-4 py-3 text-base font-semibold text-white shadow-[inset_0_-4px_10px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[.99]">Log In</button>
@@ -37,12 +42,66 @@
 {% block extra_js %}
 <script>
   (function () {
+    // toggle password (punyamu)
     const btn = document.getElementById('toggleLoginPw');
     const input = document.getElementById('loginPwInput');
-    if (!btn || !input) return;
-    btn.addEventListener('click', function () {
-      input.type = input.type === 'password' ? 'text' : 'password';
-      input.focus();
+    if (btn && input) {
+      btn.addEventListener('click', function () {
+        input.type = input.type === 'password' ? 'text' : 'password';
+        input.focus();
+      });
+    }
+
+    // AJAX submit utk error tanpa reload
+    const form = document.getElementById("loginPageForm");
+    if (!form) return;
+
+    function getCookie(name) {
+      const v = `; ${document.cookie}`.split(`; ${name}=`);
+      if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
+    }
+    function showErr(id, messages){
+      const el = document.getElementById(id);
+      if (!el) return;
+      const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
+      el.innerHTML = html;
+      el.classList.remove("hidden");
+    }
+    function clearErr(){
+      ["err-__all__", "err-username", "err-password"].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el){ el.classList.add("hidden"); el.innerHTML = ""; }
+      });
+    }
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      clearErr();
+      const csrftoken =
+      (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
+      (window.CSRF_TOKEN) || '';
+      const fd = new FormData(form);
+
+      const res = await fetch(form.action || "", {
+        method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrftoken },
+        body: fd
+      });
+      const data = await res.json().catch(()=> ({}));
+
+      if (res.ok && data.ok) {
+        localStorage.setItem("postRedirectToast", JSON.stringify({
+          type: "success",
+          text: data.message || "Log in successful."
+        }));
+        window.location.href = data.redirect_url || "/";
+        return;
+      }
+      const errs = data.errors || {};
+      if (errs.username) showErr("err-username", errs.username);
+      if (errs.password) showErr("err-password", errs.password);
+      if (errs.__all__) showErr("err-__all__", errs.__all__);
+      if (data.non_field_errors) showErr("err-__all__", data.non_field_errors);
     });
   })();
 </script>

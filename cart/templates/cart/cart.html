@@ -6,13 +6,17 @@
 <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
   <!-- Back to home -->
-  <div class="mb-6">
-    <a href="{% url 'main:landing' %}"
-       class="inline-flex items-center gap-2 rounded-full bg-[#E7E2D6] px-4 py-2 text-sm text-[#3A342D] hover:bg-[#DCD4C4]">
-      <span class="inline-block -ml-1">←</span>
-      <span>Back to Home</span>
-    </a>
-  </div>
+<a href="{% url 'main:landing' %}"
+   class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm
+          bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors
+          border border-stone-300 text-stone-800 shadow-sm
+          mb-8 md:mb-10">
+  <!-- arrow-left -->
+  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  </svg>
+  <span>Back to Home</span>
+</a>
 
   <!-- Title -->
   <div class="mb-8">
@@ -59,7 +63,6 @@
         <div class="space-y-4 mb-6">
           <div class="flex items-center justify-between">
             <span class="text-[#766E62]">Total Items</span>
-            <!-- TAMPILKAN JUMLAH QTY YANG TERPILIH -->
             <span class="font-semibold text-[#3A342D]" data-total-items>0</span>
           </div>
         </div>
@@ -142,11 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
       headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
       body
     });
-    // walau 4xx tetap di-JSON-in biar dapat {ok:false,message:"..."}
     return await r.json();
   }
 
-  // ===== Helpers =====
+  // Helpers 
   function setSelectButtonsDisabled(disabled) {
     const sel = document.getElementById('selectAllBtn');
     const uns = document.getElementById('unselectAllBtn');
@@ -162,13 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
     list.style.display  = show ? 'none'  : 'block';
     if (show) {
       setCheckoutDisabled(true);
-      setSelectButtonsDisabled(true);   // ← disable saat kosong
+      setSelectButtonsDisabled(true); // disable saat kosong
     } else {
-      setSelectButtonsDisabled(false);  // ← enable saat ada item
+      setSelectButtonsDisabled(false); // enable saat ada item
     }
   }
 
-  // summary helpers (pakai DOM, bukan data server) 
+  // summary helpers
   function computeSelectedQtyFromDOM(){
     let sum = 0;
     document.querySelectorAll('[data-item-row]').forEach(row=>{
@@ -192,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTotals(computeSelectedQtyFromDOM());
   }
 
-  // ===== Render =====
+  // Render
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -200,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleEmpty(true);
       return;
     }
-    toggleEmpty(false);         // auto-enable select buttons
+    toggleEmpty(false); // auto enable select buttons
     list.innerHTML = '';
 
     items.forEach(it => {
@@ -223,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
       list.appendChild(node);
     });
 
-    // summary berdasar DOM
+    // summary
     refreshSummaryFromDOM();
   }
 
@@ -243,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ===== Actions: Select all / Unselect all =====
+  // Select all/Unselect all
   document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
     if (document.getElementById('selectAllBtn').disabled) return;
     const out = await postForm("{% url 'cart:select_all' %}");
@@ -257,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadCart();
   });
 
-  // ===== Event Delegation untuk item actions =====
+  // Event Delegation untuk item actions
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
 
@@ -327,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ===== Checkout =====
+  // Checkout
   document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
     if (checkoutBtn?.disabled){
       e.preventDefault();
@@ -347,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('selectedItemIds').value = selectedIds.join(',');
   });
 
-  // ===== Init =====
   loadCart();
 });
 </script>
