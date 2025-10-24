@@ -10,6 +10,14 @@ def is_admin(u): return u.is_staff
 
 @login_required
 @user_passes_test(is_admin)
+@require_http_methods(["GET"])
+def product_add_modal(request):
+    form = ProductForm()
+    html = render_to_string("catalog/_product_form.html", {"form": form, "obj": None}, request=request)
+    return JsonResponse({"ok": True, "form_html": html})
+
+@login_required
+@user_passes_test(is_admin)
 def product_list(request):
     products = Product.objects.all().order_by("-id")
     return render(request, "catalog/product_list.html", {"products": products})
@@ -56,15 +64,17 @@ def product_delete(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
-@require_http_methods(["GET", "POST"])
+@require_http_methods(["POST", "GET"])
 def product_create(request):
     form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         obj = form.save()
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            row_html = render_to_string("catalog/_product_row.html", {"p": obj}, request=request)
-            return JsonResponse({"ok": True, "row_html": row_html})
+            # render kartu untuk grid di main.html
+            card_html = render_to_string("product_card.html", {"p": obj}, request=request)
+            return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
         return redirect("main:show_main")
+    # fallback non-AJAX (opsional)
     return render(request, "catalog/add_product.html", {"form": form})
 
 

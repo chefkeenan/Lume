@@ -1,49 +1,35 @@
-<div id="productEditor" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
-  <div class="w-full max-w-lg rounded-2xl bg-white p-6">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-semibold" data-title>Edit Product</h2>
-      <button class="text-stone-500 hover:text-black" data-close>✕</button>
+{# ========== ADD MODAL ========== #}
+<div id="addModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/40" data-close-add></div>
+
+  <div class="relative z-10 w-[min(720px,92vw)] rounded-[22px] bg-[#E7E2D6] p-6 shadow-xl">
+    <!-- Header -->
+    <div class="mb-2 flex items-start justify-between">
+      <h2 class="text-[28px] leading-tight font-extrabold text-stone-900">Create Product</h2>
+      <button class="text-stone-600 hover:text-stone-900 text-xl" data-close-add aria-label="Close">×</button>
     </div>
 
-    <form id="editorForm" class="mt-4 space-y-3">
-      {% csrf_token %}
-      <input type="hidden" name="id" />
+    <!-- Body -->
+    <div id="addModalBody" class="mt-2">
+      {# form create akan diinject via AJAX: _product_form.html (obj=None) #}
+    </div>
+  </div>
+</div>
 
-      <div>
-        <label class="text-sm">Name</label>
-        <input class="w-full rounded-lg border px-3 py-2" name="product_name" required />
-      </div>
+{# ========== EDIT MODAL ========== #}
+<div id="editModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/40" data-close-edit></div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-sm">Price</label>
-          <input class="w-full rounded-lg border px-3 py-2" name="price" type="number" min="0" />
-        </div>
-        <div>
-          <label class="text-sm">Stock</label>
-          <input class="w-full rounded-lg border px-3 py-2" name="stock" type="number" min="0" />
-        </div>
-      </div>
+  <div class="relative z-10 w-[min(720px,92vw)] rounded-[22px] bg-[#E7E2D6] p-6 shadow-xl">
+    <!-- Header -->
+    <div class="mb-2 flex items-start justify-between">
+      <h2 class="text-[28px] leading-tight font-extrabold text-stone-900">Edit Product</h2>
+      <button class="text-stone-600 hover:text-stone-900 text-xl" data-close-edit aria-label="Close">×</button>
+    </div>
 
-      <div>
-        <label class="text-sm">Thumbnail URL</label>
-        <input class="w-full rounded-lg border px-3 py-2" name="thumbnail" />
-      </div>
-
-      <div>
-        <label class="text-sm">Description</label>
-        <textarea class="w-full rounded-lg border px-3 py-2" name="description" rows="3"></textarea>
-      </div>
-
-      <label class="inline-flex items-center gap-2">
-        <input id="chkInStock" type="checkbox" name="inStock" class="h-4 w-4">
-        <span>In Stock</span>
-      </label>
-
-      <div class="mt-4 flex items-center justify-end gap-2">
-        <button type="button" class="rounded-lg border px-4 py-2" data-close>Cancel</button>
-        <button class="rounded-lg bg-stone-900 text-white px-4 py-2" type="submit">Save</button>
-      </div>
-    </form>
+    <!-- Body -->
+    <div id="editModalBody" class="mt-2">
+      {# form edit akan diinject via AJAX: _product_form.html (obj=instance) #}
+    </div>
   </div>
 </div>
