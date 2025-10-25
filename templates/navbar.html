@@ -62,20 +62,10 @@
       <div class="flex items-center gap-2">
         {# CART button: show for non-admin only #}
         {% if not request.user.is_staff and not request.user.is_superuser %}
-        <a
-          href="{{ cart_url }}"
-          class="relative hidden md:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-          aria-label="Cart"
-        >
-          <img
-            src="{% static 'assets/cart.svg' %}"
-            alt=""
-            class="h-4 w-4"
-            onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`"
-          >
-          {% if cart_count %}
-          <span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>
-          {% endif %}
+        <a href="{{ cart_url }}" class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Cart">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/41c41ea0d79d6708c41a9cfdda7cc60cf97f59eb/static/assets/cart.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
+          {# badge count opsional: kirim context cart_count #}
+          {% if cart_count %}<span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>{% endif %}
         </a>
         {% endif %}
 
