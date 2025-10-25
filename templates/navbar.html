@@ -4,175 +4,150 @@
 {% url 'main:show_main' as products_url %}
 {% url 'bookingkelas:catalog' as classes_url %}
 {% url 'cart:index' as cart_url %}{% firstof cart_url '/cart/' as cart_url %}
-{% url 'user:profile' as profile_url %}
-{% url 'user:login' as login_url %}
-{% url 'user:logout' as logout_url %}
+{% url 'user:profile' as profile_url %}{% firstof profile_url '/user/profile/' as profile_url %}
+{% url 'login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
+{% url 'logout' as logout_named %}{% firstof logout_named '/user/logout/' as logout_url %}
 
-<header class="sticky top-0 z-50 relative">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
-    <nav
-      class="flex items-center justify-between rounded-full border border-stone-200 bg-white/95 px-4 py-2 shadow-sm backdrop-blur"
-    >
-  
-      <a href="{{ home_url|default:'/' }}" class="text-xl font-semibold tracking-wide text-stone-700">
+<header class="sticky top-0 z-50 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <nav class="relative flex h-14 items-center justify-between">
+      <a href="{{ home_url|default:'/' }}" class="shrink-0 text-lg font-semibold tracking-wide text-stone-800">
         Lume
       </a>
 
       {% with current=request.resolver_match %}
       {% with name=current.url_name %}
-      <ul
-        class="hidden md:flex items-center gap-2 text-sm font-medium text-stone-600"
-      >
+      <ul class="hidden md:flex items-center gap-1 text-sm font-medium text-stone-600">
         <li>
           <a href="{{ home_url|default:'/' }}"
              class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
              {% if current and current.url_name == 'landing' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
-            {# icon home #}
-            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/home.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/home.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`">
           </a>
         </li>
 
-            {% with name=current.url_name %}
-            <li>
-              <a href="{{ products_url }}"
-                class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
-                {% if name == 'show_main' or name == 'product_list' or name == 'detail' %}
-                  bg-stone-100 text-stone-800
-                {% else %}
-                  hover:text-stone-800
-                {% endif %}">
-                <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/store.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`">
-              </a>
-            </li>
-            {% endwith %}
-
-
+        <li>
+          <a href="{{ products_url }}"
+             class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+             {% if name in 'show_main product_list detail' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/store.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`">
+          </a>
+        </li>
 
         <li>
           <a href="{{ classes_url }}"
              class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
              {% if current and current.app_name == 'bookingkelas' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
-            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/class.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/class.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
           </a>
         </li>
       </ul>
       {% endwith %}
       {% endwith %}
 
-      <div class="flex items-center gap-2">
-        {# CART button: show for non-admin only #}
+      <div class="hidden md:flex items-center gap-2">
         {% if not request.user.is_staff and not request.user.is_superuser %}
-        <a href="{{ cart_url }}" class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Cart">
-          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/41c41ea0d79d6708c41a9cfdda7cc60cf97f59eb/static/assets/cart.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
-          {# badge count opsional: kirim context cart_count #}
-          {% if cart_count %}<span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>{% endif %}
+        <a href="{{ cart_url }}"
+           class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
+           aria-label="Cart">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/41c41ea0d79d6708c41a9cfdda7cc60cf97f59eb/static/assets/cart.svg"
+               alt="" class="h-4 w-4"
+               onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
+          {% if cart_count %}
+            <span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>
+          {% endif %}
         </a>
         {% endif %}
 
-{% if request.user.is_authenticated %}
-  {% if request.user.is_staff or request.user.is_superuser %}
-    {% url 'useradmin:dashboard' as admin_dashboard_url %}
-    {% firstof admin_dashboard_url '/useradmin/dashboard/' as target_profile_url %}
-  {% else %}
-    {% firstof profile_url '/user/profile/' as target_profile_url %}
-  {% endif %}
+        {% if request.user.is_authenticated %}
+          {% if request.user.is_staff or request.user.is_superuser %}
+            {% url 'useradmin:dashboard' as admin_dashboard_url %}
+            {% firstof admin_dashboard_url '/useradmin/dashboard/' as target_profile_url %}
+          {% else %}
+            {% firstof profile_url '/user/profile/' as target_profile_url %}
+          {% endif %}
 
-  <a href="{{ target_profile_url }}"
-     class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-     aria-label="Profile">
-    <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/user.svg" alt="" class="h-4 w-4"
-         onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
-  </a>
-  {# Logout as POST #}
-  <form method="post" action="{{ logout_url }}" class="m-0">
-    {% csrf_token %}
-    <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
-      <img src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/assets/logout.png?raw=true" alt="" class="h-4 w-4"
-           onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
-    </button>
-  </form>
+          <a href="{{ target_profile_url }}"
+             class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
+             aria-label="Profile">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/user.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
+          </a>
+
+          <form method="post" action="{{ logout_url }}" class="m-0">
+            {% csrf_token %}
+            <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
+              <img src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/assets/logout.png?raw=true"
+                   alt="" class="h-4 w-4"
+                   onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
+            </button>
+          </form>
         {% else %}
-<a href="{{ login_url }}" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50">Login</a>
-
+          <button type="button"
+                  class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50"
+                  data-open-login data-login-href="{{ login_url }}">
+            Login
+          </button>
+          <noscript>
+            <a href="{{ login_url }}" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50">Login</a>
+          </noscript>
         {% endif %}
-
-        <button
-          id="mobileMenuBtn"
-          class="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-          aria-label="Toggle menu"
-        >
-          <!-- icon burger -->
-          <svg id="burgerIcon" class="h-5 w-5 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
-            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
-          </svg>
-          <!-- icon close (hidden by default) -->
-          <svg id="closeIcon" class="hidden h-5 w-5 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
-            <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round" />
-          </svg>
-        </button>
       </div>
+
+      <button id="mobileMenuBtn"
+              class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
+              aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenuPanel">
+        <svg id="burgerIcon" class="h-5 w-5 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+        </svg>
+        <svg id="closeIcon" class="hidden h-5 w-5 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6l-12 12" stroke-linecap="round" />
+        </svg>
+      </button>
     </nav>
 
-    <div
-      id="mobileMenuPanel"
-      class="md:hidden absolute left-0 right-0 mt-2 origin-top scale-y-0 opacity-0 pointer-events-none transition-all duration-200 ease-out
-             px-4"
-    >
-      <div class="rounded-2xl border border-stone-200 bg-white shadow-lg px-4 py-4 space-y-3 max-w-7xl mx-auto">
-        <!-- row of main links -->
-        <a
-          href="{{ home_url|default:'/' }}"
-          class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-        >
-          <img
-            src="{% static 'assets/home.svg' %}"
-            alt=""
-            class="h-4 w-4"
-            onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`"
-          >
+    <!-- Mobile panel -->
+<div id="mobileMenuPanel"
+     class="md:hidden absolute left-0 right-0 top-full z-40 mt-2
+            origin-top scale-y-0 opacity-0 pointer-events-none
+            transition-all duration-200 ease-out px-4">
+  <div class="mx-auto max-w-7xl rounded-2xl border border-stone-200 bg-white shadow-lg px-4 py-4 space-y-3">
+        <a href="{{ home_url|default:'/' }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/home.svg"
+               alt="" class="h-4 w-4"
+               onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`">
           <span>Home</span>
         </a>
 
-        <a
-          href="{{ products_url }}"
-          class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-        >
-          <img
-            src="{% static 'assets/store.svg' %}"
-            alt=""
-            class="h-4 w-4"
-            onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`"
-          >
+        <a href="{{ products_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/store.svg"
+               alt="" class="h-4 w-4"
+               onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`">
           <span>Shop</span>
         </a>
 
-        <a
-          href="{{ classes_url }}"
-          class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-        >
-          <img
-            src="{% static 'assets/class.svg' %}"
-            alt=""
-            class="h-4 w-4"
-            onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`"
-          >
+        <a href="{{ classes_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/class.svg"
+               alt="" class="h-4 w-4"
+               onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
           <span>Classes</span>
         </a>
 
         {% if not request.user.is_staff and not request.user.is_superuser %}
-        <a
-          href="{{ cart_url }}"
-          class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-        >
+        <a href="{{ cart_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
           <div class="relative">
-            <img
-              src="{% static 'assets/cart.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`"
-            >
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/41c41ea0d79d6708c41a9cfdda7cc60cf97f59eb/static/assets/cart.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
             {% if cart_count %}
-            <span class="absolute -top-2 -right-2 rounded-full bg-stone-900 px-1.5 text-[10px] text-white leading-none">{{ cart_count }}</span>
+              <span class="absolute -top-2 -right-2 rounded-full bg-stone-900 px-1.5 text-[10px] text-white leading-none">{{ cart_count }}</span>
             {% endif %}
           </div>
           <span>Cart</span>
@@ -186,42 +161,27 @@
           {% else %}
             {% firstof profile_url '/user/profile/' as target_profile_url %}
           {% endif %}
-
-          <a
-            href="{{ target_profile_url }}"
-            class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
-          >
-            <img
-              src="{% static 'assets/user.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`"
-            >
+          <a href="{{ target_profile_url }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/user.svg"
+                 alt="" class="h-4 w-4"
+                 onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
             <span>Profile</span>
           </a>
 
           <form method="post" action="{{ logout_url }}" class="border-t border-stone-200 pt-3 mt-3">
             {% csrf_token %}
-            <button
-              class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50"
-            >
-              <img
-                src="{% static 'assets/logout.png' %}"
-                alt=""
-                class="h-4 w-4"
-                onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`"
-              >
+            <button class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50">
+              <img src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/assets/logout.png?raw=true"
+                   alt="" class="h-4 w-4"
+                   onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
               <span>Logout</span>
             </button>
           </form>
         {% else %}
           <div class="border-t border-stone-200 pt-3 mt-3">
-            <button
-              type="button"
-              class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50"
-              data-open-login
-              data-login-href="{{ login_url }}"
-            >
+            <button type="button"
+                    class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50"
+                    data-open-login data-login-href="{{ login_url }}">
               <svg class="h-4 w-4 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
                 <path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -229,10 +189,7 @@
               <span>Login</span>
             </button>
             <noscript>
-              <a
-                href="{{ login_url }}"
-                class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50"
-              >
+              <a href="{{ login_url }}" class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50">
                 <svg class="h-4 w-4 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
                   <path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -249,29 +206,41 @@
 
 <script>
   (function () {
-    const btn = document.getElementById('mobileMenuBtn');
-    const panel = document.getElementById('mobileMenuPanel');
+    const btn    = document.getElementById('mobileMenuBtn');
+    const panel  = document.getElementById('mobileMenuPanel');
     const burger = document.getElementById('burgerIcon');
     const closeI = document.getElementById('closeIcon');
 
     if (!btn || !panel) return;
 
+    function openMenu() {
+      panel.classList.remove('scale-y-0', 'opacity-0', 'pointer-events-none');
+      panel.classList.add('scale-y-100', 'opacity-100', 'pointer-events-auto');
+      burger.classList.add('hidden');
+      closeI.classList.remove('hidden');
+      btn.setAttribute('aria-expanded', 'true');
+      document.addEventListener('keydown', onEsc);
+      document.addEventListener('click', onClickOutside);
+    }
+    function closeMenu() {
+      panel.classList.add('scale-y-0', 'opacity-0', 'pointer-events-none');
+      panel.classList.remove('scale-y-100', 'opacity-100', 'pointer-events-auto');
+      burger.classList.remove('hidden');
+      closeI.classList.add('hidden');
+      btn.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('keydown', onEsc);
+      document.removeEventListener('click', onClickOutside);
+    }
+    function onEsc(e){ if (e.key === 'Escape') closeMenu(); }
+    function onClickOutside(e){
+      if (!panel.contains(e.target) && !btn.contains(e.target)) closeMenu();
+    }
     btn.addEventListener('click', () => {
       const isOpen = panel.classList.contains('scale-y-100');
-
-      if (isOpen) {
-        // close
-        panel.classList.remove('scale-y-100', 'opacity-100', 'pointer-events-auto');
-        panel.classList.add('scale-y-0', 'opacity-0', 'pointer-events-none');
-        burger.classList.remove('hidden');
-        closeI.classList.add('hidden');
-      } else {
-        // open
-        panel.classList.remove('scale-y-0', 'opacity-0', 'pointer-events-none');
-        panel.classList.add('scale-y-100', 'opacity-100', 'pointer-events-auto');
-        burger.classList.add('hidden');
-        closeI.classList.remove('hidden');
-      }
+      isOpen ? closeMenu() : openMenu();
     });
+    const md = window.matchMedia('(min-width: 768px)');
+    function handleMQ(e){ if (e.matches) closeMenu(); }
+    md.addEventListener ? md.addEventListener('change', handleMQ) : md.addListener(handleMQ);
   })();
 </script>
