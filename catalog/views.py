@@ -17,7 +17,7 @@ def is_admin(u): return u.is_staff
 @require_http_methods(["GET"])
 def product_add_modal(request):
     form = ProductForm()
-    html = render_to_string("catalog/product_form.html", {"form": form, "obj": None}, request=request)
+    html = render_to_string("catalog/_product_form.html", {"form": form, "obj": None}, request=request)
     return JsonResponse({"ok": True, "form_html": html})
 
 @login_required
@@ -32,7 +32,7 @@ def product_list(request):
 def product_edit_modal(request, pk):
     obj = get_object_or_404(Product, pk=pk)
     form = ProductForm(instance=obj)
-    html = render_to_string("catalog/product_form.html", {"form": form, "obj": obj}, request=request)
+    html = render_to_string("catalog/_product_form.html", {"form": form, "obj": obj}, request=request)
     return JsonResponse({"ok": True, "form_html": html})
 
 @login_required
