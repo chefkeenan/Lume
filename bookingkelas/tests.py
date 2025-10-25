@@ -61,7 +61,45 @@ class CatalogAndJsonTests(TestCase):
         self.assertIn("Wednesday", card["days_names"])
         self.assertEqual(card["category"], "yoga")
 
-    @patch("bookingkelas.views.CATEGORY_CHOICES", new=[])
+    @patch("bookingkelas.views.AdminSessionsForm")
+    @patch("bookingkelas.views.ClassSessions")
+    def test_catalog_with_category_filter(self, ClassSessions, AdminSessionsForm):
+        s = MagicMock()
+        s.id = 3
+        s.title = "Pilates Core - Friday"
+        s.category = "pilates"
+        s.instructor = "Coach B"
+        s.time = "10:00"
+        s.room = "R2"
+        s.price = 60000
+        s.capacity_max = 15
+        s.capacity_current = 3
+        s.days = ["4"]
+
+        qs = MagicMock()
+        qs.all.return_value = qs
+        qs.order_by.return_value = qs
+        qs.filter.return_value = [s]
+        ClassSessions.objects.all.return_value = qs
+
+        resp = self.client.get(reverse("bookingkelas:catalog") + "?category=pilates")
+        self.assertEqual(resp.status_code, 200)
+        sessions = resp.context["sessions"]
+        self.assertEqual(len(sessions), 1)
+        self.assertEqual(sessions[0]["category"], "pilates")
+
+    @patch("bookingkelas.views.AdminSessionsForm")
+    @patch("bookingkelas.views.ClassSessions")
+    def test_catalog_empty(self, ClassSessions, AdminSessionsForm):
+        qs = MagicMock()
+        qs.all.return_value = qs
+        qs.order_by.return_value = []
+        ClassSessions.objects.all.return_value = qs
+
+        resp = self.client.get(reverse("bookingkelas:catalog"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["sessions"], [])
+
     @patch("bookingkelas.views.ClassSessions")
     def test_sessions_json_ok(self, ClassSessions):
         s = MagicMock()
