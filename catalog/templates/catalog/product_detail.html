@@ -83,7 +83,7 @@
     </a>
   {% endif %}
 
-  <a href="/#produk" class="btn-ghost rounded-xl px-5 py-3 text-sm font-medium">Back to Products</a>
+  <a href="{% url 'main:show_main' %}" class="btn-ghost rounded-xl px-5 py-3 text-sm font-medium">Back to Products</a>
 </div>
 
 
@@ -117,7 +117,4 @@
 {% include "product_modal.html" %}
 {% endblock %}
 
-{% block scripts %}
-<script src="{% static 'js/admin-products.js' %}"></script>
-{% endblock %}
 

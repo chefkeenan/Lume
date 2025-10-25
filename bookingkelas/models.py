@@ -25,16 +25,16 @@ CATEGORY_CHOICES = [
 ]
 
 class ClassSessions(models.Model):
-    title = models.CharField(max_length=50)  
+    title = models.CharField(max_length=255)  
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES)
     instructor = models.CharField(max_length=15)
     capacity_current = models.PositiveIntegerField(default=0)
     capacity_max = models.PositiveIntegerField(default=20)   
-    description = models.CharField(max_length=60, blank=True)  
+    description = models.CharField(max_length=200, blank=True)  
     price = models.PositiveIntegerField() 
     room = models.CharField(max_length=5)
     days = models.JSONField(default=list, blank=True)
-    time = models.CharField(max_length=20, choices=TIME_SLOTS)
+    time = models.CharField(max_length=255, choices=TIME_SLOTS)
     
     def __str__(self):
         return f"{self.title} - Rp{self.price:,}"

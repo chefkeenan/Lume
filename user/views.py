@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.conf import settings
 
 def _is_ajax(request):
     return (
@@ -66,7 +67,9 @@ def register_user(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+
+            # FIX: kasih backend biar login() nggak error 403
+            login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
 
             if _is_ajax(request):
                 return JsonResponse({
@@ -79,7 +82,11 @@ def register_user(request):
         else:
             if _is_ajax(request):
                 return JsonResponse(
-                    {"ok": False, "errors": form.errors, "non_field_errors": form.non_field_errors()},
+                    {
+                        "ok": False,
+                        "errors": form.errors,
+                        "non_field_errors": form.non_field_errors(),
+                    },
                     status=400
                 )
     else:
