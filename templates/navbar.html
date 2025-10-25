@@ -4,9 +4,9 @@
 {% url 'main:show_main' as products_url %}
 {% url 'bookingkelas:catalog' as classes_url %}
 {% url 'cart:index' as cart_url %}{% firstof cart_url '/cart/' as cart_url %}
-{% url 'user:profile' as profile_url %}{% firstof profile_url '/user/profile/' as profile_url %}
-{% url 'login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
-{% url 'logout' as logout_named %}{% firstof logout_named '/user/logout/' as logout_url %}
+{% url 'user:profile' as profile_url %}
+{% url 'user:login' as login_url %}
+{% url 'user:logout' as logout_url %}
 
 <header class="sticky top-0 z-50 relative">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
@@ -55,7 +55,7 @@
             <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/class.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
           </a>
         </li>
-      </ul>#
+      </ul>
       {% endwith %}
       {% endwith %}
 
@@ -92,22 +92,11 @@
     </button>
   </form>
         {% else %}
-          <button
-            type="button"
-            class="hidden md:inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50"
-            data-open-login
-            data-login-href="{{ login_url }}"
-          >
-            Login
-          </button>
-          <noscript>
-            <a
-              href="{{ login_url }}"
-              class="hidden md:inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50"
-            >
-              Login
-            </a>
-          </noscript>
+            {% url 'user:login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
+  <button type="button" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50" data-open-login data-login-href="{{ login_url }}">Login</button>
+  <noscript>
+    <a href="{{ login_url }}" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50">Login</a>
+  </noscript>
         {% endif %}
 
         <button
