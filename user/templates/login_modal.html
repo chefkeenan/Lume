@@ -12,7 +12,7 @@
         <form method="post" action="{{ login_url }}" class="space-y-5" id="loginModalForm" novalidate>
           {% csrf_token %}
           <input type="hidden" name="ajax" value="1"/>
-          <input type="hidden" name="next" value="{{ request.get_full_path|default:'/' }}"/>
+          <input type="hidden" name="next" value="{% url 'main:landing' %}"/>
 
           <!-- Non-field (mis. kombinasi username/password salah) -->
           <p id="mod-err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
