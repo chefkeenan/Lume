@@ -5,13 +5,19 @@ from unittest.mock import patch, MagicMock
 
 User = get_user_model()
 
-
 @override_settings(LOGIN_URL="/user/login/")
 class CatalogAndJsonTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username="user", password="pass")
         self.client.login(username="user", password="pass")
+
+    def test_utils_weekday_map_and_base_title(self):
+        from bookingkelas import views as v
+        m = v._weekday_map()
+        self.assertEqual(m["0"], "Monday")
+        self.assertEqual(m["6"], "Sunday")
+        self.assertEqual(v._base_title("Yoga Flow - Monday"), "Yoga Flow")
 
     @patch("bookingkelas.views.AdminSessionsForm")
     @patch("bookingkelas.views.ClassSessions")
@@ -85,15 +91,19 @@ class CatalogAndJsonTests(TestCase):
         self.assertEqual(data["sessions"][0]["category_display"], "pilates")
         self.assertIn("Friday", data["sessions"][0]["days_names"])
 
+    def test_sessions_json_requires_login(self):
+        self.client.logout()
+        resp = self.client.get(reverse("bookingkelas:sessions_json"))
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn("/user/login/", resp.url)
+
     @patch("bookingkelas.views.ClassSessions")
     def test_get_session_details_json_404(self, ClassSessions):
         qs = MagicMock()
         qs.exists.return_value = False
         ClassSessions.objects.filter.return_value = qs
 
-        resp = self.client.get(
-            reverse("bookingkelas:get_session_details_json", args=["NotExists"])
-        )
+        resp = self.client.get(reverse("bookingkelas:get_session_details_json", args=["NotExists"]))
         self.assertEqual(resp.status_code, 404)
 
     @patch("bookingkelas.views.ClassSessions")
@@ -121,11 +131,18 @@ class CatalogAndJsonTests(TestCase):
         s_day2.capacity_current = 15
         s_day2.capacity_max = 15
 
+        s_day3 = MagicMock()
+        s_day3.id = 13
+        s_day3.days = []
+        s_day3.is_full = False
+        s_day3.capacity_current = 0
+        s_day3.capacity_max = 10
+
         qs = MagicMock()
         qs.filter.return_value = qs
         qs.exists.return_value = True
         qs.first.return_value = s_general
-        qs.__iter__.return_value = iter([s_day1, s_day2])
+        qs.__iter__.return_value = iter([s_day1, s_day2, s_day3])
         ClassSessions.objects.filter.return_value = qs
 
         resp = self.client.get(reverse("bookingkelas:get_session_details_json", args=["Zumba Party"]))
@@ -134,7 +151,7 @@ class CatalogAndJsonTests(TestCase):
         self.assertEqual(payload["base_title_cleaned"], "Zumba Party")
         labels = {o["label"] for o in payload["day_options"]}
         self.assertTrue({"Tuesday", "Thursday"}.issubset(labels))
-
+        self.assertEqual(len(payload["day_options"]), 2)
 
 @override_settings(LOGIN_URL="/user/login/")
 class BookingActionsTests(TestCase):
@@ -185,8 +202,6 @@ class BookingActionsTests(TestCase):
         new_b.id = 123
         Booking.objects.create.return_value = new_b
 
-        # Biar reverse('checkout:booking_checkout', ...) ter-resolve di project kamu
-        # (Kalau 404 pun nggak di-assert, aman)
         self.client.get(reverse("checkout:booking_checkout", args=[123]))
 
         resp2 = self.client.get(reverse("bookingkelas:book_class", args=[3]))
@@ -276,6 +291,12 @@ class BookingActionsTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertIn("checkout", resp.url)
 
+    @patch("bookingkelas.views.get_object_or_404")
+    def test_book_daily_session_generic_exception_caught(self, get_object):
+        get_object.side_effect = Exception("boom")
+        resp = self.client.post(reverse("bookingkelas:book_daily_session"), {"session_id": 123})
+        self.assertEqual(resp.status_code, 302)
+        self.assertIn(reverse("bookingkelas:catalog"), resp.url)
 
 @override_settings(LOGIN_URL="/user/login/")
 class AdminViewsTests(TestCase):
@@ -325,6 +346,19 @@ class AdminViewsTests(TestCase):
         self.assertTrue(form.save.called)
         self.assertEqual(resp.status_code, 302)
         self.assertIn(reverse("bookingkelas:class_list"), resp.url)
+
+    @patch("bookingkelas.views.get_object_or_404")
+    @patch("bookingkelas.views.AdminSessionEditForm")
+    def test_class_edit_post_invalid_rerenders(self, AdminSessionEditForm, get_object):
+        self.client.login(username="admin", password="pass")
+        get_object.return_value = MagicMock()
+        form = MagicMock()
+        form.is_valid.return_value = False
+        AdminSessionEditForm.return_value = form
+
+        resp = self.client.post(reverse("bookingkelas:class_edit", args=[2]), {"title": ""})
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotIn("Location", resp.headers)
 
     @patch("bookingkelas.views.get_object_or_404")
     def test_class_delete_get_rejected(self, get_object):
