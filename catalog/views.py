@@ -74,13 +74,13 @@ def product_create(request):
     if form.is_valid():
         obj = form.save()
         if is_ajax:
-            card_html = render_to_string("catalog/product_card.html", {"p": obj, "user": request.user}, request=request)
-            return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
+            card_html = render_to_string("catalog/_product_card.html", {"p": obj, "user": request.user}, request=request)
+            return JsonResponse({"ok": True, "catalog/card_html": card_html, "id": str(obj.pk)})
         return redirect("main:show_main")
 
     if is_ajax:
         form_html = render_to_string(
-            "catalog/product_form.html",
+            "catalog/_product_form.html",
             {"form": form, "obj": None},
             request=request,
         )
