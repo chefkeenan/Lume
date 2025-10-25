@@ -6,11 +6,15 @@
   <div class="mx-auto max-w-md rounded-2xl border border-black/10 bg-[#ede9de] shadow-2xl p-6 sm:p-8">
     <h1 class="mb-6 text-center text-3xl font-extrabold tracking-tight text-[#0E0E0E]">Log in to your Account</h1>
 
+    {% if non_field_errors %}
+      <p class="rounded-lg bg-red-50 text-red-700 p-2 text-sm mb-4">
+        {{ non_field_errors|join:"<br>"|safe }}
+      </p>
+    {% endif %}
     <form method="post" action="{% url 'user:login' %}" class="space-y-5" id="loginPageForm">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}"/>
 
-      <!-- Non-field (mis. kombinasi username/password salah) -->
       <p id="err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
 
       <div>
@@ -41,107 +45,81 @@
 
 {% block extra_js %}
 <script>
-  (function () {
-    // ===== toggle show/hide password =====
-    const btn = document.getElementById('toggleLoginPw');
-    const input = document.getElementById('loginPwInput');
-    if (btn && input) {
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        input.type = input.type === 'password' ? 'text' : 'password';
-
-        if (input.type === 'text') {
-          input.style.webkitTextSecurity = 'none';
-          btn.textContent = '🙈';
-        } else {
-          input.style.webkitTextSecurity = '';
-          btn.textContent = '👁';
-        }
-
-        input.focus();
-        const v = input.value;
-        input.value = '';
-        input.value = v;
-      });
-    }
-
-    // ===== AJAX submit =====
-    const form = document.getElementById("loginPageForm");
-    if (!form) return;
-
-    // ambil csrftoken dari cookie browser
-    function getCookie(name) {
-      const v = ; ${document.cookie}.split(; ${name}=);
-      if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
-    }
-
-    function showErr(id, messages){
-      const el = document.getElementById(id);
-      if (!el) return;
-      const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
-      el.innerHTML = html;
-      el.classList.remove("hidden");
-    }
-
-    function clearErr(){
-      ["err-_all_", "err-username", "err-password"].forEach(id=>{
-        const el = document.getElementById(id);
-        if (el){
-          el.classList.add("hidden");
-          el.innerHTML = "";
-        }
-      });
-    }
-
-    form.addEventListener("submit", async (e)=>{
+(function () {
+  const btn = document.getElementById('toggleLoginPw');
+  const input = document.getElementById('loginPwInput');
+  if (btn && input) {
+    btn.addEventListener('click', function (e) {
       e.preventDefault();
-      clearErr();
-
-      // siapkan form data
-      const fd = new FormData(form);
-      fd.set("ajax", "1"); // biar view kamu balikin JSON, bukan HTML redirect
-
-      // ambil csrf dari cookie
-      const csrftoken = getCookie("csrftoken") || "";
-
-      const res = await fetch(form.action || "", {
-        method: "POST",
-        headers: {
-          "X-Requested-With": "XMLHttpRequest",
-          "X-CSRFToken": csrftoken,
-        },
-        body: fd,
-        credentials: "same-origin", // <- penting supaya cookie ikut, ngilangin 403
-      });
-
-      // kadang server balikin HTML (misal error fatal / 500),
-      // jangan langsung .json() kalau bukan JSON
-      const ct = res.headers.get("content-type") || "";
-      if (!ct.includes("application/json")) {
-        showErr("err-_all_", "Login failed. Please try again.");
-        return;
-      }
-
-      const data = await res.json().catch(()=> ({}));
-
-      // sukses login
-      if (res.ok && data.ok) {
-        localStorage.setItem("postRedirectToast", JSON.stringify({
-          type: "success",
-          text: data.message || "Log in successful."
-        }));
-        window.location.href = data.redirect_url || "/";
-        return;
-      }
-
-      // gagal login -> tampilin errornya
-      const errs = data.errors || {};
-      if (errs.username) showErr("err-username", errs.username);
-      if (errs.password) showErr("err-password", errs.password);
-
-      if (errs._all) showErr("err-all", errs.all_);
-      if (data.non_field_errors) showErr("err-_all_", data.non_field_errors);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'text' ? '🙈' : '👁️';
+      input.focus();
+      const v = input.value; input.value = ''; input.value = v;
     });
-  })();
+  }
+
+  const form = document.getElementById("loginPageForm");
+  if (!form) return;
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+  }
+
+  function showErr(id, messages){
+    const el = document.getElementById(id);
+    if (!el) return;
+    const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
+    el.innerHTML = html;
+    el.classList.remove("hidden");
+  }
+
+  function clearErr(){
+    ["err-__all__", "err-username", "err-password"].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el){ el.classList.add("hidden"); el.innerHTML = ""; }
+    });
+  }
+
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    clearErr();
+
+    const fd = new FormData(form);
+    fd.set("ajax", "1");
+
+    const csrftoken = getCookie("csrftoken") || "";
+
+    const res = await fetch(form.action || "", {
+      method: "POST",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": csrftoken,
+      },
+      body: fd,
+      credentials: "same-origin",
+    });
+
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      showErr("err-__all__", "Login failed. Please try again.");
+      return;
+    }
+
+    const data = await res.json().catch(()=> ({}));
+
+    if (res.ok && data.ok) {
+      window.location.href = data.redirect_url || "/";
+      return;
+    }
+
+    const errs = data.errors || {};
+    if (errs.username) showErr("err-username", errs.username);
+    if (errs.password) showErr("err-password", errs.password);
+    if (errs.__all__) showErr("err-__all__", errs.__all__);
+    if (data.non_field_errors) showErr("err-__all__", data.non_field_errors);
+  });
+})();
 </script>
-{% endblock %}
+{% endblock %}

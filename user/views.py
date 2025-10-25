@@ -51,11 +51,17 @@ def login_user(request):
             messages.success(request, "Log in successful.")
             return redirect(target)
         else:
-            if _is_ajax(request):
-                return JsonResponse(
-                    {"ok": False, "errors": form.errors, "non_field_errors": form.non_field_errors()},
-                    status=400
-                )
+            if _is_ajax(request):   
+                errors = {k: v for k, v in form.errors.items()}
+                nfe = list(form.non_field_errors())
+                if nfe:
+                    errors["__all__"] = nfe
+                return JsonResponse({"ok": False, "errors": errors}, status=400)
+
+            return render(request, "login.html", {
+                "form": form,
+                "non_field_errors": form.non_field_errors(),
+            })
     else:
         form = AuthenticationForm(request)
     return render(request, "login.html", {"form": form})
@@ -68,7 +74,6 @@ def register_user(request):
         if form.is_valid():
             user = form.save()
 
-            # FIX: kasih backend biar login() nggak error 403
             login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
 
             if _is_ajax(request):
