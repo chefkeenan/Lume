@@ -108,9 +108,11 @@
 
 <script src="{% static 'js/class_modal.js' %}"></script>
 <script>
-  const isUserLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
-  if (request.user.is_staff){
-     document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+  // Django render ini jadi true/false langsung di HTML
+  const isStaff = {{ request.user.is_staff|yesno:"true,false" }};
+
+  if (isStaff) {
     const addModal = document.getElementById('addSessionModal');
     const addBtn = document.getElementById('addSessionBtn');
     const addModalClose = document.getElementById('addModalClose');
@@ -123,16 +125,12 @@
     addModalClose.addEventListener('click', closeModal);
     addModalCancel.addEventListener('click', closeModal);
 
-    // Klik di luar modal untuk menutup
     addModal.addEventListener('click', (e) => {
       if (e.target === addModal) {
         closeModal();
       }
     });
-  });
-  } 
- 
-
-  // === END JS BARU ===
+  }
+});
 </script>
 {% endblock %}
