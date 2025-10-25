@@ -90,7 +90,7 @@ def product_create(request):
             if is_ajax:
                 # render kartu untuk langsung disisipkan di grid
                 card_html = render_to_string(
-                    "product_card.html",
+                    "catalog/product_card.html",
                     {"p": obj, "user": request.user},   # penting: pass request/user
                     request=request,
                 )
