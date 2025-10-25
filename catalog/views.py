@@ -86,7 +86,7 @@ def product_create(request):
             {"form": form, "obj": None},
             request=request,
         )
-        return JsonResponse({"ok": False, "form_html": form_html}, status=200)
+        return JsonResponse({"ok": False, "form_html": form_html, "errors": form.errors}, status=200)
 
     # fallback non-AJAX
     return render(request, "catalog/add_product.html", {"form": form})
