@@ -64,63 +64,28 @@ def product_delete(request, pk):
 
     return redirect("main:show_main")
 
-# catalog/views.py
-from django.utils.html import escape
-import logging, traceback
-logger = logging.getLogger(__name__)
-
 @login_required
 @user_passes_test(is_admin)
-@require_http_methods(["POST", "GET"])
+@require_http_methods(["POST"])
 def product_create(request):
-    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
-
-    if request.method == "GET":
-        # fallback non-AJAX page (jarang dipakai)
-        form = ProductForm()
-        return render(request, "catalog/add_product.html", {"form": form})
-
-    # POST
     form = ProductForm(request.POST or None, request.FILES or None)
 
-    try:
-        if form.is_valid():
-            obj = form.save()
-
-            if is_ajax:
-                # render kartu untuk langsung disisipkan di grid
-                card_html = render_to_string(
-                    "catalog/product_card.html",
-                    {"p": obj, "user": request.user},   # penting: pass request/user
-                    request=request,
-                )
-                return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
-
-            return redirect("main:show_main")
-
-        # INVALID → kirim balik form_html (tetap di modal, tidak 500)
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+    if form.is_valid():
+        obj = form.save()
         if is_ajax:
-            form_html = render_to_string(
-                "catalog/_product_form.html",   # atau "catalog/product_form.html" kalau kamu pisahkan
-                {"form": form, "obj": None},
-                request=request,
-            )
-            return JsonResponse({"ok": False, "form_html": form_html}, status=200)
+            card_html = render_to_string("catalog/product_card.html", {"p": obj, "user": request.user}, request=request)
+            return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
+        return redirect("main:show_main")
 
-        return render(request, "catalog/add_product.html", {"form": form})
-
-    except Exception as e:
-        # Jangan 500 silently — kirim pesan agar ketahuan penyebabnya
-        logger.exception("product_create failed")
-        if is_ajax:
-            tb = traceback.format_exc()
-            return JsonResponse(
-                {"ok": False, "message": "Server error while creating product.", "debug": tb},
-                status=500,
-            )
-        # fallback non-AJAX
-        return render(request, "catalog/add_product.html", {"form": form, "error": str(e)})
-
+    if is_ajax:
+        form_html = render_to_string(
+            "catalog/product_form.html",
+            {"form": form, "obj": None},
+            request=request,
+        )
+        return JsonResponse({"ok": False, "form_html": form_html}, status=200)
+    return render(request, "catalog/add_product.html", {"form": form})
 
 def product_detail(request, id):
     p = get_object_or_404(Product, pk=id)
