@@ -197,8 +197,12 @@
     </div>
   </div>
 </section>
-{% include "product_modal.html" %}
+
+{% endblock %}
+{% block modals %}
+  {% include "product_modal.html" %}
+{% endblock %}
+{% block extra_js %}
 <script src="{% static 'js/class_modal.js' %}"></script>
 <script defer src="{% static 'js/helpers.js' %}"></script>
-
 {% endblock %}

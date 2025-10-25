@@ -136,9 +136,13 @@
   {% endif %}
 </section>
 
-{% include "product_modal.html" %}
+{% block modals %}
+  {% include "product_modal.html" %}
+{% endblock %}
+
+{% endblock %}
+{% block extra_js %}
 <script defer src="{% static 'js/helpers.js' %}"></script>
 <script defer src="{% static 'js/shop.js' %}"></script>
-
-
+  <script src="{% static 'catalog/js_product/admin-producst.js' %}" defer></script>
 {% endblock %}

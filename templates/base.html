@@ -116,11 +116,14 @@
   
   {% block scripts %}{% endblock scripts %}
   
-  {% include "product_modal.html" %}  
+{% block modals %}
+  {% if show_product_modal %}
+    {% include "product_modal.html" %}
+  {% endif %}
+{% endblock %}
+
   
-  <script src="{% static 'js/admin-producst.js' %}"></script>
-  <script src="{% static 'catalog/js_product/cart-ajax.js' %}"></script>
-  
+
   {% include "login_modal.html" %}
   <script src="{% static 'js/login-modal.js' %}"></script>
   
