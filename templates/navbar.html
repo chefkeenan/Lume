@@ -24,123 +24,73 @@
         class="hidden md:flex items-center gap-2 text-sm font-medium text-stone-600"
       >
         <li>
-          <a
-            href="{{ home_url|default:'/' }}"
-            class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
-              {% if current and current.url_name == 'landing' %}
-                bg-stone-100 text-stone-800
-              {% else %}
-                hover:text-stone-800
-              {% endif %}"
-          >
-            <img
-              src="{% static 'assets/home.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`"
-            >
-            <span class="hidden lg:inline">Home</span>
+          <a href="{{ home_url|default:'/' }}"
+             class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+             {% if current and current.url_name == 'landing' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
+            {# icon home #}
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/home.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 10l9-7 9 7'/><path d='M9 22V12h6v10'/></svg>`">
           </a>
         </li>
 
-        <li>
-          <a
-            href="{{ products_url }}"
-            class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
-              {% if name == 'show_main' or name == 'product_list' or name == 'detail' %}
-                bg-stone-100 text-stone-800
-              {% else %}
-                hover:text-stone-800
-              {% endif %}"
-          >
-            <img
-              src="{% static 'assets/store.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`"
-            >
-            <span class="hidden lg:inline">Shop</span>
-          </a>
-        </li>
+            {% with name=current.url_name %}
+            <li>
+              <a href="{{ products_url }}"
+                class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+                {% if name == 'show_main' or name == 'product_list' or name == 'detail' %}
+                  bg-stone-100 text-stone-800
+                {% else %}
+                  hover:text-stone-800
+                {% endif %}">
+                <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/store.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M3 9h18l-1 11H4z'/><path d='M5 9l1-5h12l1 5'/></svg>`">
+              </a>
+            </li>
+            {% endwith %}
+
+
 
         <li>
-          <a
-            href="{{ classes_url }}"
-            class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
-              {% if current and current.app_name == 'bookingkelas' %}
-                bg-stone-100 text-stone-800
-              {% else %}
-                hover:text-stone-800
-              {% endif %}"
-          >
-            <img
-              src="{% static 'assets/class.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`"
-            >
-            <span class="hidden lg:inline">Classes</span>
+          <a href="{{ classes_url }}"
+             class="inline-flex items-center gap-2 rounded-xl px-4 py-2 transition
+             {% if current and current.app_name == 'bookingkelas' %} bg-stone-100 text-stone-800 {% else %} hover:text-stone-800 {% endif %}">
+            <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/class.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-11 w-11' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='12' r='9'/><path d='M8 12h8M12 8v8'/></svg>`">
           </a>
         </li>
-      </ul>
+      </ul>#
       {% endwith %}
       {% endwith %}
 
       <div class="flex items-center gap-2">
         {# CART button: show for non-admin only #}
         {% if not request.user.is_staff and not request.user.is_superuser %}
-        <a
-          href="{{ cart_url }}"
-          class="relative hidden md:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-          aria-label="Cart"
-        >
-          <img
-            src="{% static 'assets/cart.svg' %}"
-            alt=""
-            class="h-4 w-4"
-            onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`"
-          >
-          {% if cart_count %}
-          <span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>
-          {% endif %}
+        <a href="{{ cart_url }}" class="relative inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Cart">
+          <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/41c41ea0d79d6708c41a9cfdda7cc60cf97f59eb/static/assets/cart.svg" alt="" class="h-4 w-4" onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='9' cy='21' r='1'/><circle cx='20' cy='21' r='1'/><path d='M1 1h4l2.68 13.39a2 2 0 002 1.61h7.72a2 2 0 002-1.61L23 6H6'/></svg>`">
+          {# badge count opsional: kirim context cart_count #}
+          {% if cart_count %}<span class="absolute -top-1 -right-1 rounded-full bg-stone-900 px-1.5 text-[10px] text-white">{{ cart_count }}</span>{% endif %}
         </a>
         {% endif %}
 
-        {% if request.user.is_authenticated %}
-          {% if request.user.is_staff or request.user.is_superuser %}
-            {% url 'useradmin:dashboard' as admin_dashboard_url %}
-            {% firstof admin_dashboard_url '/useradmin/dashboard/' as target_profile_url %}
-          {% else %}
-            {% firstof profile_url '/user/profile/' as target_profile_url %}
-          {% endif %}
+{% if request.user.is_authenticated %}
+  {% if request.user.is_staff or request.user.is_superuser %}
+    {% url 'useradmin:dashboard' as admin_dashboard_url %}
+    {% firstof admin_dashboard_url '/useradmin/dashboard/' as target_profile_url %}
+  {% else %}
+    {% firstof profile_url '/user/profile/' as target_profile_url %}
+  {% endif %}
 
-          <a
-            href="{{ target_profile_url }}"
-            class="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-            aria-label="Profile"
-          >
-            <img
-              src="{% static 'assets/user.svg' %}"
-              alt=""
-              class="h-4 w-4"
-              onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`"
-            >
-          </a>
-
-          <form method="post" action="{{ logout_url }}" class="hidden md:inline m-0">
-            {% csrf_token %}
-            <button
-              class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
-              aria-label="Logout"
-            >
-              <img
-                src="{% static 'assets/logout.png' %}"
-                alt=""
-                class="h-4 w-4"
-                onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`"
-              >
-            </button>
-          </form>
+  <a href="{{ target_profile_url }}"
+     class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50"
+     aria-label="Profile">
+    <img src="https://raw.githubusercontent.com/pbp-kelompok-f2/Lume/96e9cc5f7e69b745466e1478bff9471a0a6b16d2/static/assets/user.svg" alt="" class="h-4 w-4"
+         onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><circle cx='12' cy='7' r='4'/><path d='M5.5 21a8.38 8.38 0 0113 0'/></svg>`">
+  </a>
+  {# Logout as POST #}
+  <form method="post" action="{{ logout_url }}" class="m-0">
+    {% csrf_token %}
+    <button class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-stone-300 hover:bg-stone-50" aria-label="Logout">
+      <img src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/assets/logout.png?raw=true" alt="" class="h-4 w-4"
+           onerror="this.outerHTML=`<svg class='h-4 w-4' viewBox='0 0 24 24' fill='none' stroke='currentColor'><path d='M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4'/><path d='M16 17l5-5-5-5'/><path d='M21 12H9'/></svg>`">
+    </button>
+  </form>
         {% else %}
           <button
             type="button"
