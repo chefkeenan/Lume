@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Lume — Find Your Flow{% endblock %}
+
+{% block content %}
+
+<section class="relative isolate">
+  <div class="absolute inset-0 -z-10 overflow-hidden rounded-b-[28px]">
+    <img src="{% static 'hero/hero-landing.png' %}" alt="" class="h-[640px] w-full object-cover">
+    <div
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.55)_0%,rgba(0,0,0,.28)_55%,rgba(0,0,0,.12)_100%)]">
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-6 pt-36 pb-16">
+    <div class="max-w-2xl text-white">
+      <h1 class="text-5xl md:text-6xl font-extrabold leading-tight drop-shadow">
+        Find Your<br /> Flow <span class="font-light">with Lume.</span>
+      </h1>
+      <p class="mt-4 text-white/85 max-w-xl">
+        Feel stronger, move freely, and unwind with us. Join our Pilates family and discover a space where your body and
+        mind can thrive at their own pace.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="{% url 'bookingkelas:catalog' %}"
+          class="rounded-full bg-white text-stone-900 px-5 py-3 font-semibold shadow hover:bg-stone-100">Book a
+          Class</a>
+        <a href="{% url 'main:show_main' %}"
+          class="rounded-full border border-white/60 bg-white/10 text-white px-5 py-3 font-semibold hover:bg-white/20">Shop
+          Products</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="our-products" class="bg-gradient-to-b from-stone-50 to-stone-100">
+  <div class="mx-auto max-w-7xl px-6 py-16">
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B]">Our Products</h2>
+
+    <div id="productGrid" class="mt-10 flex flex-wrap justify-center gap-x-[80px] gap-y-[64px]"
+      data-fetch-url="{% url 'main:landing_highlights' %}">
+      {% for p in highlights|slice:":6" %}
+      <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
+        {% include "product_card.html" with p=p %}
+      </div>
+      {% endfor %}
+    </div>
+
+
+
+
+
+    <div class="mt-10 text-center">
+      <a href="{% url 'main:show_main' %}"
+        class="inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95"
+        style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
+        View All Products
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="relative isolate">
+  <div class="absolute inset-0 -z-10 overflow-hidden">
+    <img src="{% static 'hero/hero-lume2.png' %}" alt="Why Choose Lume" class="w-full h-full object-cover">
+  </div>
+
+  <div class="mx-auto max-w-7xl px-6 py-20">
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-white">
+      Why Choose Lume?
+    </h2>
+
+    <div class="relative mt-10 grid gap-10 md:grid-cols-3 text-stone-700">
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Effortless Balance</h3>
+        <p class="mt-2 text-sm">
+          Find harmony in every move. Lume combines mindful pilates practice with curated essentials, helping you create
+          balance—in body, space, and style.
+        </p>
+      </div>
+
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Seamless Experience</h3>
+        <p class="mt-2 text-sm">
+          Shop or book classes your way. Whether you’re here to move or to browse, Lume keeps it simple, intuitive, and
+          beautifully effortless.
+        </p>
+      </div>
+
+      <div class="text-center px-4">
+        <h3 class="font-semibold text-white">Your Modern Sanctuary</h3>
+        <p class="mt-2 text-sm">
+          More than a studio, Lume is your daily ritual. From minimalist design to premium essentials, every detail is
+          made to elevate your wellness journey.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% load static %}
+{% load humanize %}
+
+<section id="upcoming-classes"
+  class="relative isolate bg-gradient-to-b from-stone-100 to-stone-200 border-t border-stone-300">
+  <div class="mx-auto max-w-7xl px-6 py-20">
+    <h2 class="text-center text-[44px] md:text-5xl font-extrabold tracking-tight text-[#6E7D6B] mb-10">
+      Most Popular Classes
+    </h2>
+
+    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {% for c in sessions %}
+      <article
+        class="group relative rounded-[18px] border border-[#CFC8BA] bg-[#F1ECE2] p-6 shadow-md transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:bg-[#E8E2D6]">
+
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-[#2C3028] group-hover:text-[#4F5A47] transition">
+              {{ c.title }}
+            </h3>
+            <p class="text-sm text-gray-700">
+              By <span class="font-semibold text-[#273225]">{{ c.instructor }}</span>
+            </p>
+          </div>
+          <span class="rounded-full bg-stone-100 px-3 py-1 text-xs uppercase tracking-wide shadow">
+            {{ c.category|title }}
+          </span>
+        </div>
+
+        <div class="space-y-2 text-sm text-gray-800">
+          <p><span class="font-semibold text-stone-500">Room:</span> {{ c.room }}</p>
+          <p><span class="font-semibold text-stone-500">Time:</span> {{ c.time }}</p>
+          <p><span class="font-semibold text-stone-500">Price:</span> Rp {{ c.price|intcomma }}</p>
+          <p><span class="font-semibold text-stone-500">Capacity:</span> {{ c.capacity_current }}/{{ c.capacity_max }}
+          </p>
+
+          <p>
+            {% if c.category == "weekly" %}
+            <span class="font-semibold text-stone-500">Days:</span>
+            {% else %}
+            <span class="font-semibold text-stone-500">Day:</span>
+            {% endif %}
+
+            {% for day_name in c.days_names_list %}
+            <span
+              class="inline-flex rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700 shadow-sm ml-1">{{ day_name }}</span>
+            {% empty %}
+            <span class="ml-1 text-stone-500">—</span>
+            {% endfor %}
+          </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-5">
+          {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser %}
+          <button type="button" disabled title="Admin accounts cannot book classes"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#9a9893] shadow-[0_1px_0_#0f0f0f] cursor-not-allowed opacity-70">
+            Book Now
+          </button>
+          {% else %}
+          <a href="{% url 'bookingkelas:book_class' c.id %}"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+            Book Now
+          </a>
+          {% endif %}
+          {% else %}
+          <a href="{% url 'user:login' %}?next={% url 'bookingkelas:book_class' c.id %}"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#C9C7C0] bg-[#D7D6D1] px-4 py-2 text-sm font-semibold text-[#4C4B47] shadow-[0_1px_0_#0f0f0f] transition hover:bg-[#CECDC8] hover:shadow-lg">
+            Book Now
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- Popularity Ring -->
+        <div class="absolute top-16 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+          {{ c.num_bookings }} booked
+        </div>
+
+      </article>
+      {% empty %}
+      <div class="text-gray-500 text-center col-span-full">
+        Belum ada jadwal kelas tersedia.
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-14 text-center">
+      <a href="{% url 'bookingkelas:catalog' %}"
+        class="inline-flex items-center gap-2 rounded-full px-8 py-3 text-lg font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95 transition"
+        style="background:linear-gradient(180deg,#C9D0C1_0%,#A7B29C_100%);">
+        View All Classes
+      </a>
+    </div>
+  </div>
+</section>
+{% include "product_modal.html" %}
+<script src="{% static 'js/class_modal.js' %}"></script>
+<script defer src="{% static 'js/admin-producst.js' %}"></script>
+<script defer src="{% static 'js/helpers.js' %}"></script>
+
+{% endblock %}

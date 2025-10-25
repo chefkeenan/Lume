@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<!-- HERO (ukuran & posisi sama seperti di main) -->
+<section class="relative mx-auto max-w-7xl px-6 pt-8">
+  <div class="relative overflow-hidden rounded-[28px]">
+    <img src="{% static 'hero/hero-kelas.png' %}" alt="Classes"
+      class="h-[300px] w-full object-cover object-[50%_40%]" />
+    <div
+      class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.22)_0%,rgba(0,0,0,.12)_45%,rgba(0,0,0,.04)_100%)]">
+    </div>
+
+    <div class="absolute inset-0 grid place-items-center">
+      <div class="text-center text-white drop-shadow max-w-3xl px-6">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Upcoming Classes</h1>
+        <p class="mt-2 text-white/90">Find the schedule that fits your flow</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<div class="mx-auto max-w-7xl px-6 py-10">
+
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Choose Your Classes</h1>
+    {% if request.user.is_staff %}
+    <div class="flex gap-2">
+      <button type="button" id="addSessionBtn"
+        class="rounded-lg bg-stone-500 px-4 py-2 text-sm font-medium text-white hover:bg-stone-800">
+        + Add Session
+      </button>
+      <a href="{% url 'bookingkelas:class_list' %}"
+        class="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+        View Class
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {% for c in sessions %}
+    {% include "class_card.html" with c=c %}
+    {% empty %}
+    <div class="text-gray-500 md:col-span-2 lg:col-span-3 text-center">Belum ada jadwal kelas tersedia.</div>
+    {% endfor %}
+  </div>
+
+  <!-- MODAL -->
+  <div id="classModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 border border-[#CFC8BA]">
+      <!-- Header -->
+      <div class="flex justify-between items-center border-b border-[#C9C7C0] p-4 bg-[#D7D6D1] rounded-t-2xl">
+        <h2 id="modalTitle" class="text-xl font-bold text-[#293027]">Loading...</h2>
+        <button id="modalClose"
+          class="text-2xl leading-none text-[#5C5B57] hover:text-black transition">&times;</button>
+      </div>
+
+      <form id="bookingForm" action="{% url 'bookingkelas:book_daily_session' %}" method="POST">
+        {% csrf_token %}
+        <div class="p-6 space-y-4 text-[#293027]">
+          <!-- Detail Info -->
+          <div class="text-sm space-y-1">
+            <div class="text-[#5C5B57]">Instructor</div>
+            <div id="modalInstructor" class="font-medium">...</div>
+
+            <div class="text-[#5C5B57] pt-2">Place</div>
+            <div id="modalRoom" class="font-medium">...</div>
+
+            <div class="text-[#5C5B57] pt-2">Price</div>
+            <div id="modalPrice" class="font-semibold text-lg text-[#293027]">Rp ...</div>
+          </div>
+
+          <hr class="border-[#C9C7C0]">
+
+          <!-- Day Options -->
+          <h3 class="font-semibold text-[#293027]">Choose Your Day</h3>
+          <div id="modalDayOptions" class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Loading days...</div>
+          </div>
+          <div id="modalCapacityInfo" class="text-sm text-gray-700 h-6 mt-2 text-center font-medium"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="border-t border-[#C9C7C0] bg-[#D7D6D1] rounded-b-2xl grid grid-cols-2 gap-3 p-4">
+          <button type="button" id="modalCancel"
+            class="border border-[#C9C7C0] bg-stone-200 text-[#5C5B57] rounded-xl px-4 py-2 w-full font-semibold shadow-[0_1px_0_#0f0f0f] hover:bg-[#CECDC8] transition">
+            Cancel
+          </button>
+          <button type="submit"
+            class="border border-[#C9C7C0] bg-[#E9E3D6] text-[#5C5B57] rounded-xl px-4 py-2 w-full font-semibold shadow-[0_1px_0_#0f0f0f] hover:bg-[#CECDC8] transition">
+            Confirm Booking
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% if request.user.is_staff %}
+  {% include "modal_add.html" with form=add_form %}
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{% static 'js/class_modal.js' %}"></script>
+<script>
+  const isUserLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
+  {% if request.user.is_staff %}
+  document.addEventListener('DOMContentLoaded', () => {
+    const addModal = document.getElementById('addSessionModal');
+    const addBtn = document.getElementById('addSessionBtn');
+    const addModalClose = document.getElementById('addModalClose');
+    const addModalCancel = document.getElementById('addModalCancel');
+
+    const openModal = () => addModal.classList.remove('hidden');
+    const closeModal = () => addModal.classList.add('hidden');
+
+    addBtn.addEventListener('click', openModal);
+    addModalClose.addEventListener('click', closeModal);
+    addModalCancel.addEventListener('click', closeModal);
+
+    // Klik di luar modal untuk menutup
+    addModal.addEventListener('click', (e) => {
+      if (e.target === addModal) {
+        closeModal();
+      }
+    });
+  });
+  {% endif %}
+  // === END JS BARU ===
+</script>
+{% endblock %}

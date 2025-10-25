@@ -7,56 +7,74 @@ Tugas Kelompok PBP F - F02
 - Ahmad Keenan Aryasatya Gamal
 
 Deskripsi aplikasi
-Lumé adalah sebuah aplikasi berbasis web yang menggabungkan pengalaman wellness dan commerce dalam satu platform. Terinspirasi dari gaya hidup sehat dan keseimbangan modern, Lumé dirancang sebagai studio pilates digital tempat pengguna dapat memesan kelas pilates dan membeli produk-produk pendukung gaya hidup sehat, seperti matras, botol minum, activewear, dan aksesoris pilates lainnya.
-Aplikasi ini memiliki sistem yang fleksibel—pengguna tidak diwajibkan untuk login. Tanpa login pun, pengguna dapat langsung menjelajahi produk, menambahkannya ke keranjang, dan melakukan pembelian. Saat checkout, pengguna hanya perlu mengisi data dasar seperti nama dan nomor telepon, lalu memilih metode pengambilan:
-- Ambil di studio: pengguna akan mendapatkan kode unik (pickup ID) untuk ditunjukkan saat pengambilan.
-- Kirim ke alamat: sistem otomatis menampilkan estimasi ongkir, dan pengguna diminta mengisi nama, nomor telepon, serta alamat pengiriman.
+Lumé adalah aplikasi web yang menggabungkan pengalaman wellness dan commerce dalam satu platform. Terinspirasi dari gaya hidup sehat dan keseimbangan modern, Lumé hadir sebagai studio pilates digital yang memungkinkan pengguna untuk memesan kelas pilates dan membeli produk-produk pendukung gaya hidup sehat seperti matras, botol minum, activewear, hingga aksesoris pilates lainnya.
+Aplikasi ini menerapkan sistem berbasis akun:
+    - Pengguna harus login terlebih dahulu untuk dapat memanfaatkan fitur keranjang (cart), checkout, dan booking kelas.
+    - Jika belum login, pengguna tetap dapat menjelajahi katalog produk dan kelas, namun ketika menekan tombol cart, add to cart atau Book Class, mereka akan diarahkan ke halaman login terlebih dahulu.
 
-Namun, pengguna yang membuat akun (login) akan mendapatkan pengalaman yang lebih personal:
-- Akses ke keranjang yang tersimpan secara permanen, sehingga mereka bisa melanjutkan belanja kapan pun.
-- Diskon membership 15% untuk transaksi pertama.
-- Fitur penyimpanan alamat dan kontak otomatis, seperti platform e-commerce besar pada umumnya.
+Proses registrasi dibuat sederhana, hanya memerlukan username, password, dan nomor telepon.
+Saat melakukan checkout, pengguna akan diminta untuk mengisi alamat pengiriman dan memilih metode pembayaran, yang saat ini tersedia hanya:
+    - Cash on Delivery (COD) dengan biaya pengiriman tetap sebesar Rp10.000 per transaksi.
 
-(Rencana pengembangan ke depan) Pemesan kelas pilates langsung dari studio, termasuk pilihan jadwal, instruktur, dan notifikasi pengingat.
-Dengan pendekatan ini, Lumé tidak hanya berfungsi sebagai tempat jual beli produk kesehatan, tetapi juga menjadi ekosistem gaya hidup sehat yang terintegrasi, mendukung pengguna dalam membangun rutinitas mindful dan seimbang. Ke depannya, Lumé dapat berkembang menjadi platform komunitas pilates yang menawarkan jadwal kelas, tracking progress, hingga fitur loyalty bagi pelanggan tetap.
+Selain pembelian produk, pengguna juga dapat melakukan pemesanan kelas pilates, yang terbagi menjadi dua jenis:
+    - Weekly Class: jadwal latihan rutin setiap minggu.
+    - Daily Class: jadwal harian yang bisa langsung dipilih dan dibayar di lokasi (cash on delivery on-site).
+
+Dengan pendekatan ini, Lumé tidak hanya berfungsi sebagai platform jual-beli produk kesehatan, tetapi juga sebagai ekosistem gaya hidup sehat yang terintegrasi—menghubungkan pengguna dengan aktivitas fisik, peralatan pendukung, dan komunitas mindful yang seimbang.
 
 Daftar modul yang akan diimplementasikan
-- Catalog : Menampung data produk fisik (kategori, brand, produk, gambar). Menyediakan listing, detail, dan API filter/sort.
-- Cart : Menampung produk-produk yang disimpan jika ingin dibeli.
-- Checkout : Mengelola kalkulasi akhir (subtotal, diskon, ongkir).
-- Booking : Kelas pilates terpisah dari katalog, erdapat tipe kelas dan jadwal yang berbeda. Flow booking berdiri sendiri dan akan dihubungkan ke checkout.
-- User: Auth (login/register), alamat, lalu expose data profil/alamat untuk prefilling checkout.
-- Admin: Panel staff untuk CRUD produk dan memproses pesanan.
+User & Admin : 
+- Login, register, dan profile management (melihat dan mengedit profil, melihat riwayat transaksi/booking).
+- Admin memiliki akses ke dashboard yang menampilkan statistik seperti total user, total pendapatan, total pesanan, dan total booking.
+
+Catalog : 
+- Menampilkan daftar produk beserta detail, kategori, harga, dan spesifikasi.
+- Mendukung fitur pencarian dan filter kategori.
+
+Cart : 
+- Menampung produk yang dipilih pengguna untuk dibeli.
+- Setelah checkout, produk dihapus dari cart dan stok otomatis berkurang.
+
+Checkout : 
+- Mengelola kalkulasi akhir total harga, ongkos kirim, dan metode pembayaran.
+- Meminta input alamat pengguna dan menghasilkan ID transaksi yang akan tercatat di profil.
+
+Booking : 
+- Mengelola kelas pilates (daily dan weekly), termasuk jadwal, kapasitas, dan instruktur.
+- Pengguna dapat memesan kelas dan melakukan pembayaran langsung di tempat.
+
 
 Sumber initial dataset kategori utama produk
-Dataset didapatkan dari hasil scraping data dari www.merrithew.com dengan search pilates, https://www.pilates.com, align-pilates.com, staminaproducts.com, gratzpilates.com, decathlon.co.uk, decathlon.ca, decathlon.my, walmart.com, gaiam.com, dan ebay.com. Dataset yang digunakan berisikan beberapa variabel:
-- brand: merk atau manufaktur resmi produk
-- product_name: nama produk yang tampil ke user
-- category: kategori produk (midal mat, pilates ring, reformer, accessoty) untuk filter dan navigasi
-- variant: varian atau atribut pembeda dalam satu produk
-- key_specs: ringkasan fitur atau atribut
-- decription: kalau ingin markup terstruktur
-- source_url: URL halaman sumber tempat data diambil
-- image_url: URL gambar atau halaman yang menampilkan gambar utama produk
-- marketplace: tipe situs asal data
+Data awal dikumpulkan dari beberapa situs e-commerce dan brand kesehatan ternama, antara lain:
+stanley.com, corkcicle.com, hydroflask.com, owala.com, lululemon.com, alo.com, gymshark.com, vuori.com, underarmour.com, nike.com, betterme.com, dan adidas.com.
+
+
+Variabel yang digunakan dalam dataset meliputi:
+- brand : merek produk
+- product_name : nama produk yang ditampilkan ke pengguna
+- category : kategori produk (mat, botol, activewear, dsb.)
+- variant : perbedaan versi produk dalam satu kategori
+- key_specs : fitur utama atau spesifikasi singkat
+- image_url : URL gambar utama produk
+- marketplace : situs asal data
+- price : harga produk
+
 
 Role atau peran pengguna beserta deskripsinya
-Pengunjung (Guest User)
-- Dapat menjelajahi produk tanpa loginDapat menambahkan produk ke keranjang sementara (tidak tersimpan)
-- Dapat melakukan pembelian dengan mengisi data nama & kontak saat checkout
-- Bisa memilih pengambilan produk di studio atau pengiriman ke alamat
+User(Pengguna)
+- Dapat melihat detail produk dan kelas tanpa login.
+- Setelah login, dapat:
+    - Menambahkan produk ke keranjang
+    - Melakukan checkout dan pembayaran COD
+    - Melihat riwayat transaksi dan booking di halaman profil
+    - Memesan kelas pilates (weekly atau daily)
 
-Pengguna Terdaftar (Member)
-- Login untuk mengakses keranjang pribadi yang tersimpan
-- Mendapat diskon 15% membership pada  transaksi pertama
-- Dapat menyimpan data pribadi (nama, nomor telepon, alamat)
-- (Future) Bisa memesan kelas pilates langsung melalui akun
-
-Admin (Studio Owner / Staff)
-- Mengelola produk (CRUD product)
-- Melihat dan memproses pesanan
-- Mengatur status pesanan (paid, shipped, picked up)
-- (Future) Mengatur jadwal kelas dan instruktur
+Admin 
+- Dapat melakukan CRUD pada produk (tambah, edit, hapus)
+- Dapat melakukan CRUD pada kelas pilates (tambah, edit, hapus jadwal)
+- Memiliki akses ke Admin Dashboard untuk melihat:
+    - Total pengguna, pendapatan, pesanan, dan booking
+    - Mengatur status pesanan (paid, shipped, picked up)
 
 Link PWS : https://juma-jordan-lume.pbp.cs.ui.ac.id/
-Link figma : https://www.figma.com/files/team/1510143807974722636/project/465240058/Lum%C3%A9?fuid=1510143805779277091 
+Link figma : https://www.figma.com/design/osIH3CEyPlh5W9PMRyY8Hz/Lum%C3%A9?node-id=0-1&t=QfRKmdLKiJh1yp1W-1 

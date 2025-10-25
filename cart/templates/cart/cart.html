@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Your Cart — Lume{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Back to home -->
+<a href="{% url 'main:landing' %}"
+   class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm
+          bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors
+          border border-stone-300 text-stone-800 shadow-sm
+          mb-8 md:mb-10">
+  <!-- arrow-left -->
+  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  </svg>
+  <span>Back to Home</span>
+</a>
+
+  <!-- Title -->
+  <div class="mb-8">
+    <h1 class="text-4xl font-extrabold tracking-tight text-[#3A342D]">Your Cart</h1>
+    <p class="mt-2 text-[#766E62]">Review your items before checkout.</p>
+  </div>
+
+  <!-- Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT: Items -->
+    <div class="lg:col-span-2 space-y-4">
+
+      <!-- Select toolbar -->
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-[#766E62]">Selection</div>
+        <div class="flex items-center gap-2">
+          <button id="selectAllBtn"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+            Select all
+          </button>
+          <button id="unselectAllBtn"
+                  class="px-3 py-1.5 text-sm rounded-lg border border-[#E0D9CA] text-[#3A342D] hover:bg-[#F5F2EB] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+            Unselect all
+          </button>
+        </div>
+      </div>
+
+      <div id="cartItems" style="display:none"></div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="text-center py-20" style="display:block">
+        <p class="text-lg font-medium text-[#766E62]">Your cart is empty.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Summary -->
+    <aside class="lg:col-span-1">
+      <div class="sticky top-6 rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-6">
+        <h2 class="text-xl font-bold text-[#3A342D] mb-6">Order Summary</h2>
+
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center justify-between">
+            <span class="text-[#766E62]">Total Items</span>
+            <span class="font-semibold text-[#3A342D]" data-total-items>0</span>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <form id="checkoutForm" method="post" action="{% url 'checkout:cart_checkout_page' %}">
+            {% csrf_token %}
+            <input type="hidden" name="item_ids" id="selectedItemIds">
+            <button type="submit" id="checkoutBtn"
+              class="w-full rounded-xl bg-[#B8A88A] text-white py-3.5 text-sm font-semibold hover:bg-[#A89776] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled>
+              Proceed to Checkout →
+            </button>
+          </form>
+
+          <a href="{% url 'main:show_main' %}"
+             class="block w-full rounded-xl border border-[#E0D9CA] py-2.5 text-center text-sm text-[#3A342D] hover:bg-[#F5F2EB]">
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<!-- Product card template -->
+<template id="cart-item-template">
+  <div class="rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition" data-item-row>
+    <div class="flex items-center gap-4">
+      <input type="checkbox"
+        class="h-5 w-5 rounded border-2 border-[#B8A88A] text-[#B8A88A] focus:ring-[#B8A88A] cursor-pointer flex-shrink-0"
+        data-select>
+
+      <img data-img class="h-20 w-20 rounded-xl object-cover border border-[#E8E3D8]" alt="">
+
+      <div class="flex-1 min-w-0">
+        <h3 data-name class="text-base font-semibold text-[#3A342D] truncate mb-1"></h3>
+        <p data-price class="text-sm text-[#766E62]"></p>
+      </div>
+
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button data-dec class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-[#3A342D] font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center">−</button>
+        <span data-qty class="w-8 text-center text-sm font-semibold text-[#3A342D]">1</span>
+        <button data-inc class="h-8 w-8 rounded-lg border-2 border-[#E8E3D8] bg-white text-[#3A342D] font-semibold hover:bg-[#F5F2EB] transition flex items-center justify-center">+</button>
+      </div>
+
+      <button data-remove class="ml-2 text-red-500 hover:text-red-600 hover:scale-110 transition flex-shrink-0">🗑</button>
+    </div>
+  </div>
+</template>
+
+<!-- Toasts -->
+{% include "toast.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const TPL = document.getElementById('cart-item-template');
+  const PLACEHOLDER_URL = "{% static 'img/placeholder.webp' %}";
+  const checkoutBtn = document.getElementById('checkoutBtn');
+
+  // CSRF
+  function getCookie(name){
+    let v=null;if(document.cookie!==''){for(const c of document.cookie.split(';')){
+      const cc=c.trim(); if(cc.startsWith(name+'=')){v=decodeURIComponent(cc.slice(name.length+1));break;}
+    }} return v;
+  }
+  const CSRF = getCookie('csrftoken');
+
+  async function getJSON(url){
+    const r = await fetch(url, {headers:{'X-Requested-With':'XMLHttpRequest'}});
+    return await r.json();
+  }
+  async function postForm(url, bodyObj){
+    const body = new URLSearchParams(bodyObj||{});
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{'X-CSRFToken': CSRF, 'X-Requested-With':'XMLHttpRequest'},
+      body
+    });
+    return await r.json();
+  }
+
+  // Helpers 
+  function setSelectButtonsDisabled(disabled) {
+    const sel = document.getElementById('selectAllBtn');
+    const uns = document.getElementById('unselectAllBtn');
+    if (sel) sel.disabled = !!disabled;
+    if (uns) uns.disabled = !!disabled;
+  }
+
+  function toggleEmpty(show){
+    const list = document.getElementById('cartItems');
+    const empty = document.getElementById('emptyState');
+    if (!list || !empty) return;
+    empty.style.display = show ? 'block' : 'none';
+    list.style.display  = show ? 'none'  : 'block';
+    if (show) {
+      setCheckoutDisabled(true);
+      setSelectButtonsDisabled(true); // disable saat kosong
+    } else {
+      setSelectButtonsDisabled(false); // enable saat ada item
+    }
+  }
+
+  // summary helpers
+  function computeSelectedQtyFromDOM(){
+    let sum = 0;
+    document.querySelectorAll('[data-item-row]').forEach(row=>{
+      const cb = row.querySelector('[data-select]');
+      if (cb && cb.checked){
+        const qty = Number(row.querySelector('[data-qty]')?.textContent || 0);
+        sum += qty;
+      }
+    });
+    return sum;
+  }
+  function setTotals(selectedQty){
+    const qty = Number(selectedQty) || 0;
+    document.querySelectorAll('[data-total-items]').forEach(el => el.textContent = qty);
+    setCheckoutDisabled(!(qty > 0));
+  }
+  function setCheckoutDisabled(disabled){
+    if (checkoutBtn) checkoutBtn.disabled = !!disabled;
+  }
+  function refreshSummaryFromDOM(){
+    setTotals(computeSelectedQtyFromDOM());
+  }
+
+  // Render
+  function renderItems(items){
+    const list = document.getElementById('cartItems');
+    if (!items?.length){
+      list.innerHTML = '';
+      toggleEmpty(true);
+      return;
+    }
+    toggleEmpty(false); // auto enable select buttons
+    list.innerHTML = '';
+
+    items.forEach(it => {
+      const node = TPL.content.cloneNode(true);
+      const row = node.querySelector('[data-item-row]');
+      row.dataset.itemId = it.id;
+
+      const checkbox = node.querySelector('[data-select]');
+      checkbox.checked = !!it.is_selected;
+
+      const img = node.querySelector('[data-img]');
+      img.src = it.thumbnail || PLACEHOLDER_URL;
+      img.alt = it.product_name;
+      img.onerror = () => { img.onerror=null; img.src = PLACEHOLDER_URL; };
+
+      node.querySelector('[data-name]').textContent  = it.product_name;
+      node.querySelector('[data-price]').textContent = `Rp ${Number(it.price).toLocaleString('id-ID')}`;
+      node.querySelector('[data-qty]').textContent   = it.quantity;
+
+      list.appendChild(node);
+    });
+
+    // summary
+    refreshSummaryFromDOM();
+  }
+
+  async function loadCart(){
+    try{
+      const data = await getJSON("{% url 'cart:json' %}");
+      if (data?.ok){
+        renderItems(data.items);
+      } else {
+        toggleEmpty(true);
+        setTotals(0);
+      }
+    }catch(err){
+      console.error(err);
+      toggleEmpty(true);
+      setTotals(0);
+    }
+  }
+
+  // Select all/Unselect all
+  document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
+    if (document.getElementById('selectAllBtn').disabled) return;
+    const out = await postForm("{% url 'cart:select_all' %}");
+    if (window.showToast) showToast(out.message || "Selected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
+  document.getElementById('unselectAllBtn')?.addEventListener('click', async ()=>{
+    if (document.getElementById('unselectAllBtn').disabled) return;
+    const out = await postForm("{% url 'cart:unselect_all' %}");
+    if (window.showToast) showToast(out.message || "Unselected all items. ✅", out.ok ? "success" : "error");
+    await loadCart();
+  });
+
+  // Event Delegation untuk item actions
+  document.addEventListener('click', async (e)=>{
+    const row = e.target.closest('[data-item-row]');
+
+    // toggle select
+    if (e.target.matches('[data-select]')){
+      const id = e.target.closest('[data-item-row]')?.dataset.itemId;
+      const val = e.target.checked ? '1' : '0';
+      const out = await postForm("{% url 'cart:toggle_select' 0 %}".replace('0', id), {is_selected: val});
+      if (window.showToast && out.message) showToast(out.message, out.ok ? "success" : "error");
+      refreshSummaryFromDOM();
+      return;
+    }
+
+    if (!row) return;
+    const id = row.dataset.itemId;
+
+    // increment
+    if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')){
+      const qtyEl = row.querySelector('[data-qty]');
+      const next = Number(qtyEl.textContent) + 1;
+      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
+      if (out.ok){
+        qtyEl.textContent = out.quantity;
+        if (window.showToast && out.message) showToast(out.message, "success");
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
+      }
+      return;
+    }
+
+    // decrement
+    if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')){
+      const qtyEl = row.querySelector('[data-qty]');
+      const next = Number(qtyEl.textContent) - 1;
+      const out = await postForm("{% url 'cart:set_qty' 0 %}".replace('0', id), {quantity: next});
+      if (out.ok){
+        if (out.quantity <= 0){
+          row.remove();
+          if (window.showToast) showToast("Item removed from cart. 🗑️", "success");
+          const hasItem = !!document.querySelector('[data-item-row]');
+          if (!hasItem) toggleEmpty(true);
+        } else {
+          qtyEl.textContent = out.quantity;
+          if (window.showToast && out.message) showToast(out.message, "success");
+        }
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to update quantity.", "error");
+      }
+      return;
+    }
+
+    // remove
+    if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
+      const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
+      if (out.ok){
+        row.remove();
+        if (window.showToast) showToast(out.message || "Item removed. 🗑️", "success");
+        const hasItem = !!document.querySelector('[data-item-row]');
+        if (!hasItem) toggleEmpty(true);
+        refreshSummaryFromDOM();
+      } else {
+        if (window.showToast) showToast(out.message || "Failed to remove item.", "error");
+      }
+      return;
+    }
+  });
+
+  // Checkout
+  document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
+    if (checkoutBtn?.disabled){
+      e.preventDefault();
+      if (window.showToast) showToast("Please select at least one item to proceed.", "warning");
+      return;
+    }
+    const selectedIds = Array.from(
+      document.querySelectorAll('[data-item-row] input[type="checkbox"][data-select]:checked')
+    ).map(cb => cb.closest('[data-item-row]').dataset.itemId);
+
+    if (selectedIds.length === 0){
+      e.preventDefault();
+      if (window.showToast) showToast("Please select at least one item to proceed.", "warning");
+      setCheckoutDisabled(true);
+      return;
+    }
+    document.getElementById('selectedItemIds').value = selectedIds.join(',');
+  });
+
+  loadCart();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% url 'user:login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
+{% url 'user:register' as register_named %}{% firstof register_named '/user/register/' as register_url %}
+
+<div id="loginModal" class="fixed inset-0 z-[100] hidden" aria-hidden="true">
+  <div class="absolute inset-0 bg-black/60" data-close-login></div>
+  <div class="absolute inset-0 grid place-items-center px-4" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+    <div class="w-full max-w-md rounded-2xl border border-black/10 bg-[#ede9de] shadow-2xl">
+      <div class="relative p-6 sm:p-8">
+        <button type="button" class="absolute right-3 top-3 rounded-full p-1.5 text-stone-600 hover:bg-black/5" data-close-login aria-label="Close">✕</button>
+        <h2 id="loginModalTitle" class="mb-6 text-center text-3xl font-extrabold tracking-tight text-[#0E0E0E]">Log in to your Account</h2>
+
+        <form method="post" action="{{ login_url }}" class="space-y-5" id="loginModalForm" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="ajax" value="1"/>
+          <input type="hidden" name="next" value="{{ request.get_full_path|default:'/' }}"/>
+
+          <!-- Non-field (mis. kombinasi username/password salah) -->
+          <p id="mod-err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-stone-700">Username</label>
+            <input name="username" required autocomplete="username" class="w-full rounded-xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/20" placeholder="Your username">
+            <p id="mod-err-username" class="mt-2 text-sm text-red-600 hidden"></p>
+          </div>
+
+          <div>
+            <label class="mb-2 block text-sm font-semibold text-stone-700">Password</label>
+            <div class="relative">
+              <!-- SAMA kayak login page: pakai id yang jelas -->
+              <input id="loginPwInputModal" type="password" name="password" required autocomplete="current-password" class="w-full rounded-xl border border-black/10 bg-white px-4 py-3 pr-10 outline-none focus:border-black/20" placeholder="Your password">
+              <button type="button" id="toggleLoginPwModal" class="absolute inset-y-0 right-2 my-auto h-8 w-8 rounded-full text-stone-500 hover:bg-black/5" aria-label="Toggle password">👁️</button>
+            </div>
+            <p id="mod-err-password" class="mt-2 text-sm text-red-600 hidden"></p>
+          </div>
+
+          <button type="submit" class="w-full rounded-full bg-[#A7B29C] px-4 py-3 text-base font-semibold text-white shadow-[inset_0_-4px_10px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[.99]">Log In</button>
+
+          <p class="text-center text-sm text-stone-700">Don’t have an account yet? <a href="{{ register_url }}" class="font-semibold underline-offset-2 hover:underline">Register here</a></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  const form = document.getElementById("loginModalForm");
+  if (!form) return;
+
+  // --- Toggle Password: 100% sama pola login page ---
+  const btn = document.getElementById('toggleLoginPwModal');
+  const input = document.getElementById('loginPwInputModal');
+  if (btn && input) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault(); // jaga-jaga
+      input.type = input.type === 'password' ? 'text' : 'password';
+      input.focus();
+      // kalau ada CSS yang maksa bullet, ini bantu override ringan (tanpa ribet)
+      if (input.type === 'text') {
+        input.style.webkitTextSecurity = 'none';
+      } else {
+        input.style.webkitTextSecurity = '';
+      }
+      // pindahkan caret ke akhir biar UX enak
+      const v = input.value; input.value = ''; input.value = v;
+    });
+  }
+
+  // --- AJAX submit utk error tanpa reload ---
+  function getCookie(name) {
+    const v = `; ${document.cookie}`.split(`; ${name}=`);
+    if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
+  }
+  function showErr(id, messages){
+    const el = document.getElementById(id);
+    if (!el) return;
+    const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
+    el.innerHTML = html;
+    el.classList.remove("hidden");
+  }
+  function clearErr(){
+    ["mod-err-__all__", "mod-err-username", "mod-err-password"].forEach(id=>{
+      const el = document.getElementById(id);
+      if (el){ el.classList.add("hidden"); el.innerHTML = ""; }
+    });
+  }
+
+  form.addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    clearErr();
+
+    const csrftoken =
+    (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
+    (window.CSRF_TOKEN) || '';
+    const fd = new FormData(form);
+    fd.set("ajax", "1"); // guard tambahan
+
+    const res = await fetch(form.action, {
+      method: "POST",
+      headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrftoken },
+      body: fd
+    });
+
+    // kalau server salah balas HTML, jangan redirect—tampilin pesan umum
+    const ct = res.headers.get("content-type") || "";
+    if (!ct.includes("application/json")) {
+      showErr("mod-err-__all__", "Login gagal. Coba lagi.");
+      return;
+    }
+
+    const data = await res.json().catch(()=> ({}));
+
+    if (res.ok && data.ok) {
+      if (window.showToast) showToast(data.message || "Log in successful.", "success");
+      setTimeout(()=>{ window.location.href = data.redirect_url || "/"; }, 700);
+      return;
+    }
+    const errs = data.errors || {};
+    if (errs.username) showErr("mod-err-username", errs.username);
+    if (errs.password) showErr("mod-err-password", errs.password);
+    if (errs.__all__)  showErr("mod-err-__all__", errs.__all__);
+    if (data.non_field_errors) showErr("mod-err-__all__", data.non_field_errors);
+  });
+})();
+</script>

@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Lume</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/global.css' %}"/>
+
+    {% csrf_token %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script>window.CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');</script>
+
+    <style>
+      :root{
+        --background: oklch(0.98 0.005 70);
+        --foreground: oklch(0.20 0.01 70);
+        --card: oklch(1 0 0);
+        --card-foreground: oklch(0.20 0.01 70);
+        --primary: oklch(0.55 0.08 30);
+        --primary-foreground: oklch(0.98 0.005 70);
+        --secondary: oklch(0.97 0.01 70);
+        --secondary-foreground: oklch(0.25 0.01 70);
+        --muted: oklch(0.94 0.01 70);
+        --muted-foreground: oklch(0.55 0.01 70);
+        --border: oklch(0.90 0.01 70);
+      }
+      .theme-bg{background-color:var(--background); color:var(--foreground)}
+      .theme-navbar{background-color:var(--secondary); color:var(--secondary-foreground)}
+      .theme-card{background-color:var(--card); color:var(--card-foreground)}
+      .btn-primary{background-color:var(--primary); color:var(--primary-foreground)}
+      .btn-primary:hover{filter:brightness(0.95)}
+      .btn-ghost{background-color:transparent; color:var(--primary); border:1px solid var(--primary)}
+      .btn-ghost:hover{background-color:color-mix(in oklab, var(--primary) 10%, white)}
+      .border-theme{border-color:var(--border)}
+      @keyframes wiggleOnce {
+        0%{transform:translateY(0) rotate(0)}
+        30%{transform:translateY(-3px) rotate(-.35deg)}
+        60%{transform:translateY(-3px) rotate(.35deg)}
+        100%{transform:translateY(0) rotate(0)}
+      }
+      .product-card-wiggle:hover{animation:wiggleOnce .35s ease-in-out 1}
+    </style>
+
+<style>
+  .footer-gradient{ position:relative; z-index:0; }
+  .footer-gradient::before{
+    content:"";
+    position:absolute; inset:0;
+    z-index:0;
+    pointer-events:none;          /* <- penting: biar tidak blok klik */
+    background:
+      radial-gradient(140% 120% at 50% -30%,
+        #ECE7DB 0%,
+        #E6E1D5 24%,
+        #D8D3C6 46%,
+        #C9CBBB 62%,
+        #B4BFA7 78%,
+        #9FB293 90%,
+        #8AA482 100%);
+  }
+  .footer-top-border{ box-shadow: inset 0 1px 0 rgba(0,0,0,.1); }
+</style>
+
+<style> footer::before{ pointer-events: none !important; } </style>
+
+  </head>
+
+  <body class="theme-bg min-h-screen flex flex-col">
+  {% include "navbar.html" %}
+  <main class="flex-1">
+
+  {% include "toast.html" %}
+
+  {% if messages %}
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          {% for message in messages %}
+            // Konversi Django message tags (cth: "success", "error")
+            // menjadi tipe toast yang kamu punya
+            let type = 'info'; // default
+            if ("{{ message.tags }}".includes("success")) {
+              type = 'success';
+            } else if ("{{ message.tags }}".includes("error")) {
+              type = 'error';
+            } else if ("{{ message.tags }}".includes("warning")) {
+              type = 'warning';
+            }
+            
+            // Tampilkan toast!
+            window.showToast("{{ message|escapejs }}", type);
+          {% endfor %}
+        });
+      </script>
+  {% endif %}
+
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    try {
+      const s = localStorage.getItem("postRedirectToast");
+      if (s) {
+        const { type, text } = JSON.parse(s);
+        showToast(text || "Success.", type || "success");
+        localStorage.removeItem("postRedirectToast");
+      }
+    } catch (e) { }
+  });
+</script>
+
+
+    {% block content %}{% endblock %}
+  </main>
+  {% include "footer.html" %}
+  {% block scripts %}{% endblock scripts %}
+  <div id="editModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60" data-close-edit></div>
+    <div class="absolute inset-0 grid place-items-center p-4">
+      <div class="w-full max-w-2xl rounded-2xl bg-white p-6" id="editModalBody"></div>
+    </div>
+  </div>
+  <script src="{% static 'catalog/js_product/admin-producst.js' %}"></script>
+  <script src="{% static 'catalog/js_product/cart-ajax.js' %}"></script>
+  {% include "login_modal.html" %}
+  <script src="{% static 'js/login-modal.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

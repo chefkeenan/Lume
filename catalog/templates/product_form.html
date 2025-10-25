@@ -1,0 +1,55 @@
+{% load humanize %}
+
+<div class="flex items-center justify-between mb-4">
+  <h3 class="text-lg font-semibold">
+    {% if mode == 'create' %}Add Product{% else %}Edit Product{% endif %}
+  </h3>
+  <button type="button" class="text-stone-500 hover:text-stone-800" data-close-edit>&times;</button>
+</div>
+
+<form method="post" action="{% if mode == 'create' %}{% url 'catalog:product_create_modal' %}{% else %}{{ request.path }}{% endif %}">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-1 gap-4">
+    <label class="text-sm font-medium">Name
+      {{ form.product_name|as_widget(attrs={'class':'mt-1 w-full rounded-lg border px-3 py-2'}) }}
+    </label>
+
+    <label class="text-sm font-medium">Price (Rp)
+      {{ form.price|as_widget(attrs={'class':'mt-1 w-full rounded-lg border px-3 py-2', 'inputmode':'numeric'}) }}
+    </label>
+
+    <div class="grid grid-cols-2 gap-4">
+      <label class="text-sm font-medium">Stock
+        {{ form.stock|as_widget(attrs={'class':'mt-1 w-full rounded-lg border px-3 py-2', 'inputmode':'numeric'}) }}
+      </label>
+      <label class="text-sm font-medium">In Stock?
+        <div class="mt-2">
+          {{ form.inStock }}
+        </div>
+      </label>
+    </div>
+
+    <label class="text-sm font-medium">Thumbnail URL
+      {{ form.thumbnail|as_widget(attrs={'class':'mt-1 w-full rounded-lg border px-3 py-2'}) }}
+    </label>
+
+    <label class="text-sm font-medium">Description
+      {{ form.description|as_widget(attrs={'class':'mt-1 w-full rounded-lg border px-3 py-2', 'rows':'4'}) }}
+    </label>
+
+    {# Tampilkan error non-field (jika ada) #}
+    {% if form.non_field_errors %}
+      <div class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="mt-6 flex items-center justify-end gap-2">
+    <button type="button" class="rounded-lg border px-4 py-2 text-sm hover:bg-stone-50" data-close-edit>Cancel</button>
+    <button type="submit" class="rounded-lg bg-[#9AA08F] px-4 py-2 text-sm font-semibold text-white hover:opacity-95">
+      Save
+    </button>
+  </div>
+</form>

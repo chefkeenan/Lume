@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="mx-auto max-w-7xl px-6 py-10">
+  <div class="mx-auto max-w-md rounded-2xl border border-black/10 bg-[#ede9de] shadow-2xl p-6 sm:p-8">
+    <h1 class="mb-6 text-center text-3xl font-extrabold tracking-tight text-[#0E0E0E]">Log in to your Account</h1>
+
+    <form method="post" action="{% url 'user:login' %}" class="space-y-5" id="loginPageForm">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}"/>
+
+      <!-- Non-field (mis. kombinasi username/password salah) -->
+      <p id="err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
+
+      <div>
+        <label class="mb-2 block text-sm font-semibold text-stone-700">Username</label>
+        <input type="text" name="username" autocomplete="username" required class="w-full rounded-xl border border-black/10 bg-white px-4 py-3 outline-none focus:border-black/20" placeholder="Your username" />
+        <p id="err-username" class="mt-2 text-sm text-red-600 hidden"></p>
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-semibold text-stone-700">Password</label>
+        <div class="relative">
+          <input id="loginPwInput" type="password" name="password" autocomplete="current-password" required class="w-full rounded-xl border border-black/10 bg-white px-4 py-3 pr-10 outline-none focus:border-black/20" placeholder="Your password" />
+          <button type="button" id="toggleLoginPw" class="absolute inset-y-0 right-2 my-auto h-8 w-8 rounded-full text-stone-500 hover:bg-black/5" aria-label="Toggle password">👁️</button>
+        </div>
+        <div class="mt-2 text-right">
+          <a href="#" class="text-sm font-medium text-stone-700 underline-offset-2 hover:underline">Forgot Password?</a>
+        </div>
+        <p id="err-password" class="mt-2 text-sm text-red-600 hidden"></p>
+      </div>
+
+      <button type="submit" class="w-full rounded-full bg-[#A7B29C] px-4 py-3 text-base font-semibold text-white shadow-[inset_0_-4px_10px_rgba(0,0,0,0.15)] hover:opacity-95 active:scale-[.99]">Log In</button>
+
+      <p class="text-center text-sm text-stone-700">Don’t have an account yet? <a href="{% url 'user:register' %}" class="font-semibold underline-offset-2 hover:underline">Register here</a></p>
+    </form>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    // toggle password (punyamu)
+    const btn = document.getElementById('toggleLoginPw');
+    const input = document.getElementById('loginPwInput');
+    if (btn && input) {
+      btn.addEventListener('click', function () {
+        input.type = input.type === 'password' ? 'text' : 'password';
+        input.focus();
+      });
+    }
+
+    // AJAX submit utk error tanpa reload
+    const form = document.getElementById("loginPageForm");
+    if (!form) return;
+
+    function getCookie(name) {
+      const v = `; ${document.cookie}`.split(`; ${name}=`);
+      if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
+    }
+    function showErr(id, messages){
+      const el = document.getElementById(id);
+      if (!el) return;
+      const html = Array.isArray(messages) ? messages.join("<br>") : String(messages);
+      el.innerHTML = html;
+      el.classList.remove("hidden");
+    }
+    function clearErr(){
+      ["err-__all__", "err-username", "err-password"].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el){ el.classList.add("hidden"); el.innerHTML = ""; }
+      });
+    }
+
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      clearErr();
+      const csrftoken =
+      (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
+      (window.CSRF_TOKEN) || '';
+      const fd = new FormData(form);
+
+      const res = await fetch(form.action || "", {
+        method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": csrftoken },
+        body: fd
+      });
+      const data = await res.json().catch(()=> ({}));
+
+      if (res.ok && data.ok) {
+        localStorage.setItem("postRedirectToast", JSON.stringify({
+          type: "success",
+          text: data.message || "Log in successful."
+        }));
+        window.location.href = data.redirect_url || "/";
+        return;
+      }
+      const errs = data.errors || {};
+      if (errs.username) showErr("err-username", errs.username);
+      if (errs.password) showErr("err-password", errs.password);
+      if (errs.__all__) showErr("err-__all__", errs.__all__);
+      if (data.non_field_errors) showErr("err-__all__", data.non_field_errors);
+    });
+  })();
+</script>
+{% endblock %}
