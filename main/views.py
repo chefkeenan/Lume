@@ -70,7 +70,7 @@ def landing_view(request):
         ),
     }
 
-    return render(request, "main/landing.html", context)
+    return render(request, "landing.html", context)
 
 def show_main(request):
     q = (request.GET.get("q") or "").strip()                 
