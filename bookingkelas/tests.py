@@ -240,10 +240,12 @@ class BookingActionsTests(TestCase):
         new_b.id = 123
         Booking.objects.create.return_value = new_b
 
-        resp = self.client.get(reverse("bookingkelas:book_class", args=[3]))
-        self.assertEqual(resp.status_code, 302)
-        self.assertIn("checkout", resp.url)
-        self.assertIn("booking", resp.url)
+        self.client.get(reverse("checkout:booking_checkout", args=[123]))
+
+        resp2 = self.client.get(reverse("bookingkelas:book_class", args=[3]))
+        self.assertEqual(resp2.status_code, 302)
+        self.assertIn("checkout", resp2.url)
+        self.assertIn("booking", resp2.url)
 
     @patch("bookingkelas.views.Booking")
     @patch("bookingkelas.views.get_object_or_404")
