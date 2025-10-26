@@ -121,7 +121,7 @@
     if (t1 && pw1) t1.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw1, t1); });
     if (t2 && pw2) t2.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw2, t2); });
 
-    // ====== password match check ======
+    // ====== password check ======
     function checkMatch() {
       const match = pw1.value === pw2.value;
       errMatch.classList.toggle('hidden', match);
@@ -154,10 +154,7 @@
 
     // ====== submit handler (AJAX) ======
     form.addEventListener('submit', async function (e) {
-      // stop normal form submit
       e.preventDefault();
-
-      // jangan lanjut kalau password mismatch
       if (!checkMatch()) {
         return;
       }
@@ -165,7 +162,7 @@
       clearErr();
 
       const fd = new FormData(form);
-      fd.set("ajax", "1"); // biar view balikin JSON
+      fd.set("ajax", "1");
 
       const csrftoken = getCookie("csrftoken") || "";
 
@@ -176,7 +173,7 @@
           "X-CSRFToken": csrftoken,
         },
         body: fd,
-        credentials: "same-origin", // penting: kirim cookie CSRF ke server
+        credentials: "same-origin", 
       });
 
       const ct = res.headers.get("content-type") || "";
@@ -188,7 +185,6 @@
       const data = await res.json().catch(()=> ({}));
 
       if (res.ok && data.ok) {
-        // success
         localStorage.setItem("postRedirectToast", JSON.stringify({
           type: "success",
           text: data.message || "Registration successful."
@@ -197,7 +193,6 @@
         return;
       }
 
-      // kalau gagal validasi
       const errs = data.errors || {};
       if (errs._all)   showErr("err-all", errs.all_);
       if (errs.username)  showErr("err-username", errs.username);

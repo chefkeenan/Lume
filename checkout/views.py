@@ -49,7 +49,7 @@ def cart_checkout_page(request):
         "subtotal": subtotal,
         "shipping": shipping,
         "total": total,
-        "items_count": items_count,     # <<< NEW
+        "items_count": items_count,    
         "payment_method": "Cash on Delivery",
     })
 
@@ -81,22 +81,17 @@ def checkout_cart_create(request):
     cd = form.cleaned_data
 
     with transaction.atomic():
-        # 🔒 VALIDASI stok (kalau ada field stock) pakai row-level lock,
-        #   tapi TANPA impor model Product (kita ambil model dari instance)
         locked = {}
         for ci in selected_qs.select_related("product"):
-            # lock baris product yang bersangkutan
             PModel = type(ci.product)
             p = PModel.objects.select_for_update().get(pk=ci.product_id)
             locked[ci.product_id] = p
 
-            # kalau model Product kamu punya field 'stock', validasi di sini
             if hasattr(p, "stock") and p.stock is not None:
                 if p.stock < ci.quantity:
                     messages.error(request, f"Stok {getattr(p, 'name', getattr(p, 'product_name', 'produk'))} tidak mencukupi.")
                     return redirect("cart:page")
 
-        # 🧾 buat order (bagian ini sama seperti punyamu)
         order = ProductOrder.objects.create(
             user=user,
             cart=cart,
@@ -111,7 +106,6 @@ def checkout_cart_create(request):
             notes=cd.get("notes", ""),
         )
 
-        # 🧊 snapshot item + 💥 kurangi stok kalau fieldnya ada
         for ci in selected_qs:
             p = locked.get(ci.product_id, ci.product)
 
@@ -123,23 +117,19 @@ def checkout_cart_create(request):
                 quantity=ci.quantity,
             )
 
-            # Kurangi stok secara atomic hanya jika field 'stock' tersedia
             if hasattr(p, "stock") and p.stock is not None:
                 PModel = type(p)
                 PModel.objects.filter(pk=p.pk).update(stock=F("stock") - ci.quantity)
 
-        # (opsional) matikan inStock kalau ada & stok habis
         for p in locked.values():
             if hasattr(p, "inStock"):
                 p.refresh_from_db(fields=["stock"])
                 if p.stock is not None and p.stock <= 0 and getattr(p, "inStock", True):
                     type(p).objects.filter(pk=p.pk).update(inStock=False)
 
-        # hitung ulang total (sama seperti punyamu)
         order.recalc_totals()
         order.save(update_fields=["subtotal", "shipping_fee", "total"])
 
-        # 🧹 hapus HANYA item terpilih dari cart setelah commit sukses (punyamu sudah OK)
         selected_ids = list(selected_qs.values_list("id", flat=True))
         transaction.on_commit(lambda: cart.items.filter(id__in=selected_ids).delete())
 
@@ -160,20 +150,15 @@ def booking_checkout(request, booking_id):
         id=booking_id, user=request.user, is_cancelled=False
     )
 
-    # Cek apakah sudah pernah di-checkout (logika ini sudah benar)
     if BookingOrderItem.objects.filter(booking=booking).exists():
         messages.info(request, "Booking ini sudah pernah di-checkout.")
         return redirect("checkout:order_confirmed")
 
-    # Logika untuk POST (saat user klik "Place Order")
     if request.method == "POST":
         
-        # Gunakan transaction.atomic() DI SINI
         with transaction.atomic():
-            # Kunci sesi yang mau di-book untuk dicek kapasitasnya
             session_to_book = ClassSessions.objects.select_for_update().get(id=booking.session.id)
             
-            # Cek kapasitas SEKALI LAGI (final check)
             confirmed_count = session_to_book.bookings.filter(
                 is_cancelled=False,
                 order_items__isnull=False
@@ -181,11 +166,9 @@ def booking_checkout(request, booking_id):
 
             if confirmed_count >= session_to_book.capacity_max:
                 messages.error(request, "Maaf, kelas sudah penuh saat Anda checkout.")
-                # Hapus booking pending yang gagal
                 booking.delete() 
                 return redirect("bookingkelas:catalog")
             
-            # --- Lanjutkan jika kapasitas aman ---
             
             order = BookingOrder.objects.create(user=request.user, notes="") 
             
@@ -195,7 +178,7 @@ def booking_checkout(request, booking_id):
 
             BookingOrderItem.objects.create(
                 order=order,
-                booking=booking, # Ini menghubungkan Booking ke Order
+                booking=booking, 
                 session_title=title,
                 occurrence_date=None,
                 occurrence_start_time=None,
@@ -203,29 +186,19 @@ def booking_checkout(request, booking_id):
                 quantity=1,
             )
             
-            # --- PINDAHKAN LOGIKA KAPASITAS & SUKSES KE SINI ---
-            
-            # 1. Hitung ulang kapasitas DAN SIMPAN
-            # (Kita hitung ulang dari session_to_book yang sudah di-lock)
             session_to_book.capacity_current = session_to_book.bookings.filter(
                 is_cancelled=False, 
                 order_items__isnull=False
             ).count()
             session_to_book.save(update_fields=["capacity_current"])
             
-            # 2. Kalkulasi total order
             order.recalc_totals() 
             order.save(update_fields=["subtotal", "total"])
 
-            # 3. KIRIM PESAN SUKSES DI SINI
-            weekday_map = _weekday_map() # Panggil helper map hari
-            day_label_success = weekday_map.get(booking.day_selected, booking.day_selected)
-        
-        # (END of transaction)
-        
+            weekday_map = _weekday_map() 
+            day_label_success = weekday_map.get(booking.day_selected, booking.day_selected)        
         return redirect("checkout:order_confirmed")
 
-    # Logika untuk GET (menampilkan halaman)
     subtotal = booking.price_at_booking
     shipping = 0 
     total = subtotal + shipping
@@ -237,13 +210,13 @@ def booking_checkout(request, booking_id):
         'total': total,
     }
     return render(request, "checkout/booking_checkout.html", context)
-# JSON ringkasan cart, untuk AJAX
+
+
 @login_required(login_url="/user/login/")
 def cart_summary_json(request):
     cart = get_object_or_404(Cart.objects.prefetch_related("items__product"), user=request.user)
 
     qs = cart.items.select_related("product")
-    # kalau ?selected=1, hitung hanya item terpilih
     if request.GET.get("selected") == "1":
         qs = qs.filter(is_selected=True)
 

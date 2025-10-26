@@ -5,20 +5,15 @@
 {% url 'user:profile' as user_named %}{% firstof user_named '/user/profile/' as user_url %}
 
 <footer class="w-full">
-  <!-- wrapper harus relative & overflow-hidden -->
   <div class="relative w-full overflow-hidden">
-
-    <!-- BACKGROUND IMAGE (jangan pakai -z-10) -->
     <img
       src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/background/footer-bg.png?raw=true"
       alt=""
       class="absolute inset-0 z-0 h-full w-full object-cover"
     />
 
-    <!-- (opsional) overlay tipis biar teks kontras -->
     <div class="absolute inset-0 z-0 bg-white/5"></div>
 
-    <!-- Konten footer: letakkan di atas (z-10) -->
     <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
       <h2 class="text-center text-3xl font-semibold tracking-tight text-neutral-900">
         Lume Pilates

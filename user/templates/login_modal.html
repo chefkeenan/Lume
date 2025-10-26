@@ -14,7 +14,7 @@
           <input type="hidden" name="ajax" value="1"/>
           <input type="hidden" name="next" value="{% url 'main:landing' %}"/>
 
-          <!-- Non-field (mis. kombinasi username/password salah) -->
+          <!-- Non-field (kombinasi username/password salah) -->
           <p id="mod-err-__all__" class="hidden rounded-lg bg-red-50 text-red-700 p-2 text-sm"></p>
 
           <div>
@@ -46,26 +46,24 @@
   const form = document.getElementById("loginModalForm");
   if (!form) return;
 
-  // --- Toggle Password: 100% sama pola login page ---
+  // --- Toggle Password
   const btn = document.getElementById('toggleLoginPwModal');
   const input = document.getElementById('loginPwInputModal');
   if (btn && input) {
     btn.addEventListener('click', function (e) {
-      e.preventDefault(); // jaga-jaga
+      e.preventDefault(); 
       input.type = input.type === 'password' ? 'text' : 'password';
       input.focus();
-      // kalau ada CSS yang maksa bullet, ini bantu override ringan (tanpa ribet)
       if (input.type === 'text') {
         input.style.webkitTextSecurity = 'none';
       } else {
         input.style.webkitTextSecurity = '';
       }
-      // pindahkan caret ke akhir biar UX enak
       const v = input.value; input.value = ''; input.value = v;
     });
   }
 
-  // --- AJAX submit utk error tanpa reload ---
+  // --- AJAX 
   function getCookie(name) {
     const v = `; ${document.cookie}`.split(`; ${name}=`);
     if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
@@ -92,7 +90,7 @@
     (form.querySelector('input[name="csrfmiddlewaretoken"]')?.value) ||
     (window.CSRF_TOKEN) || '';
     const fd = new FormData(form);
-    fd.set("ajax", "1"); // guard tambahan
+    fd.set("ajax", "1"); 
 
     const res = await fetch(form.action, {
       method: "POST",
@@ -100,7 +98,6 @@
       body: fd
     });
 
-    // kalau server salah balas HTML, jangan redirect—tampilin pesan umum
     const ct = res.headers.get("content-type") || "";
     if (!ct.includes("application/json")) {
       showErr("mod-err-__all__", "Login gagal. Coba lagi.");

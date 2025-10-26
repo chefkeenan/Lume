@@ -74,7 +74,7 @@
 (function(){
   const modal   = document.getElementById('loginModal');
   if (!modal) return;
-  const backdrop = modal.querySelector('[data-close-login]'); // layer gelap
+  const backdrop = modal.querySelector('[data-close-login]'); 
   const closeBtns = modal.querySelectorAll('[data-close-login], button[aria-label="Close"]');
   const firstFocusable = modal.querySelector('input[name="username"]');
 
@@ -122,9 +122,7 @@
       <script>
         document.addEventListener('DOMContentLoaded', function () {
           {% for message in messages %}
-            // Konversi Django message tags (cth: "success", "error")
-            // menjadi tipe toast yang kamu punya
-            let type = 'info'; // default
+            let type = 'info'; 
             if ("{{ message.tags }}".includes("success")) {
               type = 'success';
             } else if ("{{ message.tags }}".includes("error")) {
@@ -133,7 +131,6 @@
               type = 'warning';
             }
             
-            // Tampilkan toast!
             window.showToast("{{ message|escapejs }}", type);
           {% endfor %}
         });

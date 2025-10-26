@@ -141,19 +141,19 @@ class CatalogAndJsonTests(TestCase):
         qs.exists.return_value = False
         ClassSessions.objects.filter.return_value = qs
 
-        resp = self.client.get(reverse("bookingkelas:get_session_details_json", args=["NotExists"]))
+        resp = self.client.get(reverse("bookingkelas:get_session_details", args=["NotExists"]))
         self.assertEqual(resp.status_code, 404)
 
     @patch("bookingkelas.views.ClassSessions")
     def test_get_session_details_json_ok(self, ClassSessions):
         s_general = MagicMock()
         s_general.id = 1
-        s_general.title = "Zumba Party - Tuesday"
-        s_general.instructor = "Coach Z"
+        s_general.title = "DAILY 4 - Tuesday"
+        s_general.instructor = "Juma"
         s_general.time = "18:00"
-        s_general.room = "R3"
-        s_general.price = 45000
-        s_general.description = "Fun cardio"
+        s_general.room = "D"
+        s_general.price = 450000
+        s_general.description = "tiap hari selasa"
 
         s_day1 = MagicMock()
         s_day1.id = 11
@@ -164,8 +164,8 @@ class CatalogAndJsonTests(TestCase):
 
         s_day2 = MagicMock()
         s_day2.id = 12
-        s_day2.days = ["3"]
-        s_day2.is_full = True
+        s_day2.days = []
+        s_day2.is_full = False
         s_day2.capacity_current = 15
         s_day2.capacity_max = 15
 
@@ -183,13 +183,14 @@ class CatalogAndJsonTests(TestCase):
         qs.__iter__.return_value = iter([s_day1, s_day2, s_day3])
         ClassSessions.objects.filter.return_value = qs
 
-        resp = self.client.get(reverse("bookingkelas:get_session_details_json", args=["Zumba Party"]))
+        resp = self.client.get(reverse("bookingkelas:get_session_details", args=["DAILY 4 - Tuesday"]))
         self.assertEqual(resp.status_code, 200)
         payload = resp.json()
-        self.assertEqual(payload["base_title_cleaned"], "Zumba Party")
+        self.assertEqual(payload["base_title_cleaned"], "DAILY 4")
         labels = {o["label"] for o in payload["day_options"]}
-        self.assertTrue({"Tuesday", "Thursday"}.issubset(labels))
-        self.assertEqual(len(payload["day_options"]), 2)
+        self.assertTrue({"Tuesday"}.issubset(labels))
+        self.assertEqual(len(payload["day_options"]), 1)
+
 
 @override_settings(LOGIN_URL="/user/login/")
 class BookingActionsTests(TestCase):
