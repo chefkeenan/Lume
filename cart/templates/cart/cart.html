@@ -5,32 +5,28 @@
 {% block content %}
 <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
-  <!-- Back to home -->
 <a href="{% url 'main:landing' %}"
    class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm
           bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors
           border border-stone-300 text-stone-800 shadow-sm
           mb-8 md:mb-10">
-  <!-- arrow-left -->
   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
   </svg>
   <span>Back to Home</span>
 </a>
 
-  <!-- Title -->
   <div class="mb-8">
     <h1 class="text-4xl font-extrabold tracking-tight text-[#3A342D]">Your Cart</h1>
     <p class="mt-2 text-[#766E62]">Review your items before checkout.</p>
   </div>
 
-  <!-- Layout -->
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LEFT: Items -->
+
     <div class="lg:col-span-2 space-y-4">
 
-      <!-- Select toolbar -->
       <div class="flex items-center justify-between">
         <div class="text-sm text-[#766E62]">Selection</div>
         <div class="flex items-center gap-2">
@@ -49,13 +45,11 @@
 
       <div id="cartItems" style="display:none"></div>
 
-      <!-- Empty State -->
       <div id="emptyState" class="text-center py-20" style="display:block">
         <p class="text-lg font-medium text-[#766E62]">Your cart is empty.</p>
       </div>
     </div>
 
-    <!-- RIGHT: Summary -->
     <aside class="lg:col-span-1">
       <div class="sticky top-6 rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-6">
         <h2 class="text-xl font-bold text-[#3A342D] mb-6">Order Summary</h2>
@@ -89,7 +83,6 @@
   </div>
 </section>
 
-<!-- Product card template -->
 <template id="cart-item-template">
   <div class="rounded-2xl bg-[#F5F2EB] border border-[#E8E3D8] p-5 hover:shadow-md transition" data-item-row>
     <div class="flex items-center gap-4">
@@ -115,7 +108,7 @@
   </div>
 </template>
 
-<!-- Toasts -->
+
 {% include "toast.html" %}
 {% endblock %}
 
@@ -126,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const PLACEHOLDER_URL = "{% static 'img/placeholder.webp' %}";
   const checkoutBtn = document.getElementById('checkoutBtn');
 
-  // CSRF
+
   function getCookie(name){
     let v=null;if(document.cookie!==''){for(const c of document.cookie.split(';')){
       const cc=c.trim(); if(cc.startsWith(name+'=')){v=decodeURIComponent(cc.slice(name.length+1));break;}
@@ -148,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return await r.json();
   }
 
-  // Helpers 
   function setSelectButtonsDisabled(disabled) {
     const sel = document.getElementById('selectAllBtn');
     const uns = document.getElementById('unselectAllBtn');
@@ -164,13 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
     list.style.display  = show ? 'none'  : 'block';
     if (show) {
       setCheckoutDisabled(true);
-      setSelectButtonsDisabled(true); // disable saat kosong
+      setSelectButtonsDisabled(true);
     } else {
-      setSelectButtonsDisabled(false); // enable saat ada item
+      setSelectButtonsDisabled(false);
     }
   }
 
-  // summary helpers
   function computeSelectedQtyFromDOM(){
     let sum = 0;
     document.querySelectorAll('[data-item-row]').forEach(row=>{
@@ -194,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTotals(computeSelectedQtyFromDOM());
   }
 
-  // Render
+
   function renderItems(items){
     const list = document.getElementById('cartItems');
     if (!items?.length){
@@ -202,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleEmpty(true);
       return;
     }
-    toggleEmpty(false); // auto enable select buttons
+    toggleEmpty(false);
     list.innerHTML = '';
 
     items.forEach(it => {
@@ -225,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
       list.appendChild(node);
     });
 
-    // summary
     refreshSummaryFromDOM();
   }
 
@@ -245,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Select all/Unselect all
   document.getElementById('selectAllBtn')?.addEventListener('click', async ()=>{
     if (document.getElementById('selectAllBtn').disabled) return;
     const out = await postForm("{% url 'cart:select_all' %}");
@@ -259,11 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
     await loadCart();
   });
 
-  // Event Delegation untuk item actions
   document.addEventListener('click', async (e)=>{
     const row = e.target.closest('[data-item-row]');
 
-    // toggle select
     if (e.target.matches('[data-select]')){
       const id = e.target.closest('[data-item-row]')?.dataset.itemId;
       const val = e.target.checked ? '1' : '0';
@@ -276,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!row) return;
     const id = row.dataset.itemId;
 
-    // increment
     if (e.target.matches('[data-inc]') || e.target.closest('[data-inc]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) + 1;
@@ -291,7 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // decrement
     if (e.target.matches('[data-dec]') || e.target.closest('[data-dec]')){
       const qtyEl = row.querySelector('[data-qty]');
       const next = Number(qtyEl.textContent) - 1;
@@ -313,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // remove
     if (e.target.matches('[data-remove]') || e.target.closest('[data-remove]')) {
       const out = await postForm("{% url 'cart:remove_ajax' 0 %}".replace('0', id));
       if (out.ok){
@@ -329,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Checkout
   document.getElementById('checkoutForm')?.addEventListener('submit', (e)=>{
     if (checkoutBtn?.disabled){
       e.preventDefault();

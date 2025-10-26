@@ -93,7 +93,6 @@ WSGI_APPLICATION = 'lume.wsgi.application'
 
 # Database configuration
 if PRODUCTION:
-    # Production: gunakan PostgreSQL dengan kredensial dari environment variables
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -108,7 +107,6 @@ if PRODUCTION:
         }
     }
 else:
-    # Development: gunakan SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -156,10 +154,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 if DEBUG:
     STATICFILES_DIRS = [
-        BASE_DIR / 'static' # merujuk ke /static root project pada mode development
+        BASE_DIR / 'static'
     ]
 else:
-    STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
+    STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # Default primary key field type

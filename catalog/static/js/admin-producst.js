@@ -1,4 +1,3 @@
-// static/js/admin-products.js
 (function () {
   const editModal   = document.getElementById('editModal');
   const editBody    = document.getElementById('editModalBody');
@@ -6,12 +5,10 @@
   const addModal    = document.getElementById('addModal');
   const addBody     = document.getElementById('addModalBody');
 
-  // DELETE MODAL BARU
   const deleteModal     = document.getElementById('deleteModal');
   const deleteMessageEl = document.getElementById('deleteMessage');
   const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-  // state sementara buat delete
   let pendingDeleteUrl = null;
   let pendingDeleteCardId = null;
   let pendingDeleteBtnEl = null;
@@ -36,7 +33,6 @@
       bodyEl.innerHTML = '';
     }
 
-    // khusus delete modal, bersihin state
     if (el === deleteModal) {
       pendingDeleteUrl = null;
       pendingDeleteCardId = null;
@@ -53,13 +49,11 @@
     return m ? decodeURIComponent(m[1]) : '';
   }
 
-  // helper: cari container grid di main
   function getGrid() {
     return document.querySelector('productGrid');
   }
 
   document.addEventListener('click', async (e) => {
-    // === OPEN EDIT ===
     const editBtn = e.target.closest('[data-open-edit]');
     if (editBtn) {
       e.preventDefault();
@@ -72,7 +66,6 @@
       return;
     }
 
-    // === OPEN ADD ===
     const addBtn = e.target.closest('[data-open-add]');
     if (addBtn) {
       e.preventDefault();
@@ -95,7 +88,6 @@
       pendingDeleteCardId = delBtn.getAttribute('data-card-id') || null;
       pendingDeleteBtnEl  = delBtn;
 
-      // Update text konfirmasi pakai nama produk
       const productName = delBtn.getAttribute('data-product-name') || 'this product';
       if (deleteMessageEl) {
         deleteMessageEl.textContent = `Are you sure you want to delete “${productName}”? This action cannot be undone.`;
@@ -105,7 +97,6 @@
       return;
     }
 
-    // === CLOSE MODALS (backdrop / button X / Cancel btn) ===
     if (e.target.dataset.closeEdit   !== undefined) close(editModal,   editBody);
     if (e.target.dataset.closeAdd    !== undefined) close(addModal,    addBody);
     if (e.target.dataset.closeDelete !== undefined) close(deleteModal, null);
@@ -136,7 +127,6 @@
     });
 
     if (res.ok) {
-      // --- HAPUS KARTU YANG DIKLIK ---
       let node = null;
       if (pendingDeleteBtnEl) {
         node = pendingDeleteBtnEl.closest('[data-card-wrapper]');
@@ -148,13 +138,11 @@
       if (node) {
         node.remove();
       } else {
-        // fallback terakhir
         location.reload();
       }
 
-      // ⬇️⬇️⬇️ TAMBAHKAN BLOK INI UNTUK LANDING: isi lagi sampai 6 produk ⬇️⬇️⬇️
       try {
-        const grid = document.getElementById("productGrid"); // grid di landing
+        const grid = document.getElementById("productGrid");
         if (grid) {
           const wrappers = Array.from(grid.querySelectorAll("[data-card-wrapper]"));
           if (wrappers.length < 6) {
@@ -162,7 +150,7 @@
               .map(w => (w.id || "").replace("wrap-", ""))
               .filter(Boolean)
               .join(",");
-            const fetchUrl = grid.getAttribute("data-fetch-url"); // set di landing.html
+            const fetchUrl = grid.getAttribute("data-fetch-url");
             if (fetchUrl) {
               const url = new URL(fetchUrl, window.location.origin);
               url.searchParams.set("exclude", shownIds);
@@ -181,7 +169,6 @@
       } catch (err) {
         console.warn("gagal fetch kartu pengganti:", err);
       }
-      // ⬆️⬆️⬆️ SAMPAI SINI ⬆️⬆️⬆️
 
     } else {
       alert('Failed to delete product.');
@@ -192,8 +179,6 @@
   });
 
 
-
-  // === SUBMIT di dalam MODAL (edit/add) ===
   document.addEventListener('submit', async (e) => {
     const form = e.target;
     const insideEdit = editModal && editModal.contains(form);
@@ -222,20 +207,17 @@
         close(addModal, addBody);
         return;
       }
-      // edit sukses → close & reload agar aman
       close(editModal, editBody);
       location.reload();
       return;
     }
 
-    // kalau server balas form_html (misal error rendering ulang)
     if (data.form_html) {
       if (insideAdd)  addBody.innerHTML  = data.form_html;
       if (insideEdit) editBody.innerHTML = data.form_html;
       return;
     }
 
-    // kalau hanya errors dict
     if (data.errors) {
       const merged = Object.entries(data.errors)
         .map(([field, msgs]) => `${field}: ${msgs.join(", ")}`)

@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from bookingkelas.models import Booking  
 
-#  Checkout Produk (dari Cart)
 class ProductOrder(models.Model):
     FLAT_SHIPPING = Decimal("10000.00") 
 
@@ -59,10 +58,8 @@ class ProductOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name="items")
 
-    # jejak ke Product
     product = models.ForeignKey("catalog.Product", on_delete=models.SET_NULL, null=True, blank=True)
 
-    # snapshot data produk saat checkout
     product_name = models.CharField(max_length=200)
     unit_price = models.DecimalField(
         max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
@@ -77,7 +74,6 @@ class ProductOrderItem(models.Model):
         return f"{self.product_name} x {self.quantity}"
 
 
-#  Checkout Booking Class (tanpa ongkir)
 class BookingOrder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -99,7 +95,7 @@ class BookingOrder(models.Model):
     def recalc_totals(self):
         s = sum(i.line_total for i in self.items.all())
         self.subtotal = s
-        self.total = s  # no shipping
+        self.total = s
 
     class Meta:
         indexes = [models.Index(fields=["user", "created_at"])]
@@ -111,10 +107,8 @@ class BookingOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(BookingOrder, on_delete=models.CASCADE, related_name="items")
 
-    # 1 booking hanya boleh masuk 1 order (anti double-charge)
     booking = models.ForeignKey(Booking, on_delete=models.PROTECT, related_name="order_items")
 
-    # snapshot data kelas
     session_title = models.CharField(max_length=200)
     occurrence_date = models.DateField(null=True, blank=True)
     occurrence_start_time = models.TimeField(null=True, blank=True)

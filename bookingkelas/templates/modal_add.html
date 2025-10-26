@@ -58,7 +58,6 @@
     color: #6B7280;
   }
 
-  /* Merapikan layout checkbox 'Days' */
   .modal-form-fields #id_days {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -77,7 +76,6 @@
     align-items: center;
     gap: 8px;
     font-weight: 400;
-    /* Buat lebih tipis dari label utama */
   }
 
   .modal-form-fields #id_days input[type="checkbox"] {
@@ -98,7 +96,7 @@
       return;
     }
 
-    // Ambil parent <p> yang membungkus semua checkbox 'days'
+
     const daysContainer = firstDayCheckbox.closest('p');
     if (!daysContainer) {
       console.warn('Container <p> untuk "days" tidak ditemukan.');
@@ -107,15 +105,14 @@
 
     const toggleDaysField = () => {
       if (categorySelect.value.toLowerCase() === 'weekly') {
-        daysContainer.style.display = 'flex'; // Tampilkan (flex-direction: column)
+        daysContainer.style.display = 'flex';
       } else {
-        daysContainer.style.display = 'none'; // Sembunyikan untuk 'Daily' dll
+        daysContainer.style.display = 'none';
       }
     };
 
     categorySelect.addEventListener('change', toggleDaysField);
 
-    // Panggil saat pertama kali modal di-load
     toggleDaysField();
   });
 </script>

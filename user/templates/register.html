@@ -9,7 +9,6 @@
     <form method="post" action="{% url 'user:register' %}" class="space-y-5" id="registerForm" novalidate>
       {% csrf_token %}
 
-      <!-- Non-field (SSR) -->
       {% if form.non_field_errors %}
         <div class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           {{ form.non_field_errors }}
@@ -101,13 +100,12 @@
     const t1 = document.getElementById('toggleRegPw');
     const t2 = document.getElementById('toggleRegPw2');
 
-    // ====== toggle eye password ======
     function toggle(el, btn) {
       el.type = el.type === 'password' ? 'text' : 'password';
 
       if (el.type === 'text') {
         el.style.webkitTextSecurity = 'none';
-        if (btn) btn.textContent = '🙈';
+        if (btn) btn.textContent = '👁';
       } else {
         el.style.webkitTextSecurity = '';
         if (btn) btn.textContent = '👁';
@@ -121,7 +119,6 @@
     if (t1 && pw1) t1.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw1, t1); });
     if (t2 && pw2) t2.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw2, t2); });
 
-    // ====== password check ======
     function checkMatch() {
       const match = pw1.value === pw2.value;
       errMatch.classList.toggle('hidden', match);
@@ -130,13 +127,11 @@
     pw1.addEventListener('input', checkMatch);
     pw2.addEventListener('input', checkMatch);
 
-    // ====== helper: ambil csrftoken dari cookie ======
     function getCookie(name) {
       const v = ; ${document.cookie}.split(; ${name}=);
       if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
     }
 
-    // ====== helper: tampilkan error dari server ======
     function showErr(id, messages){
       const el = document.getElementById(id);
       if (!el) return;
@@ -152,7 +147,6 @@
       });
     }
 
-    // ====== submit handler (AJAX) ======
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       if (!checkMatch()) {
