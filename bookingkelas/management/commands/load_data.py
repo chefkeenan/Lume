@@ -1,4 +1,3 @@
-# bookingkelas/management/commands/load_kelas.py
 import csv
 import os
 from django.core.management.base import BaseCommand

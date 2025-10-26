@@ -1,4 +1,3 @@
-# catalog/models.py
 import uuid
 from urllib.parse import quote
 

@@ -49,7 +49,7 @@
       el.querySelector(".toast__close").addEventListener("click", () => el.remove());
       container.appendChild(el);
   
-      // Auto-hide with hover pause
+      // Auto-hide 
       let hid = setTimeout(remove, timeout);
       function remove() {
         el.style.opacity = "0";
