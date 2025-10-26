@@ -55,7 +55,7 @@
 
   // helper: cari container grid di main
   function getGrid() {
-    return document.querySelector('#grid .grid');
+    return document.querySelector('productGrid');
   }
 
   document.addEventListener('click', async (e) => {

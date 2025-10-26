@@ -104,35 +104,31 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-
+{% block extra_js %}
 <script src="{% static 'js/class_modal.js' %}"></script>
+
+{% if request.user.is_staff %}
 <script>
-  const isUserLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}" === "true";
-  if (request.user.is_staff){
-     document.addEventListener('DOMContentLoaded', () => {
-    const addModal = document.getElementById('addSessionModal');
-    const addBtn = document.getElementById('addSessionBtn');
-    const addModalClose = document.getElementById('addModalClose');
-    const addModalCancel = document.getElementById('addModalCancel');
+document.addEventListener('DOMContentLoaded', () => {
+  const addModal       = document.getElementById('addSessionModal');
+  const addBtn         = document.getElementById('addSessionBtn');
+  const addModalClose  = document.getElementById('addModalClose');
+  const addModalCancel = document.getElementById('addModalCancel');
 
-    const openModal = () => addModal.classList.remove('hidden');
-    const closeModal = () => addModal.classList.add('hidden');
+  if (!addModal || !addBtn) return;
 
-    addBtn.addEventListener('click', openModal);
-    addModalClose.addEventListener('click', closeModal);
-    addModalCancel.addEventListener('click', closeModal);
+  const openModal  = () => addModal.classList.remove('hidden');
+  const closeModal = () => addModal.classList.add('hidden');
 
-    // Klik di luar modal untuk menutup
-    addModal.addEventListener('click', (e) => {
-      if (e.target === addModal) {
-        closeModal();
-      }
-    });
+  addBtn.addEventListener('click', openModal);
+  addModalClose?.addEventListener('click', closeModal);
+  addModalCancel?.addEventListener('click', closeModal);
+
+  // Klik backdrop untuk menutup
+  addModal.addEventListener('click', (e) => {
+    if (e.target === addModal) closeModal();
   });
-  } 
- 
-
-  // === END JS BARU ===
+});
 </script>
+{% endif %}
 {% endblock %}

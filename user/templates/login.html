@@ -52,7 +52,7 @@
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       input.type = input.type === 'password' ? 'text' : 'password';
-      btn.textContent = input.type === 'text' ? '🙈' : '👁️';
+      btn.textContent = input.type === 'text' ? '👁️' : '👁️';
       input.focus();
       const v = input.value; input.value = ''; input.value = v;
     });

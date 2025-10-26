@@ -66,17 +66,26 @@ def product_delete(request, pk):
 
 @login_required
 @user_passes_test(is_admin)
-@require_http_methods(["POST", "GET"])
+@require_http_methods(["POST"])
 def product_create(request):
     form = ProductForm(request.POST or None, request.FILES or None)
-    if request.method == "POST" and form.is_valid():
+
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+    if form.is_valid():
         obj = form.save()
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            card_html = render_to_string("product_card.html", {"p": obj}, request=request)
+        if is_ajax:
+            card_html = render_to_string("catalog/product_card.html", {"p": obj, "user": request.user}, request=request)
             return JsonResponse({"ok": True, "card_html": card_html, "id": str(obj.pk)})
         return redirect("main:show_main")
-    return render(request, "catalog/add_product.html", {"form": form})
 
+    if is_ajax:
+        form_html = render_to_string(
+            "catalog/_product_form.html",
+            {"form": form, "obj": None},
+            request=request,
+        )
+        return JsonResponse({"ok": False, "form_html": form_html}, status=200)
+    return render(request, "catalog/add_product.html", {"form": form})
 
 def product_detail(request, id):
     p = get_object_or_404(Product, pk=id)

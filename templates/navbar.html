@@ -5,9 +5,8 @@
 {% url 'bookingkelas:catalog' as classes_url %}
 {% url 'cart:index' as cart_url %}{% firstof cart_url '/cart/' as cart_url %}
 {% url 'user:profile' as profile_url %}{% firstof profile_url '/user/profile/' as profile_url %}
-{% url 'login' as login_named %}{% firstof login_named '/user/login/' as login_url %}
-{% url 'logout' as logout_named %}{% firstof logout_named '/user/logout/' as logout_url %}
-
+{% url 'user:login' as login_url %}
+{% url 'user:logout' as logout_url %}
 <header class="sticky top-0 z-50 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/60">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <nav class="relative flex h-14 items-center justify-between">
@@ -90,14 +89,11 @@
             </button>
           </form>
         {% else %}
-          <button type="button"
-                  class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50"
-                  data-open-login data-login-href="{{ login_url }}">
-            Login
-          </button>
-          <noscript>
-            <a href="{{ login_url }}" class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50">Login</a>
-          </noscript>
+<a href="{{ login_url }}"
+   data-open-login
+   class="inline-flex h-9 items-center rounded-full px-3 text-sm border border-stone-300 hover:bg-stone-50">
+  Login
+</a>
         {% endif %}
       </div>
 
@@ -179,24 +175,15 @@
           </form>
         {% else %}
           <div class="border-t border-stone-200 pt-3 mt-3">
-            <button type="button"
-                    class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50"
-                    data-open-login data-login-href="{{ login_url }}">
-              <svg class="h-4 w-4 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
-                <path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Login</span>
-            </button>
-            <noscript>
-              <a href="{{ login_url }}" class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50">
-                <svg class="h-4 w-4 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Login</span>
-              </a>
-            </noscript>
+<a href="{{ login_url }}"
+   data-open-login
+   class="w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-medium text-stone-700 hover:bg-stone-50">
+  <svg class="h-4 w-4 stroke-stone-700" fill="none" stroke-width="1.5" viewBox="0 0 24 24">
+    <path d="M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span>Login</span>
+</a>
           </div>
         {% endif %}
       </div>

@@ -42,14 +42,10 @@
       data-fetch-url="{% url 'main:landing_highlights' %}">
       {% for p in highlights|slice:":6" %}
       <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
-        {% include "product_card.html" with p=p %}
+        {% include "catalog/product_card.html" with p=p %}
       </div>
       {% endfor %}
     </div>
-
-
-
-
 
     <div class="mt-10 text-center">
       <a href="{% url 'main:show_main' %}"
@@ -197,8 +193,14 @@
     </div>
   </div>
 </section>
-{% include "product_modal.html" %}
+
+{% endblock %}
+{% block modals %}
+  {% include "catalog/product_modal.html" %}
+{% endblock %}
+{% block extra_js %}
 <script src="{% static 'js/class_modal.js' %}"></script>
 <script defer src="{% static 'js/helpers.js' %}"></script>
-
+<script defer src="{% static 'js/shop.js' %}"></script>
+<script src="{% static 'js/admin-producst.js' %}" defer></script>
 {% endblock %}
