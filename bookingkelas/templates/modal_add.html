@@ -1,14 +1,15 @@
-<div id="addSessionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
-  <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-4 border border-[#CFC8BA] max-h-[85vh] flex flex-col">
-    
+<div id="addSessionModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden p-4">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl border ... max-h-[85vh] flex flex-col">
+
     <div class="flex justify-between items-center border-b border-[#C9C7C0] p-4 bg-[#D7D6D1] rounded-t-2xl">
       <h2 class="text-xl font-bold text-[#293027]">Add New Session</h2>
-      <button id="addModalClose" class="text-2xl leading-none text-[#5C5B57] hover:text-black transition">&times;</button>
+      <button id="addModalClose"
+        class="text-2xl leading-none text-[#5C5B57] hover:text-black transition">&times;</button>
     </div>
 
     <form action="{% url 'bookingkelas:add_session' %}" method="POST" class="flex-1 flex flex-col overflow-hidden">
-        {% csrf_token %}
-      
+      {% csrf_token %}
+
       <div class="p-6 space-y-4 text-[#293027] overflow-y-auto">
         <div class="space-y-3 modal-form-fields">
           {{ form.as_p }}
@@ -35,24 +36,28 @@
     flex-direction: column;
     gap: 4px;
   }
+
   .modal-form-fields label {
     font-weight: 600;
     font-size: 0.9rem;
-    color: #374151; 
+    color: #374151;
   }
+
   .modal-form-fields input[type="text"],
   .modal-form-fields input[type="number"],
   .modal-form-fields select,
   .modal-form-fields textarea {
     width: 100%;
-    border: 1px solid #D1D5DB; 
+    border: 1px solid #D1D5DB;
     border-radius: 8px;
     padding: 8px 12px;
   }
+
   .modal-form-fields .helptext {
     font-size: 0.8rem;
-    color: #6B7280; 
+    color: #6B7280;
   }
+
   /* Merapikan layout checkbox 'Days' */
   .modal-form-fields #id_days {
     display: grid;
@@ -62,51 +67,55 @@
     border-radius: 8px;
     padding: 12px;
   }
+
   .modal-form-fields #id_days li {
     display: block;
   }
+
   .modal-form-fields #id_days label {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-weight: 400; /* Buat lebih tipis dari label utama */
+    font-weight: 400;
+    /* Buat lebih tipis dari label utama */
   }
+
   .modal-form-fields #id_days input[type="checkbox"] {
     width: auto;
   }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('addSessionModal');
-  if (!modal) return;
+  document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('addSessionModal');
+    if (!modal) return;
 
-  const categorySelect = modal.querySelector('#id_category');
-  const firstDayCheckbox = modal.querySelector('input[name="days"]');
-  
-  if (!categorySelect || !firstDayCheckbox) {
-    console.warn('Field "category" atau "days" tidak ditemukan.');
-    return;
-  }
+    const categorySelect = modal.querySelector('#id_category');
+    const firstDayCheckbox = modal.querySelector('input[name="days"]');
 
-  // Ambil parent <p> yang membungkus semua checkbox 'days'
-  const daysContainer = firstDayCheckbox.closest('p');
-  if (!daysContainer) {
+    if (!categorySelect || !firstDayCheckbox) {
+      console.warn('Field "category" atau "days" tidak ditemukan.');
+      return;
+    }
+
+    // Ambil parent <p> yang membungkus semua checkbox 'days'
+    const daysContainer = firstDayCheckbox.closest('p');
+    if (!daysContainer) {
       console.warn('Container <p> untuk "days" tidak ditemukan.');
       return;
-  }
-
-  const toggleDaysField = () => {
-    if (categorySelect.value.toLowerCase() === 'weekly') {
-      daysContainer.style.display = 'flex'; // Tampilkan (flex-direction: column)
-    } else {
-      daysContainer.style.display = 'none'; // Sembunyikan untuk 'Daily' dll
     }
-  };
 
-  categorySelect.addEventListener('change', toggleDaysField);
-  
-  // Panggil saat pertama kali modal di-load
-  toggleDaysField();
-});
+    const toggleDaysField = () => {
+      if (categorySelect.value.toLowerCase() === 'weekly') {
+        daysContainer.style.display = 'flex'; // Tampilkan (flex-direction: column)
+      } else {
+        daysContainer.style.display = 'none'; // Sembunyikan untuk 'Daily' dll
+      }
+    };
+
+    categorySelect.addEventListener('change', toggleDaysField);
+
+    // Panggil saat pertama kali modal di-load
+    toggleDaysField();
+  });
 </script>
