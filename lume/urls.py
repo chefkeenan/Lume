@@ -29,3 +29,4 @@ urlpatterns = [
     path("api/catalog/", include(("catalog.urls", "catalog_api"), namespace="catalog_api")),
 
 ]
+
