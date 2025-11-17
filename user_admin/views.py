@@ -18,13 +18,11 @@ def is_admin(u):
 @login_required(login_url="/user/login/")
 @user_passes_test(is_admin)
 def dashboard(request):
-    # AJAX
     return render(request, "admin_dashboard.html")
 
 @login_required(login_url="/user/login/")
 @user_passes_test(is_admin)
 def api_stats(request):
-    # Total income 
     prod_income = ProductOrder.objects.aggregate(s=Sum("total"))["s"] or Decimal("0")
     book_income = BookingOrder.objects.aggregate(s=Sum("total"))["s"] or Decimal("0")
     total_income = prod_income + book_income

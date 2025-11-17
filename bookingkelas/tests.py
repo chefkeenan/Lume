@@ -125,7 +125,6 @@ class CatalogAndJsonTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIn("sessions", data)
-        # Dengan CATEGORY_CHOICES di-patch ke [], category_display jatuh ke default (nilai category)
         self.assertEqual(data["sessions"][0]["category_display"], "pilates")
         self.assertIn("Friday", data["sessions"][0]["days_names"])
 

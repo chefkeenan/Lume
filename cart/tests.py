@@ -76,7 +76,6 @@ class CartViewTests(TestCase):
         self.assertEqual(len(data["items"]), 1)
         self.assertEqual(data["items"][0]["product_name"], "Pilates Ring")
 
-    # add_to_cart
     def test_add_to_cart_creates_item_first_time(self):
         self.client.login(username="buyer", password="pass12345")
         url = reverse("cart:add", args=[self.prod_ok.pk])
@@ -159,7 +158,6 @@ class CartViewTests(TestCase):
         self.assertTrue(data["ok"])
         self.assertFalse(CartItem.objects.filter(pk=item.pk).exists())
 
-    # remove_item_ajax
     def test_remove_item_ajax_deletes_item(self):
         self.client.login(username="buyer", password="pass12345")
         cart, _ = Cart.objects.get_or_create(user=self.user)
@@ -170,7 +168,6 @@ class CartViewTests(TestCase):
         self.assertTrue(data["ok"])
         self.assertFalse(CartItem.objects.filter(pk=item.pk).exists())
 
-    # select_all / unselect_all
     def test_select_all_sets_all_items_selected_true(self):
         self.client.login(username="buyer", password="pass12345")
         cart, _ = Cart.objects.get_or_create(user=self.user)

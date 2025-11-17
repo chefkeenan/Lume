@@ -43,7 +43,7 @@ class Product(models.Model):
         url = self.normalized_thumbnail
         if not url:
             return ""
-        # hapus skema, encode
+        
         no_scheme = url.replace("https://", "").replace("http://", "")
         return (
             "https://images.weserv.nl/?url="

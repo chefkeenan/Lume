@@ -19,7 +19,7 @@ def _selected_qty(cart) -> int:
     return cart.items.filter(is_selected=True).aggregate(q=Sum("quantity"))["q"] or 0
 
 # page (redirect ke login kalau belum login)
-def cart_page(request):
+def cart_page(request): #nampilin page cart ke user
     if not request.user.is_authenticated:
         messages.info(request, "Please log in to view your cart.")
         try:
@@ -28,9 +28,9 @@ def cart_page(request):
             login_url = reverse("login")
         return redirect(f"{login_url}?next={request.get_full_path()}")
 
-    cart, _ = Cart.objects.get_or_create(user=request.user)
+    cart, _ = Cart.objects.get_or_create(user=request.user) # foreign key ke user (one to one)
     items = cart.items.select_related("product").all()
-    return render(request, "cart/cart.html", {
+    return render(request, "cart/cart.html", { # read
         "cart": cart,
         "items": items,
         "total_items": cart.total_items(),  
@@ -39,14 +39,15 @@ def cart_page(request):
 # data (untuk render via JS) 
 @require_GET
 @login_required
-def cart_json(request):
+def cart_json(request): #ngasih data isi cart ke javascript
+    # biar JavaScript di halaman cart bisa refresh tampilan atau ambil data terbaru tanpa reload seluruh halaman
     cart, _ = Cart.objects.get_or_create(user=request.user)
     qs = cart.items.select_related("product")
 
     selected = request.GET.get("selected")
-    if selected == "1":
+    if selected == "1": #cuma item yang dicentang
         qs = qs.filter(is_selected=True)
-    elif selected == "0":
+    elif selected == "0": #cuma item yang gak dicentang
         qs = qs.filter(is_selected=False)
 
     items = []
@@ -76,14 +77,14 @@ def cart_json(request):
 @login_required
 @transaction.atomic
 def set_quantity_ajax(request, item_id: int):
-    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user) # lock cart + item
     item = get_object_or_404(
         CartItem.objects.select_for_update().select_related("product"),
         pk=item_id, cart=cart
     )
     # ambil quantity target
     try:
-        qty = int(request.POST.get("quantity", item.quantity))
+        qty = int(request.POST.get("quantity", item.quantity)) # baca quantity dari post
     except (TypeError, ValueError):
         return JsonResponse({
             "ok": False,
@@ -143,7 +144,7 @@ def set_quantity_ajax(request, item_id: int):
 @transaction.atomic
 def remove_item_ajax(request, item_id: int):
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    item = get_object_or_404(CartItem, pk=item_id, cart=cart)
+    item = get_object_or_404(CartItem, pk=item_id, cart=cart) #foreign ke cart (1 cart bisa punya banyak item)
     item.delete()
     return JsonResponse({
         "ok": True,
@@ -172,7 +173,7 @@ def clear_cart_ajax(request):
 @require_POST
 @login_required
 @transaction.atomic
-def toggle_select_ajax(request, item_id: int):
+def toggle_select_ajax(request, item_id: int): # balikin selected count sm selected qty
     cart, _ = Cart.objects.get_or_create(user=request.user)
     item = get_object_or_404(CartItem, pk=item_id, cart=cart)
 
@@ -194,7 +195,7 @@ def toggle_select_ajax(request, item_id: int):
 @require_POST
 @login_required
 @transaction.atomic
-def select_all_ajax(request):
+def select_all_ajax(request): # balikin ulang angka
     cart, _ = Cart.objects.get_or_create(user=request.user)
     cart.items.update(is_selected=True)
     return JsonResponse({
@@ -208,7 +209,7 @@ def select_all_ajax(request):
 @require_POST
 @login_required
 @transaction.atomic
-def unselect_all_ajax(request):
+def unselect_all_ajax(request): # balikin 0
     cart, _ = Cart.objects.get_or_create(user=request.user)
     cart.items.update(is_selected=False)
     return JsonResponse({
@@ -222,10 +223,12 @@ def unselect_all_ajax(request):
 @login_required
 @transaction.atomic
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product.objects.select_for_update(), pk=product_id)
+    product = get_object_or_404(Product.objects.select_for_update(), pk=product_id) # fk ke catalog.models.Product
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
 
     is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+    # balikin JSON kalau dr add to cart di katalog
+    # kalau dr halaman biasa, balikin redirect + message
 
     def respond(ok, msg, warn=False, added=False):
         if is_ajax:

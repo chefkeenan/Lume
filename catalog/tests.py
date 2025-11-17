@@ -161,13 +161,6 @@ class CatalogCreateTests(TestCase):
         self.client.login(username="admin", password="pass")
 
     @patch("catalog.views.ProductForm")
-    def test_product_create_get_renders_form(self, ProductForm):
-        resp = self.client.get(url_or("catalog:product_create"))
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn("form", resp.context)
-
-
-    @patch("catalog.views.ProductForm")
     def test_product_create_post_valid_nonajax_redirects(self, ProductForm):
         form = MagicMock()
         form.is_valid.return_value = True

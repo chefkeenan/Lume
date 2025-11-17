@@ -1,4 +1,3 @@
-# checkout/views.py
 from decimal import Decimal
 
 from django.contrib import messages
@@ -22,7 +21,6 @@ def cart_checkout_page(request):
         user=request.user
     )
 
-    # hanya item terpilih
     items_qs = cart.items.select_related("product").filter(is_selected=True)
     items = list(items_qs)
 
@@ -30,7 +28,6 @@ def cart_checkout_page(request):
         messages.error(request, "Pilih dulu item yang mau di-checkout.")
         return redirect("cart:page")
 
-    # hitung subtotal/ongkir
     subtotal = sum(ci.product.price * ci.quantity for ci in items)
     shipping = ProductOrder.FLAT_SHIPPING if items else Decimal("0")
     total = subtotal + shipping
@@ -40,7 +37,7 @@ def cart_checkout_page(request):
                             getattr(ci.product, "name", str(ci.product)))
         ci.line_total = ci.product.price * ci.quantity
 
-    items_count = sum(ci.quantity for ci in items)  # total item (bukan jumlah SKU)
+    items_count = sum(ci.quantity for ci in items)
 
     form = CartCheckoutForm()
     return render(request, "checkout/cart_checkout_page.html", {
@@ -69,7 +66,6 @@ def checkout_cart_create(request):
         user=request.user
     )
 
-    # ambil hanya item terpilih
     selected_qs = cart.items.select_related("product").filter(is_selected=True)
     if not selected_qs.exists():
         messages.error(request, "Tidak ada item yang dipilih untuk checkout.")
@@ -135,7 +131,6 @@ def checkout_cart_create(request):
 
     return redirect("checkout:order_confirmed")
 
-#BOOKING CLASS -> CHECKOUT (single, tanpa ongkir)
 def _weekday_map():
     return {
         'Mon': 'Monday', 'Tue': 'Tuesday', 'Wed': 'Wednesday',
