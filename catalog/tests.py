@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from unittest.mock import patch, MagicMock
 from catalog import views as catalog_views
 
+# suite ini fokus ke akses admin modal + guard HTTP method
 User = get_user_model()
 
 UID = "00000000-0000-0000-0000-000000000001"

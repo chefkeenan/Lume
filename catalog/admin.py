@@ -5,6 +5,7 @@ from django.db.models import Count
 from .models import Product 
 import csv
 
+# helper kecil buat tampilan admin yang ramah operasional
 def _rupiah(n):
     s = f"{n:,}"
     return "Rp" + s.replace(",", ".")
