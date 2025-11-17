@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import api
 
 app_name = "cart"
 
@@ -21,4 +22,11 @@ urlpatterns = [
 
     # add to cart dari katalog
     path("add/<uuid:product_id>/", views.add_to_cart, name="add"),
+
+    # API khusus Flutter
+    path("flutter/list/", api.cart_list_flutter, name="flutter_list"),
+    path("flutter/add/", api.add_to_cart_flutter, name="flutter_add"),
+    path("flutter/set-qty/", api.set_quantity_flutter, name="flutter_set_qty"),
+    path("flutter/remove/", api.remove_item_flutter, name="flutter_remove"),
+
 ]
