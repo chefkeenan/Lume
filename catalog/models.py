@@ -17,7 +17,7 @@ class Product(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        help_text="ID unik dari dataset/CSV (1 baris CSV = 1 produk).",)
+        help_text="ID unik dari dataset/CSV (1 baris CSV = 1 produk).",)  # dipakai importer buat dedupe/update
 
     def __str__(self):
         return f"{self.product_name} - Rp{self.price:,}"

@@ -62,6 +62,7 @@ class Command(BaseCommand):
         if not csv_path.exists():
             raise CommandError(f"CSV tidak ditemukan: {csv_path}")
 
+        # admin bisa pilih kunci pencocokan ulang (default external_id)
         dedupe_fields = [f.strip() for f in str(opts["dedupe_by"]).split(",") if f.strip()]
         dry_run = opts["dry_run"]
 

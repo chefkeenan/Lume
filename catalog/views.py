@@ -10,6 +10,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from catalog.models import Product
 
+# semua endpoint admin guarded oleh helper sederhana ini
 def is_admin(u): return u.is_staff
 
 @login_required
@@ -42,6 +43,7 @@ def product_update(request, pk):
     obj = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST, request.FILES, instance=obj)
 
+    # AJAX branch -> balikin JSON supaya modal JS bisa update DOM tanpa reload
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         if form.is_valid():
             obj = form.save()

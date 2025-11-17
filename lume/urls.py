@@ -26,4 +26,6 @@ urlpatterns = [
     path("", include(("main.urls", "main"), namespace="main")),
     path("checkout/", include("checkout.urls")),
     path("useradmin/", include(("user_admin.urls", "useradmin"), namespace="useradmin")),
+    path("api/catalog/", include(("catalog.urls", "catalog_api"), namespace="catalog_api")),
+
 ]

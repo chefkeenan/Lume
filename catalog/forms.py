@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django.utils.html import strip_tags
 from .models import Product
 
+# single source of truth for Tailwind-friendly input style
 BASE_INPUT = {"class": "w-full rounded-lg border px-3 py-2"}
 
 class ProductForm(ModelForm):
@@ -29,7 +30,7 @@ class ProductForm(ModelForm):
 
     def clean_product_name(self):
         name = self.cleaned_data.get("product_name", "")
-        return strip_tags(name).strip()
+        return strip_tags(name).strip()  # buang HTML injection & whitespace
 
     def clean_description(self):
         description = self.cleaned_data.get("description", "")

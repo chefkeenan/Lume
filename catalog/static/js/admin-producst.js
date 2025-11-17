@@ -1,4 +1,5 @@
 (function () {
+  // Controller utk semua modal CRUD katalog di sisi admin
   const editModal   = document.getElementById('editModal');
   const editBody    = document.getElementById('editModalBody');
 

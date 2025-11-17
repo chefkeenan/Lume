@@ -13,4 +13,8 @@ urlpatterns = [
     path("products/<uuid:pk>/edit/",       views.product_update,     name="product_edit"),
     path("products/<uuid:pk>/delete/", views.product_delete, name="product_delete"),
     path("products/<uuid:id>/", views.product_detail, name="detail"),
+    
+    path("api/products/", views.api_products, name="api_products"),
+    path("api/products/<uuid:pk>/", views.api_product_detail, name="api_product_detail"),
+
 ]
