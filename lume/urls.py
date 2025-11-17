@@ -27,3 +27,4 @@ urlpatterns = [
     path("checkout/", include("checkout.urls")),
     path("useradmin/", include(("user_admin.urls", "useradmin"), namespace="useradmin")),  # <- ini
 ]
+

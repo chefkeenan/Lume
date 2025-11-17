@@ -5,7 +5,7 @@ import uuid
 
 class Cart(models.Model):
     cart_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(
+    user = models.OneToOneField( # setiap user 1 keranjang
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="cart",
@@ -15,7 +15,7 @@ class Cart(models.Model):
         return f"Cart({self.user.username})"
 
     # helpers (dipanggil dari views)
-    def add(self, product, qty: int = 1):
+    def add(self, product, qty: int = 1): # create atau update
         if qty < 1:
             qty = 1
         item, created = self.items.get_or_create(
@@ -27,7 +27,7 @@ class Cart(models.Model):
             item.save(update_fields=["quantity"])
         return item
 
-    def set_quantity(self, product, qty: int):
+    def set_quantity(self, product, qty: int): #update atau delete
         try:
             item = self.items.get(product=product)
         except CartItem.DoesNotExist:
@@ -39,25 +39,25 @@ class Cart(models.Model):
         item.save(update_fields=["quantity"])
         return item
 
-    def remove_product(self, product):
+    def remove_product(self, product): # delete
         self.items.filter(product=product).delete()
 
-    def clear(self):
+    def clear(self): # delete all
         self.items.all().delete()
 
     def total_items(self) -> int:
         return self.items.aggregate(total=Sum("quantity"))["total"] or 0
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items") # 1 cart bisa punya banyak item
+    product = models.ForeignKey( # cart refer ke catalog.Product
         "catalog.Product", on_delete=models.CASCADE, related_name="cart_items"
     )
     quantity = models.PositiveIntegerField(default=1)
     is_selected = models.BooleanField(default=True)
 
     class Meta:
-        constraints = [
+        constraints = [ # 1 produk gabisa di double di cart yg sama
             models.UniqueConstraint(
                 fields=["cart", "product"], name="uniq_product_per_cart"
             )
