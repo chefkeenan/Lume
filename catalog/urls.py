@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, api
 
 app_name = "catalog"
 
@@ -16,5 +16,10 @@ urlpatterns = [
     
     path("api/products/", views.api_products, name="api_products"),
     path("api/products/<uuid:pk>/", views.api_product_detail, name="api_product_detail"),
+    path("api/products/", api.api_products, name="api_products"),
+    path("api/products/<uuid:pk>/", api.api_product_detail, name="api_product_detail"),
+    path("api/products/create/", api.api_product_create, name="api_product_create"),
+    path("api/products/<uuid:pk>/update/", api.api_product_update, name="api_product_update"),
+    path("api/products/<uuid:pk>/delete/", api.api_product_delete, name="api_product_delete"),
 
 ]
