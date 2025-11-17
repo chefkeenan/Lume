@@ -14,8 +14,7 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart({self.user.username})"
 
-    # helpers (dipanggil dari views)
-    def add(self, product, qty: int = 1): # create atau update
+    def add(self, product, qty: int = 1):
         if qty < 1:
             qty = 1
         item, created = self.items.get_or_create(

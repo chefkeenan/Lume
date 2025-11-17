@@ -18,13 +18,11 @@ def is_admin(u):
 @login_required(login_url="/user/login/")
 @user_passes_test(is_admin)
 def dashboard(request):
-    # AJAX
     return render(request, "admin_dashboard.html")
 
 @login_required(login_url="/user/login/")
 @user_passes_test(is_admin)
 def api_stats(request):
-    # Total income 
     prod_income = ProductOrder.objects.aggregate(s=Sum("total"))["s"] or Decimal("0")
     book_income = BookingOrder.objects.aggregate(s=Sum("total"))["s"] or Decimal("0")
     total_income = prod_income + book_income
@@ -69,7 +67,7 @@ def api_orders(request):
     qs = (
         ProductOrder.objects
         .select_related("user")
-        .prefetch_related("items")  # pastikan related_name='items' di ProductOrderItem
+        .prefetch_related("items") 
         .order_by("-created_at")[:300]
     )
 
@@ -77,7 +75,6 @@ def api_orders(request):
     for o in qs:
         line_items = []
         for it in o.items.all():
-            # harga/unit & subtotal dengan fallback aman
             price = getattr(it, "price", None)
             if price is None:
                 price = getattr(it, "unit_price", 0)
@@ -109,9 +106,9 @@ def api_orders(request):
             "user_name": o.user.username,
             "user_email": o.user.email,
             "amount": int(float(o.total) if o.total is not None else 0),
-            "status": "completed",  # sementara default
+            "status": "completed",  
             "date": localtime(o.created_at).strftime("%Y-%m-%d %H:%M"),
-            "line_items": line_items,  # <<— KUNCI BARU
+            "line_items": line_items,  
         })
 
     return JsonResponse({"ok": True, "orders": orders})

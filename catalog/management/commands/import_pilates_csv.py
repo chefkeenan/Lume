@@ -28,10 +28,6 @@ def _coalesce_description(row: dict) -> str:
         meta.append(f"Kategori: {row.get('category')}")
     if row.get("variant"):
         meta.append(f"Varian: {row.get('variant')}")
-    if row.get("marketplace"):
-        meta.append(f"Marketplace: {row.get('marketplace')}")
-    if row.get("source_url"):
-        meta.append(f"Sumber: {row.get('source_url')}")
     if meta:
         parts.append(" | ".join(meta))
     desc = "\n\n".join([p for p in parts if p])

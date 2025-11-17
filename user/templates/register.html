@@ -9,7 +9,6 @@
     <form method="post" action="{% url 'user:register' %}" class="space-y-5" id="registerForm" novalidate>
       {% csrf_token %}
 
-      <!-- Non-field (SSR) -->
       {% if form.non_field_errors %}
         <div class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           {{ form.non_field_errors }}
@@ -101,13 +100,12 @@
     const t1 = document.getElementById('toggleRegPw');
     const t2 = document.getElementById('toggleRegPw2');
 
-    // ====== toggle eye password ======
     function toggle(el, btn) {
       el.type = el.type === 'password' ? 'text' : 'password';
 
       if (el.type === 'text') {
         el.style.webkitTextSecurity = 'none';
-        if (btn) btn.textContent = '🙈';
+        if (btn) btn.textContent = '👁';
       } else {
         el.style.webkitTextSecurity = '';
         if (btn) btn.textContent = '👁';
@@ -121,7 +119,6 @@
     if (t1 && pw1) t1.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw1, t1); });
     if (t2 && pw2) t2.addEventListener('click', (e)=>{ e.preventDefault(); toggle(pw2, t2); });
 
-    // ====== password match check ======
     function checkMatch() {
       const match = pw1.value === pw2.value;
       errMatch.classList.toggle('hidden', match);
@@ -130,13 +127,12 @@
     pw1.addEventListener('input', checkMatch);
     pw2.addEventListener('input', checkMatch);
 
-    // ====== helper: ambil csrftoken dari cookie ======
     function getCookie(name) {
-      const v = ; ${document.cookie}.split(; ${name}=);
-      if (v.length === 2) return decodeURIComponent(v.pop().split(";").shift());
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return decodeURIComponent(parts.pop().split(";").shift());
     }
 
-    // ====== helper: tampilkan error dari server ======
     function showErr(id, messages){
       const el = document.getElementById(id);
       if (!el) return;
@@ -152,12 +148,8 @@
       });
     }
 
-    // ====== submit handler (AJAX) ======
     form.addEventListener('submit', async function (e) {
-      // stop normal form submit
       e.preventDefault();
-
-      // jangan lanjut kalau password mismatch
       if (!checkMatch()) {
         return;
       }
@@ -165,7 +157,7 @@
       clearErr();
 
       const fd = new FormData(form);
-      fd.set("ajax", "1"); // biar view balikin JSON
+      fd.set("ajax", "1");
 
       const csrftoken = getCookie("csrftoken") || "";
 
@@ -176,7 +168,7 @@
           "X-CSRFToken": csrftoken,
         },
         body: fd,
-        credentials: "same-origin", // penting: kirim cookie CSRF ke server
+        credentials: "same-origin", 
       });
 
       const ct = res.headers.get("content-type") || "";
@@ -188,7 +180,6 @@
       const data = await res.json().catch(()=> ({}));
 
       if (res.ok && data.ok) {
-        // success
         localStorage.setItem("postRedirectToast", JSON.stringify({
           type: "success",
           text: data.message || "Registration successful."
@@ -197,7 +188,6 @@
         return;
       }
 
-      // kalau gagal validasi
       const errs = data.errors || {};
       if (errs._all)   showErr("err-all", errs.all_);
       if (errs.username)  showErr("err-username", errs.username);

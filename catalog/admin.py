@@ -1,20 +1,13 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.http import HttpResponse
-from .models import Product
+from django.db.models import Count
+from .models import Product 
 import csv
 
 def _rupiah(n):
     s = f"{n:,}"
     return "Rp" + s.replace(",", ".")
-
-@admin.action(description="Mark as In Stock")
-def mark_in_stock(modeladmin, request, queryset):
-    queryset.update(inStock=True)
-
-@admin.action(description="Mark as Out of Stock")
-def mark_out_of_stock(modeladmin, request, queryset):
-    queryset.update(inStock=False)
 
 @admin.action(description="Export selected to CSV")
 def export_as_csv(modeladmin, request, queryset):
@@ -26,22 +19,40 @@ def export_as_csv(modeladmin, request, queryset):
         writer.writerow([str(p.id), p.product_name, p.price, p.stock, p.inStock, p.thumbnail or "", p.description or ""])
     return response
 
-class ProductAdmin(admin.ModelAdmin):
+class ReadOnlyAdmin(admin.ModelAdmin):
+    """Base admin: allow viewing but forbid add/change/delete."""
+    actions = (export_as_csv,)  
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return True
+
+class ProductAdmin(ReadOnlyAdmin):
     list_display = ("thumb", "product_name", "price_fmt", "stock", "inStock", "desc_short", "id")
-    list_display_links = ("product_name",)
-    list_editable = ("stock", "inStock")
+    list_display_links = ("product_name",)  
     search_fields = ("product_name", "description")
     list_filter = ("inStock",)
     ordering = ("-inStock", "-stock", "product_name")
-    readonly_fields = ("id", "image_preview", "proxied_image_preview")
-    actions = (mark_in_stock, mark_out_of_stock, export_as_csv)
+    readonly_fields = (
+        "id", "product_name", "price", "stock", "inStock",
+        "thumbnail", "image_preview", "proxied_image_preview", "description"
+    )
+    actions = (export_as_csv,)
     fieldsets = (
         ("Info Produk", {"fields": ("id", "product_name", "price", "stock", "inStock")}),
         ("Media", {"fields": ("thumbnail", "image_preview", "proxied_image_preview")}),
         ("Deskripsi", {"fields": ("description",)}),
     )
     list_per_page = 25
-    save_on_top = True
+    save_on_top = False  
 
     @admin.display(ordering="price", description="Price")
     def price_fmt(self, obj):
@@ -54,7 +65,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="Thumb")
     def thumb(self, obj):
-        url = obj.normalized_thumbnail
+        url = getattr(obj, "normalized_thumbnail", None)
         if not url:
             return "-"
         return mark_safe(
@@ -63,14 +74,14 @@ class ProductAdmin(admin.ModelAdmin):
 
     @admin.display(description="Thumbnail Preview")
     def image_preview(self, obj):
-        url = obj.normalized_thumbnail
+        url = getattr(obj, "normalized_thumbnail", None)
         if not url:
             return "No image"
         return mark_safe(f'<img src="{url}" style="max-width:320px;border-radius:12px;" />')
 
     @admin.display(description="Proxied Preview")
     def proxied_image_preview(self, obj):
-        url = obj.proxied_thumbnail
+        url = getattr(obj, "proxied_thumbnail", None)
         if not url:
             return "No image"
         return mark_safe(f'<img src="{url}" style="max-width:320px;border-radius:12px;" />')

@@ -74,7 +74,6 @@ Admin
 - Dapat melakukan CRUD pada kelas pilates (tambah, edit, hapus jadwal)
 - Memiliki akses ke Admin Dashboard untuk melihat:
     - Total pengguna, pendapatan, pesanan, dan booking
-    - Mengatur status pesanan (paid, shipped, picked up)
 
 Link PWS : https://juma-jordan-lume.pbp.cs.ui.ac.id/
 Link figma : https://www.figma.com/design/osIH3CEyPlh5W9PMRyY8Hz/Lum%C3%A9?node-id=0-1&t=QfRKmdLKiJh1yp1W-1 

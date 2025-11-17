@@ -14,7 +14,6 @@
           bg-[#ede9de] hover:bg-[#e4dfd2] transition-colors
           border border-stone-300 text-stone-800 shadow-sm
           mb-8 md:mb-10">
-  <!-- arrow-left -->
   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
   </svg>
@@ -27,12 +26,9 @@
     <p class="font-bold text-stone-600">View orders, bookings, users, and view analytics</p>
   </div>
 
-  <!-- Stats -->
   <div id="stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-    <!-- diisi via JS -->
   </div>
 
-  <!-- Tabs -->
   <div class="flex gap-4 mb-6 border-b border-stone-200 overflow-x-auto" id="tabs">
     <button data-tab="overview" class="tab-btn px-4 py-3 font-semibold text-primary border-b-2 border-primary">Overview</button>
     <button data-tab="orders"   class="tab-btn px-4 py-3 font-semibold text-stone-500 hover:text-stone-800">Orders</button>
@@ -40,17 +36,14 @@
     <button data-tab="users"    class="tab-btn px-4 py-3 font-semibold text-stone-500 hover:text-stone-800">Users</button>
   </div>
 
-  <!-- Panels -->
   <section id="panel-overview" class="space-y-8">
     <div class="bg-[#ede9de] border border-stone-300 rounded-xl p-6">
       <h2 class="text-2xl font-light text-stone-900 mb-4">Recent Activity</h2>
       <div id="recent-activity" class="divide-y divide-stone-300">
-        <!-- diisi via JS -->
       </div>
     </div>
   </section>
 
-  <!-- Orders Tab -->
   <section id="panel-orders" class="hidden">
     <div class="rounded-2xl p-6 border border-stone-300 bg-[#fbf8f5]">
       <div class="mb-4 flex items-center justify-between">
@@ -61,7 +54,6 @@
     </div>
   </section>
 
-  <!-- Bookings Tab -->
   <section id="panel-bookings" class="hidden">
     <div class="overflow-x-auto bg-[#ede9de] border border-stone-300 rounded-xl p-4">
       <table class="w-full text-left">
@@ -80,7 +72,6 @@
     </div>
   </section>
 
-  <!-- Users Tab -->
   <section id="panel-users" class="hidden">
     <div class="mb-4 flex items-center gap-2">
       <input id="user-search" type="text" placeholder="Search username…" class="w-full md:w-80 rounded-lg border border-stone-300 px-3 py-2">
@@ -106,7 +97,6 @@
 </main>
 
 <script>
-  // util kelas status
   function pill(status) {
     const s = String(status || "").toLowerCase();
 
@@ -133,7 +123,6 @@
     return `<span class="inline-flex items-center justify-center px-3 py-1.5 rounded-full ${cls} text-xs font-semibold">${status}</span>`;
   }
 
-  // Tabs
   const tabs = document.querySelectorAll(".tab-btn");
   const panels = {
     overview: document.getElementById("panel-overview"),
@@ -147,14 +136,12 @@
       btn.classList.add("text-primary","border-primary","border-b-2");
       Object.values(panels).forEach(el => el.classList.add("hidden"));
       panels[btn.dataset.tab].classList.remove("hidden");
-      // lazy load data per tab
       if (btn.dataset.tab === "orders") loadOrders();
       if (btn.dataset.tab === "bookings") loadBookings();
       if (btn.dataset.tab === "users") loadUsers();
     });
   });
 
-  // Load stats + activity on first paint
   document.addEventListener("DOMContentLoaded", () => {
     loadStats();
     loadActivity();

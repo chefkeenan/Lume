@@ -22,7 +22,6 @@
   </tbody>
 </table>
 
-<!-- Modal container -->
 <div id="modal" class="fixed inset-0 hidden items-center justify-center bg-black/50 z-[9999]">
   <div class="bg-white w-full max-w-lg rounded-xl p-4" id="modal-body"></div>
 </div>
@@ -30,21 +29,18 @@
 
 {% block extra_js %}
 <script>
-// ===== CSRF from cookie =====
 function getCookie(name){
   const v = `; ${document.cookie}`.split(`; ${name}=`);
   if (v.length===2) return decodeURIComponent(v.pop().split(';').shift());
 }
 const csrftoken = getCookie('csrftoken');
 
-// ===== modal helpers =====
 const $modal = document.getElementById('modal');
 const $modalBody = document.getElementById('modal-body');
 function openModal(html){ $modalBody.innerHTML = html; $modal.classList.remove('hidden'); $modal.classList.add('flex'); }
 function closeModal(){ $modal.classList.add('hidden'); $modal.classList.remove('flex'); $modalBody.innerHTML=''; }
 $modal.addEventListener('click', (e)=>{ if(e.target.id==='modal') closeModal(); });
 
-// ===== action buttons (edit/delete) =====
 document.getElementById('product-tbody').addEventListener('click', async (e)=>{
   const btn = e.target.closest('[data-action]');
   if(!btn) return;
@@ -52,7 +48,6 @@ document.getElementById('product-tbody').addEventListener('click', async (e)=>{
   const action = btn.dataset.action;
 
   if(action === 'edit'){
-    // GET form partial
     const editModalTpl = "{% url 'catalog:product_edit_modal' '00000000-0000-0000-0000-000000000000' %}";
     const editModalUrl = editModalTpl.replace('00000000-0000-0000-0000-000000000000', id);
 
@@ -99,7 +94,6 @@ document.getElementById('product-tbody').addEventListener('click', async (e)=>{
   }
 });
 
-// ===== submit form edit di dalam modal =====
 $modalBody.addEventListener('submit', async (e)=>{
   const form = e.target.closest('form[data-edit-form]');
   if(!form) return;
