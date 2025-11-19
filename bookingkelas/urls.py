@@ -18,5 +18,11 @@ urlpatterns = [
     path("classes/<int:pk>/edit/", views.class_edit, name="class_edit"),
     path("classes/<int:pk>/delete/", views.class_delete, name="class_delete"),
     path("classes/<int:pk>/get-form/", views.get_edit_form, name="get_edit_form"),
+
+    path("create-flutter/", views.create_session_flutter, name="create_session_flutter"),
+    path("edit-flutter/<int:pk>/", views.edit_session_flutter, name="edit_session_flutter"),
+    path("delete-flutter/<int:pk>/", views.delete_session_flutter, name="delete_session_flutter"),
+    path("book-flutter/", views.book_session_flutter, name="book_session_flutter"),
+    path("my-bookings/", views.my_bookings_flutter, name="my_bookings_flutter"),
 ]
 
