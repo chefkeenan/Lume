@@ -28,5 +28,8 @@ urlpatterns = [
     path("flutter/add/", api.add_to_cart_flutter, name="flutter_add"),
     path("flutter/set-qty/", api.set_quantity_flutter, name="flutter_set_qty"),
     path("flutter/remove/", api.remove_item_flutter, name="flutter_remove"),
-
+    path("flutter/clear/", api.clear_cart_flutter, name="flutter_clear"),
+    path("flutter/toggle/", api.toggle_select_flutter, name="flutter_toggle"),
+    path("flutter/select-all/", api.select_all_flutter, name="flutter_select_all"),
+    path("flutter/unselect-all/", api.unselect_all_flutter, name="flutter_unselect_all"),
 ]
