@@ -16,17 +16,18 @@
         </div>
       </div>
 
-      <button type="button" id="addModalCancel"
-        class="border border-[#C9C7C0] bg-stone-200 text-[#5C5B57] rounded-xl px-4 py-2 w-full font-semibold shadow-lm hover:bg-[#CECDC8] transition">
-        Cancel
-      </button>
-      <button type="submit"
-        class="border border-[#C9C7C0] bg-stone-500 text-white rounded-xl px-4 py-2 w-full font-semibold shadow-lm hover:bg-stone-700 transition">
-        Save Session
-      </button>
+      <div class="border-t border-[#C9C7C0] bg-[#D7D6D1] rounded-b-2xl grid grid-cols-2 gap-3 p-4 mt-auto">
+        <button type="button" id="addModalCancel"
+          class="border border-[#C9C7C0] bg-stone-200 text-[#5C5B57] rounded-xl px-4 py-2 w-full font-semibold shadow-lm hover:bg-[#CECDC8] transition">
+          Cancel
+        </button>
+        <button type="submit"
+          class="border border-[#C9C7C0] bg-stone-500 text-white rounded-xl px-4 py-2 w-full font-semibold shadow-lm hover:bg-stone-700 transition">
+          Save Session
+        </button>
+      </div>
+    </form>
   </div>
-  </form>
-</div>
 </div>
 
 <style>
@@ -57,7 +58,6 @@
     color: #6B7280;
   }
 
-  /* Merapikan layout checkbox 'Days' */
   .modal-form-fields #id_days {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -76,7 +76,6 @@
     align-items: center;
     gap: 8px;
     font-weight: 400;
-    /* Buat lebih tipis dari label utama */
   }
 
   .modal-form-fields #id_days input[type="checkbox"] {
@@ -97,7 +96,7 @@
       return;
     }
 
-    // Ambil parent <p> yang membungkus semua checkbox 'days'
+
     const daysContainer = firstDayCheckbox.closest('p');
     if (!daysContainer) {
       console.warn('Container <p> untuk "days" tidak ditemukan.');
@@ -106,15 +105,14 @@
 
     const toggleDaysField = () => {
       if (categorySelect.value.toLowerCase() === 'weekly') {
-        daysContainer.style.display = 'flex'; // Tampilkan (flex-direction: column)
+        daysContainer.style.display = 'flex';
       } else {
-        daysContainer.style.display = 'none'; // Sembunyikan untuk 'Daily' dll
+        daysContainer.style.display = 'none';
       }
     };
 
     categorySelect.addEventListener('change', toggleDaysField);
 
-    // Panggil saat pertama kali modal di-load
     toggleDaysField();
   });
 </script>

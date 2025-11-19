@@ -42,14 +42,10 @@
       data-fetch-url="{% url 'main:landing_highlights' %}">
       {% for p in highlights|slice:":6" %}
       <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
-        {% include "product_card.html" with p=p %}
+        {% include "catalog/product_card.html" with p=p %}
       </div>
       {% endfor %}
     </div>
-
-
-
-
 
     <div class="mt-10 text-center">
       <a href="{% url 'main:show_main' %}"
@@ -152,7 +148,6 @@
           </p>
         </div>
 
-        <!-- Footer -->
         <div class="mt-5">
           {% if user.is_authenticated %}
           {% if user.is_staff or user.is_superuser %}
@@ -174,7 +169,6 @@
           {% endif %}
         </div>
 
-        <!-- Popularity Ring -->
         <div class="absolute top-16 right-4 bg-[#E0D8C6] text-xs font-semibold px-3 py-1 rounded-full shadow-md">
           {{ c.num_bookings }} booked
         </div>
@@ -187,7 +181,6 @@
       {% endfor %}
     </div>
 
-    <!-- CTA -->
     <div class="mt-14 text-center">
       <a href="{% url 'bookingkelas:catalog' %}"
         class="inline-flex items-center gap-2 rounded-full px-8 py-3 text-lg font-semibold text-[#273225] shadow-[inset_0_-6px_12px_rgba(0,0,0,.15)] hover:opacity-95 transition"
@@ -197,8 +190,14 @@
     </div>
   </div>
 </section>
-{% include "product_modal.html" %}
+
+{% endblock %}
+{% block modals %}
+  {% include "catalog/product_modal.html" %}
+{% endblock %}
+{% block extra_js %}
 <script src="{% static 'js/class_modal.js' %}"></script>
 <script defer src="{% static 'js/helpers.js' %}"></script>
-
+<script defer src="{% static 'js/shop.js' %}"></script>
+<script src="{% static 'js/admin-producst.js' %}" defer></script>
 {% endblock %}

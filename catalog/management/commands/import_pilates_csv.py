@@ -28,10 +28,6 @@ def _coalesce_description(row: dict) -> str:
         meta.append(f"Kategori: {row.get('category')}")
     if row.get("variant"):
         meta.append(f"Varian: {row.get('variant')}")
-    if row.get("marketplace"):
-        meta.append(f"Marketplace: {row.get('marketplace')}")
-    if row.get("source_url"):
-        meta.append(f"Sumber: {row.get('source_url')}")
     if meta:
         parts.append(" | ".join(meta))
     desc = "\n\n".join([p for p in parts if p])
@@ -66,6 +62,7 @@ class Command(BaseCommand):
         if not csv_path.exists():
             raise CommandError(f"CSV tidak ditemukan: {csv_path}")
 
+        # admin bisa pilih kunci pencocokan ulang (default external_id)
         dedupe_fields = [f.strip() for f in str(opts["dedupe_by"]).split(",") if f.strip()]
         dry_run = opts["dry_run"]
 

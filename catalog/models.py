@@ -1,4 +1,3 @@
-# catalog/models.py
 import uuid
 from urllib.parse import quote
 
@@ -18,7 +17,7 @@ class Product(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        help_text="ID unik dari dataset/CSV (1 baris CSV = 1 produk).",)
+        help_text="ID unik dari dataset/CSV (1 baris CSV = 1 produk).",)  # dipakai importer buat dedupe/update
 
     def __str__(self):
         return f"{self.product_name} - Rp{self.price:,}"
@@ -44,7 +43,7 @@ class Product(models.Model):
         url = self.normalized_thumbnail
         if not url:
             return ""
-        # hapus skema, encode
+        
         no_scheme = url.replace("https://", "").replace("http://", "")
         return (
             "https://images.weserv.nl/?url="

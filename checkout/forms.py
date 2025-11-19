@@ -1,6 +1,5 @@
 from django import forms
 
-# base style untuk semua input
 BASE_INPUT_STYLE = (
     "w-full rounded-2xl border border-[#D9DBD0] px-3 py-2 bg-white/90 "
     "placeholder:text-[#9BA091] focus:outline-none focus:ring-2 focus:ring-[#C9CCBF]"
@@ -22,7 +21,6 @@ class CartCheckoutForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # placeholder opsional
         placeholders = {
             "address_line1": "Street address, house no.",
             "address_line2": "Apartment, unit, etc. (optional)",
