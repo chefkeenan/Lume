@@ -1,4 +1,4 @@
-
+# cart/api.py
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -9,13 +9,18 @@ from django.db import transaction
 
 from .models import Cart, CartItem
 from catalog.models import Product
-from .views import _selected_qty  
-
+from .views import _selected_qty 
 
 @login_required
 def cart_list_flutter(request):
     cart, _ = Cart.objects.get_or_create(user=request.user)
-    qs = cart.items.select_related("product").all()
+    qs = cart.items.select_related("product")
+
+    selected = request.GET.get("selected")
+    if selected == "1":
+        qs = qs.filter(is_selected=True)
+    elif selected == "0":
+        qs = qs.filter(is_selected=False)
 
     items = []
     for it in qs:
@@ -39,7 +44,7 @@ def cart_list_flutter(request):
         "selected_qty": _selected_qty(cart),
         "items": items,
     })
-    
+
 
 @csrf_exempt
 @login_required
@@ -134,7 +139,7 @@ def set_quantity_flutter(request):
     )
     product = item.product
 
-    # out of stock: hapus
+    # kalo out of stock, hapus row
     if not getattr(product, "inStock", True) or product.stock <= 0:
         item.delete()
         return JsonResponse({
@@ -145,6 +150,7 @@ def set_quantity_flutter(request):
             "selected_qty": _selected_qty(cart),
         })
 
+    # kalau qty minta lebih besar dr stok
     if qty > product.stock:
         return JsonResponse({
             "ok": False,
@@ -154,6 +160,7 @@ def set_quantity_flutter(request):
             "selected_qty": _selected_qty(cart),
         })
 
+    # kalau qty <= 0 -> remove
     if qty <= 0:
         item.delete()
         return JsonResponse({
@@ -164,6 +171,7 @@ def set_quantity_flutter(request):
             "selected_qty": _selected_qty(cart),
         })
 
+    # normal update
     item.quantity = qty
     item.save(update_fields=["quantity"])
 
@@ -180,11 +188,6 @@ def set_quantity_flutter(request):
 @login_required
 @transaction.atomic
 def remove_item_flutter(request):
-    """
-    Hapus item dari Flutter.
-    Method: POST (JSON)
-    Body: { "item_id": 123 }
-    """
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
@@ -208,4 +211,99 @@ def remove_item_flutter(request):
         "total_items": cart.total_items(),
         "selected_count": cart.items.filter(is_selected=True).count(),
         "selected_qty": _selected_qty(cart),
+    })
+
+
+@csrf_exempt
+@login_required
+@transaction.atomic
+def clear_cart_flutter(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    cart.clear()
+
+    return JsonResponse({
+        "ok": True,
+        "message": "Cart cleared.",
+        "total_items": 0,
+        "selected_count": 0,
+        "selected_qty": 0,
+    })
+
+
+@csrf_exempt
+@login_required
+@transaction.atomic
+def toggle_select_flutter(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("Invalid JSON")
+
+    item_id = data.get("item_id")
+    is_selected = data.get("is_selected")
+
+    if item_id is None or is_selected is None:
+        return HttpResponseBadRequest("item_id and is_selected are required")
+
+    # is_selected di JSON = true/false -> convert ke bool
+    if not isinstance(is_selected, bool):
+        return HttpResponseBadRequest("is_selected must be boolean")
+
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    item = get_object_or_404(CartItem, pk=item_id, cart=cart)
+
+    item.is_selected = is_selected
+    item.save(update_fields=["is_selected"])
+
+    return JsonResponse({
+        "ok": True,
+        "message": "Selection updated.",
+        "item_id": item_id,
+        "is_selected": item.is_selected,
+        "selected_count": cart.items.filter(is_selected=True).count(),
+        "selected_qty": _selected_qty(cart),
+    })
+
+
+@csrf_exempt
+@login_required
+@transaction.atomic
+def select_all_flutter(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    cart.items.update(is_selected=True)
+
+    return JsonResponse({
+        "ok": True,
+        "message": "All items selected.",
+        "selected_count": cart.items.filter(is_selected=True).count(),
+        "total_items": cart.total_items(),
+        "selected_qty": _selected_qty(cart),
+    })
+
+
+@csrf_exempt
+@login_required
+@transaction.atomic
+def unselect_all_flutter(request):
+    if request.method != "POST":
+        return HttpResponseBadRequest("POST required")
+
+    cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
+    cart.items.update(is_selected=False)
+
+    return JsonResponse({
+        "ok": True,
+        "message": "Selection cleared.",
+        "selected_count": 0,
+        "total_items": cart.total_items(),
+        "selected_qty": 0,
     })
