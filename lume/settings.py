@@ -39,6 +39,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost",
     "http://127.0.0.1",
     "http://localhost:51134",
+    "http://10.0.2.2",      # <--- TAMBAHKAN INI
+    "http://10.0.2.2:8000",
 ]
 
 
