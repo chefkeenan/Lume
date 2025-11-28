@@ -31,7 +31,7 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2", "127.0.0.1:8000"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://juma-jordan-lume.pbp.cs.ui.ac.id",
@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.staticfiles', 
+    'corsheaders',
     'bookingkelas',
     'catalog',
     'cart',
@@ -61,7 +62,6 @@ INSTALLED_APPS = [
     'user',
     'user_admin',
     'main',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [

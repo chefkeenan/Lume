@@ -27,21 +27,29 @@ def login_api(request):
     if request.method != "POST":
         return JsonResponse({"detail": "Method not allowed"}, status=405)
 
-    try:
-        body = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({"detail": "Invalid JSON"}, status=400)
-
-    username = body.get("username", "").strip()
-    password = body.get("password", "")
+    # 1. Cek Data: Ambil dari request.POST jika ada (dari pbp_django_auth.login())
+    if request.POST:
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+    else:
+        # 2. Fallback: Jika tidak ada di request.POST, coba parsing dari JSON body
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"detail": "Invalid JSON or Empty Body"}, status=400)
+        
+        username = body.get("username", "").strip()
+        password = body.get("password", "")
 
     if not username or not password:
         return JsonResponse({"detail": "Username and password required"}, status=400)
 
+    # Lanjutkan dengan autentikasi menggunakan data yang sudah diparsing
     user = authenticate(request, username=username, password=password)
     if user is None:
-        return JsonResponse({"detail": "Invalid credentials"}, status=400)
-
+        return JsonResponse({"detail": "Invalid credentials"}, status=400) # Ganti status ke 400
+    
+    # Session dibuat
     login(request, user)
 
     return JsonResponse({
