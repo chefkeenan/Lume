@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 def _is_ajax(request):
     return (
@@ -66,7 +67,7 @@ def login_user(request):
         form = AuthenticationForm(request)
     return render(request, "login.html", {"form": form})
 
-@ensure_csrf_cookie
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def register_user(request):
     if request.method == "POST":
@@ -98,6 +99,7 @@ def register_user(request):
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
 
+@csrf_exempt
 def logout_user(request):
     logout(request)
     return redirect("main:landing")
