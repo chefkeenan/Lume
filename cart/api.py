@@ -11,13 +11,10 @@ from .models import Cart, CartItem
 from catalog.models import Product
 from .views import _selected_qty 
 
+@login_required
+@csrf_exempt
 def cart_list_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
+        
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "GET":
         return HttpResponseBadRequest("GET required")
@@ -55,15 +52,10 @@ def cart_list_flutter(request):
         "items": items,
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def add_to_cart_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
 
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
@@ -123,16 +115,10 @@ def add_to_cart_flutter(request):
         "cart_count": cart.total_items(),
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def set_quantity_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
@@ -141,14 +127,6 @@ def set_quantity_flutter(request):
         data = json.loads(request.body)
     except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
-
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest("Invalid JSON")
-
     item_id = data.get("item_id")
     qty = data.get("quantity")
 
@@ -212,24 +190,10 @@ def set_quantity_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def remove_item_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
-    # 2. Lanjut ke logika yang sudah ada...
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
-
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
-        return HttpResponseBadRequest("Invalid JSON")
     
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
@@ -256,15 +220,10 @@ def remove_item_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def clear_cart_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
 
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
@@ -274,9 +233,6 @@ def clear_cart_flutter(request):
         data = json.loads(request.body)
     except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
-    
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.clear()
@@ -289,25 +245,10 @@ def clear_cart_flutter(request):
         "selected_qty": 0,
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def toggle_select_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
-    # 2. Lanjut ke logika yang sudah ada...
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
-
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
-        return HttpResponseBadRequest("Invalid JSON")
-    
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
@@ -341,16 +282,10 @@ def toggle_select_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def select_all_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
@@ -359,9 +294,6 @@ def select_all_flutter(request):
         data = json.loads(request.body)
     except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
-    
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.items.update(is_selected=True)
@@ -374,16 +306,10 @@ def select_all_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
+@login_required
 @csrf_exempt
 @transaction.atomic
 def unselect_all_flutter(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            "ok": False,
-            "message": "User not authenticated. Please login again."
-        }, status=401)
-
     # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
@@ -392,9 +318,6 @@ def unselect_all_flutter(request):
         data = json.loads(request.body)
     except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
-    
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.items.update(is_selected=False)
