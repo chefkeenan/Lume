@@ -31,16 +31,15 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2", "127.0.0.1:8000"]
+ALLOWED_HOSTS = ["localhost", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2", "127.0.0.1", "127.0.0.1:8000"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://juma-jordan-lume.pbp.cs.ui.ac.id",
     "https://juma-jordan-lume.pbp.cs.ui.ac.id",
     "http://localhost",
-    "http://127.0.0.1",
     "http://localhost:51134",
-    "http://10.0.2.2",      # <--- TAMBAHKAN INI
-    "http://10.0.2.2:8000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
 ]
 
 
@@ -187,3 +186,4 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SAMESITE = 'Lax'
+

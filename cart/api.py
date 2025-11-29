@@ -19,13 +19,9 @@ def cart_list_flutter(request):
         }, status=401)
 
     # 2. Lanjut ke logika yang sudah ada...
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
+    if request.method != "GET":
+        return HttpResponseBadRequest("GET required")
 
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
-        return HttpResponseBadRequest("Invalid JSON")
     
     cart, _ = Cart.objects.get_or_create(user=request.user)
     qs = cart.items.select_related("product")
@@ -76,13 +72,6 @@ def add_to_cart_flutter(request):
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
-        return HttpResponseBadRequest("Invalid JSON")
-    if request.method != "POST":
-        return HttpResponseBadRequest("POST required")
-
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
         return HttpResponseBadRequest("Invalid JSON")
 
     product_id = data.get("product_id")
