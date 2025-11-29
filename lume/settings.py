@@ -31,10 +31,15 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2"]
+ALLOWED_HOSTS = ["localhost", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2", "127.0.0.1", "127.0.0.1:8000"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://juma-jordan-lume.pbp.cs.ui.ac.id", "https://*.127.0.0.1", "https://*.localhost",
+    "https://juma-jordan-lume.pbp.cs.ui.ac.id",
+    "https://juma-jordan-lume.pbp.cs.ui.ac.id",
+    "http://localhost",
+    "http://localhost:51134",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
 ]
 
 
@@ -48,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.staticfiles', 
+    'corsheaders',
     'bookingkelas',
     'catalog',
     'cart',
@@ -55,7 +61,6 @@ INSTALLED_APPS = [
     'user',
     'user_admin',
     'main',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -169,13 +174,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-if PRODUCTION:
+if not DEBUG:
+    # Mode Production (HTTPS)
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SAMESITE = 'None'
     SESSION_COOKIE_SAMESITE = 'None'
 else:
+    # Mode Development/Lokal (HTTP) - WAJIB AGAR FLUTTER BISA LOGIN
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_SAMESITE = 'Lax'
+

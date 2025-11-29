@@ -12,7 +12,14 @@ from catalog.models import Product
 from .views import _selected_qty 
 
 @login_required
+@csrf_exempt
 def cart_list_flutter(request):
+        
+    # 2. Lanjut ke logika yang sudah ada...
+    if request.method != "GET":
+        return HttpResponseBadRequest("GET required")
+
+    
     cart, _ = Cart.objects.get_or_create(user=request.user)
     qs = cart.items.select_related("product")
 
@@ -45,17 +52,18 @@ def cart_list_flutter(request):
         "items": items,
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def add_to_cart_flutter(request):
+
+    # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
 
     product_id = data.get("product_id")
@@ -107,19 +115,18 @@ def add_to_cart_flutter(request):
         "cart_count": cart.total_items(),
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def set_quantity_flutter(request):
+    # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
         return HttpResponseBadRequest("Invalid JSON")
-
     item_id = data.get("item_id")
     qty = data.get("quantity")
 
@@ -183,11 +190,11 @@ def set_quantity_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def remove_item_flutter(request):
+    
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
 
@@ -213,13 +220,19 @@ def remove_item_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def clear_cart_flutter(request):
+
+    # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
+        return HttpResponseBadRequest("Invalid JSON")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.clear()
@@ -232,9 +245,8 @@ def clear_cart_flutter(request):
         "selected_qty": 0,
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def toggle_select_flutter(request):
     if request.method != "POST":
@@ -270,13 +282,18 @@ def toggle_select_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def select_all_flutter(request):
+    # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
+        return HttpResponseBadRequest("Invalid JSON")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.items.update(is_selected=True)
@@ -289,13 +306,18 @@ def select_all_flutter(request):
         "selected_qty": _selected_qty(cart),
     })
 
-
-@csrf_exempt
 @login_required
+@csrf_exempt
 @transaction.atomic
 def unselect_all_flutter(request):
+    # 2. Lanjut ke logika yang sudah ada...
     if request.method != "POST":
         return HttpResponseBadRequest("POST required")
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:  # <--- INI BAGIAN YANG HILANG SEBELUMNYA
+        return HttpResponseBadRequest("Invalid JSON")
 
     cart, _ = Cart.objects.select_for_update().get_or_create(user=request.user)
     cart.items.update(is_selected=False)
