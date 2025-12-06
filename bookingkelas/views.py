@@ -88,7 +88,6 @@ def catalog(request):
     }
     return render(request, "show_class.html", context)
 
-@login_required(login_url="/user/login/")
 def sessions_json(request):
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
