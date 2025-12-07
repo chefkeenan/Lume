@@ -456,3 +456,35 @@ def my_bookings_flutter(request):
             "status": status
         })
     return JsonResponse({"bookings": data})
+
+
+def popular_sessions_json(request):
+    # Logika sama persis dengan landing_view di web
+    qs = (
+        ClassSessions.objects
+        .annotate(num_bookings=Count("bookings", distinct=True))
+        .filter(num_bookings__gt=0)
+        .order_by("-num_bookings", "-id")
+    )[:6] # Ambil 6 teratas
+
+    weekday_map = _weekday_map()
+    data = []
+    for s in qs:
+        days = s.days or []
+        # Kita kirim data yang mirip dengan sessions_json tapi urutannya beda
+        data.append({
+            "id": s.id,
+            "title": s.title,
+            "category": s.category,
+            "instructor": s.instructor,
+            "capacity_current": s.capacity_current,
+            "capacity_max": s.capacity_max,
+            "price": s.price,
+            "room": s.room,
+            "days": days,
+            "days_names": [weekday_map.get(str(d), str(d)) for d in days],
+            "time": s.time,
+            "is_full": s.is_full,
+            "num_bookings": s.num_bookings, # Tambahan info jumlah booking
+        })
+    return JsonResponse({"sessions": data})
