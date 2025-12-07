@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import F
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 from cart.models import Cart
 from bookingkelas.models import Booking, ClassSessions
@@ -117,6 +118,7 @@ def cart_summary_api(request):
 # B. CART CHECKOUT API
 # ==========================
 
+@csrf_exempt
 @login_required(login_url="/user/login/")
 def cart_checkout_api(request):
     """
@@ -275,6 +277,7 @@ def cart_checkout_api(request):
 # C. BOOKING CHECKOUT API
 # ==========================
 
+@csrf_exempt
 @login_required(login_url="/user/login/")
 def booking_checkout_api(request, booking_id):
     """
