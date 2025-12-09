@@ -25,4 +25,5 @@ urlpatterns = [
         api.booking_checkout_api,
         name="booking_checkout_api"
     ),
+    path("api/history/", api.order_history_json, name="order_history_json"),
 ]

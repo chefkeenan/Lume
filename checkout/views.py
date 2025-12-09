@@ -229,3 +229,5 @@ def cart_summary_json(request):
 @login_required(login_url="/user/login/")
 def order_confirmed(request):
     return render(request, "checkout/order_confirmed.html")
+
+
