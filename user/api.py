@@ -59,6 +59,8 @@ def login_api(request):
             "username": user.username,
             "email": user.email,
             "phone": getattr(user, "phone", "") or "",
+            "is_staff": user.is_staff,       # Penting untuk logika Admin
+            "is_superuser": user.is_superuser # Opsional
         }
     })
 
