@@ -10,7 +10,7 @@ from decimal import Decimal
 import re
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Count
+from django.db.models import Count, Q
 
 def admin_check(u): return u.is_staff
 
@@ -371,7 +371,6 @@ def delete_session_flutter(request, pk):
 @csrf_exempt
 @login_required(login_url="/user/login/") 
 def book_session_flutter(request):
-    # Note: Flutter harus mengirim session cookie atau token auth agar @login_required tembus
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -382,7 +381,7 @@ def book_session_flutter(request):
                 
             s_to_book = ClassSessions.objects.get(id=session_id)
 
-            # 1. Cek apakah user sudah booking (Confirmed)
+            # Cek apakah sudah booking
             is_confirmed = Booking.objects.filter(
                 user=request.user, 
                 session=s_to_book, 
@@ -393,7 +392,7 @@ def book_session_flutter(request):
             if is_confirmed:
                 return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
 
-            # 2. Cek Pending Booking (belum bayar/checkout)
+            # Cek pending booking
             pending_booking = Booking.objects.filter(
                 user=request.user, 
                 session=s_to_book, 
@@ -406,10 +405,9 @@ def book_session_flutter(request):
                     "status": "success", 
                     "message": "Pending booking found",
                     "booking_id": pending_booking.id,
-                    "is_new": False
                 }, status=200)
 
-            # 3. Cek Kapasitas
+            # Cek kapasitas
             confirmed_count = s_to_book.bookings.filter(
                 is_cancelled=False, 
                 order_items__isnull=False
@@ -418,7 +416,7 @@ def book_session_flutter(request):
             if confirmed_count >= s_to_book.capacity_max:
                  return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
 
-            # 4. Create New Booking
+            # ✅ Create booking dengan hari pertama dari session
             new_booking = Booking.objects.create(
                 user=request.user,
                 session=s_to_book,
@@ -430,7 +428,6 @@ def book_session_flutter(request):
                 "status": "success", 
                 "message": "Booking created",
                 "booking_id": new_booking.id,
-                "is_new": True
             }, status=200)
 
         except ClassSessions.DoesNotExist:
@@ -460,19 +457,18 @@ def my_bookings_flutter(request):
 
 
 def popular_sessions_json(request):
-    # Logika sama persis dengan landing_view di web
+
     qs = (
         ClassSessions.objects
-        .annotate(num_bookings=Count("bookings", distinct=True))
+        .annotate(num_bookings=Count("bookings", filter=Q(bookings__is_cancelled=False, bookings__order_items__isnull=False)))
         .filter(num_bookings__gt=0)
         .order_by("-num_bookings", "-id")
-    )[:6] # Ambil 6 teratas
+    )[:6]
 
     weekday_map = _weekday_map()
     data = []
     for s in qs:
         days = s.days or []
-        # Kita kirim data yang mirip dengan sessions_json tapi urutannya beda
         data.append({
             "id": s.id,
             "title": s.title,
@@ -486,6 +482,7 @@ def popular_sessions_json(request):
             "days_names": [weekday_map.get(str(d), str(d)) for d in days],
             "time": s.time,
             "is_full": s.is_full,
-            "num_bookings": s.num_bookings, # Tambahan info jumlah booking
+            "num_bookings": s.num_bookings,
+            "description": s.description,
         })
     return JsonResponse({"sessions": data})
