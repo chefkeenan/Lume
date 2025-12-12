@@ -19,5 +19,6 @@ urlpatterns = [
     path("api/products/create/", api.api_product_create, name="api_product_create"),
     path("api/products/<uuid:pk>/update/", api.api_product_update, name="api_product_update"),
     path("api/products/<uuid:pk>/delete/", api.api_product_delete, name="api_product_delete"),
+    path("api/wishlist/toggle/<uuid:pk>/", api.api_toggle_wishlist, name="api_toggle_wishlist"),
 
 ]
