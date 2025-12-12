@@ -379,9 +379,9 @@ def book_session_flutter(request):
             if not session_id:
                 return JsonResponse({"status": "error", "message": "Session ID is required"}, status=400)
                 
-            s_to_book = ClassSessions.objects.get(id=session_id)
+            s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) # Gunakan select_for_update agar aman dari race condition
 
-            # Cek apakah sudah booking
+            # 1. Cek apakah user sudah booking (Confirmed)
             is_confirmed = Booking.objects.filter(
                 user=request.user, 
                 session=s_to_book, 
@@ -392,31 +392,11 @@ def book_session_flutter(request):
             if is_confirmed:
                 return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
 
-            # Cek pending booking
-            pending_booking = Booking.objects.filter(
-                user=request.user, 
-                session=s_to_book, 
-                is_cancelled=False,
-                order_items__isnull=True
-            ).first()
-
-            if pending_booking:
-                return JsonResponse({
-                    "status": "success", 
-                    "message": "Pending booking found",
-                    "booking_id": pending_booking.id,
-                }, status=200)
-
-            # Cek kapasitas
-            confirmed_count = s_to_book.bookings.filter(
-                is_cancelled=False, 
-                order_items__isnull=False
-            ).count()
-            
-            if confirmed_count >= s_to_book.capacity_max:
+            # 2. Cek Kapasitas
+            if s_to_book.capacity_current >= s_to_book.capacity_max:
                  return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
 
-            # ✅ Create booking dengan hari pertama dari session
+            # 3. Create New Booking
             new_booking = Booking.objects.create(
                 user=request.user,
                 session=s_to_book,
@@ -424,10 +404,16 @@ def book_session_flutter(request):
                 price_at_booking=Decimal(s_to_book.price),
             )
             
+            # --- TAMBAHKAN INI: UPDATE KAPASITAS ---
+            s_to_book.capacity_current += 1
+            s_to_book.save()
+            # ---------------------------------------
+            
             return JsonResponse({
                 "status": "success", 
                 "message": "Booking created",
                 "booking_id": new_booking.id,
+                "is_new": True
             }, status=200)
 
         except ClassSessions.DoesNotExist:
