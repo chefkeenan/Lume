@@ -379,9 +379,9 @@ def book_session_flutter(request):
             if not session_id:
                 return JsonResponse({"status": "error", "message": "Session ID is required"}, status=400)
                 
-            s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) # Gunakan select_for_update agar aman dari race condition
+            s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) 
 
-            # 1. Cek apakah user sudah booking (Confirmed)
+            # 1. Cek Duplikasi Booking (sama seperti sebelumnya)
             is_confirmed = Booking.objects.filter(
                 user=request.user, 
                 session=s_to_book, 
@@ -392,22 +392,17 @@ def book_session_flutter(request):
             if is_confirmed:
                 return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
 
-            # 2. Cek Kapasitas
+            # 2. Cek Kapasitas (Hanya cek, JANGAN tambah dulu)
             if s_to_book.capacity_current >= s_to_book.capacity_max:
                  return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
 
-            # 3. Create New Booking
+            # 3. Create Booking (Pending Payment)
             new_booking = Booking.objects.create(
                 user=request.user,
                 session=s_to_book,
                 day_selected=s_to_book.days[0] if s_to_book.days else "0", 
                 price_at_booking=Decimal(s_to_book.price),
             )
-            
-            # --- TAMBAHKAN INI: UPDATE KAPASITAS ---
-            s_to_book.capacity_current += 1
-            s_to_book.save()
-            # ---------------------------------------
             
             return JsonResponse({
                 "status": "success", 

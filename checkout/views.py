@@ -260,15 +260,22 @@ def process_booking_payment_api(request):
             data = json.loads(request.body)
             booking_id = data.get('booking_id')
             
-            # 1. Ambil Booking
             booking = Booking.objects.get(id=booking_id, user=request.user)
-            
-            # 2. Cek apakah sudah dibayar (Cek di BookingOrderItem)
+            session = booking.session # Ambil objek sesi dari booking
+
+            # 1. Cek apakah sudah dibayar
             if BookingOrderItem.objects.filter(booking=booking).exists():
                 return JsonResponse({"status": "error", "message": "Booking already paid"}, status=400)
 
-            # 3. BUAT BOOKING ORDER (Induk)
-            # Karena BookingOrder butuh total/subtotal, kita isi dengan harga booking
+            # 2. CEK KAPASITAS LAGI (Penting! Takutnya penuh saat user lagi di halaman checkout)
+            # Gunakan select_for_update untuk locking
+            # Kita perlu fetch ulang session dengan lock
+            session_locked = ClassSessions.objects.select_for_update().get(id=session.id)
+            
+            if session_locked.capacity_current >= session_locked.capacity_max:
+                return JsonResponse({"status": "error", "message": "Sorry, class just got full!"}, status=400)
+
+            # 3. Buat Booking Order (Induk)
             new_order = BookingOrder.objects.create(
                 user=request.user,
                 subtotal=booking.price_at_booking,
@@ -276,22 +283,25 @@ def process_booking_payment_api(request):
                 notes="Booked via Mobile App"
             )
 
-            # 4. BUAT BOOKING ORDER ITEM (Anak)
-            # Model Anda mewajibkan session_title dan unit_price
+            # 4. Buat Booking Order Item (Anak)
             BookingOrderItem.objects.create(
                 order=new_order,
                 booking=booking,
-                session_title=booking.session.title, # Wajib diisi sesuai model
-                unit_price=booking.price_at_booking, # Wajib diisi sesuai model
+                session_title=booking.session.title,
+                unit_price=booking.price_at_booking,
                 quantity=1
             )
+            
+            # 5. ✅ UPDATE KAPASITAS DI SINI (Setelah Payment Sukses)
+            session_locked.capacity_current += 1
+            session_locked.save()
             
             return JsonResponse({"status": "success", "message": "Payment successful!"})
 
         except Booking.DoesNotExist:
             return JsonResponse({"status": "error", "message": "Booking not found"}, status=404)
         except Exception as e:
-            print(f"ERROR CHECKOUT: {e}") # Cek terminal kalau masih error
+            print(f"ERROR CHECKOUT: {e}")
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
             
     return JsonResponse({"status": "error", "message": "Invalid method"}, status=401)
