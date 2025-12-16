@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.db import transaction
 from .forms import SessionsForm, AdminSessionsForm, AdminSessionEditForm
 from decimal import Decimal
-import re
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Count, Q
@@ -294,7 +293,7 @@ def create_session_flutter(request):
             data = json.loads(request.body)
             
             # Validasi input sederhana
-            required_fields = ['title', 'instructor', 'time', 'date', 'category', 'price', 'capacity_max']
+            required_fields = ['title', 'instructor', 'time', 'category', 'price', 'capacity_max']
             for field in required_fields:
                 if field not in data:
                     return JsonResponse({"status": "error", "message": f"Field {field} is required"}, status=400)
