@@ -6,11 +6,9 @@
 
 {% block content %}
 
-<!-- HERO — title di atas gambar (center) -->
 <section class="relative mx-auto max-w-7xl px-6 pt-8">
   <div class="relative overflow-hidden rounded-[28px]">
-    <img src="{% static 'hero/hero-products.png' %}" alt="" class="h-[300px] w-full object-cover">
-    <!-- overlay gradasi lebih soft biar gambar jelas -->
+    <img src="https://github.com/pbp-kelompok-f2/Lume/blob/master/static/hero/hero-products.png?raw=true" alt="" class="h-[300px] w-full object-cover">
     <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.22)_0%,rgba(0,0,0,.12)_45%,rgba(0,0,0,.04)_100%)]"></div>
 
     <div class="absolute inset-0 grid place-items-center">
@@ -28,76 +26,72 @@
   </div>
 </section>
 
-<!-- SEARCH + FILTER BAR -->
+
 <section class="mx-auto max-w-7xl px-6 mt-10">
-  <div class="flex items-center gap-2">
-    <form action="{% url 'main:show_main' %}" method="get" class="flex items-center gap-2 flex-1">
+  <div class="flex flex-wrap items-stretch gap-2">
+    <form action="{% url 'main:show_main' %}" method="get" class="flex flex-wrap items-stretch gap-2 flex-1">
       {% if order %}<input type="hidden" name="order" value="{{ order }}">{% endif %}
 
-      <!-- Input Search -->
-      <div class="relative flex-1">
+      <div class="relative basis-full sm:basis-[55%] lg:flex-1">
         <svg class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
           <path fill-rule="evenodd" d="M13.78 12.72a6 6 0 11.707-.707l3.25 3.25a.5.5 0 01-.707.707l-3.25-3.25zM12.5 8a4.5 4.5 0 10-9 0 4.5 4.5 0 009 0z" clip-rule="evenodd" />
         </svg>
         <input
           id="q" name="q" type="search" value="{{ q|default:'' }}"
           placeholder="Search"
-          class="w-full rounded-lg border border-stone-300 bg-white py-2.5 pl-9 pr-3 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+          class="w-full h-full rounded-lg border border-stone-300 bg-white py-2.5 pl-9 pr-3 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
         />
       </div>
 
-      <!-- Dropdown Filter (Price) -->
-      <div>
+      <div class="relative basis-[48%] sm:basis-40">
         <label for="price" class="sr-only">Filter</label>
-        <div class="relative">
-          <select
-            id="price" name="price"
-            class="appearance-none rounded-lg border border-stone-300 bg-white px-3 py-2.5 pr-8 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
-          >
-            <option value="">Filter</option>
-            {% for key, label, _lo, _hi in price_ranges %}
-              <option value="{{ key }}" {% if selected_price == key %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-          </svg>
-        </div>
+        <select
+          id="price" name="price"
+          class="w-full appearance-none rounded-lg border border-stone-300 bg-white px-3 py-2.5 pr-8 text-sm text-stone-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-stone-300"
+        >
+          <option value="">Filter</option>
+          {% for key, label, _lo, _hi in price_ranges %}
+            <option value="{{ key }}" {% if selected_price == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+        </svg>
       </div>
 
-      <!-- Tombol Search -->
-      <button
-        type="submit"
-        class="rounded-lg bg-[#9AA08F] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95 active:opacity-90"
-      >
-        Search
-      </button>
+      <div class="basis-[48%] sm:basis-auto">
+        <button
+          type="submit"
+          class="w-full sm:w-auto rounded-lg bg-[#9AA08F] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-95 active:opacity-90"
+        >
+          Search
+        </button>
+      </div>
     </form>
 
     {% if request.user.is_staff %}
     <a href="#"
-      data-open-add
-      data-add-url="{% url 'catalog:product_add_modal' %}"
-      class="inline-flex items-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-stone-50">
+       data-open-add
+       data-add-url="{% url 'catalog:product_add_modal' %}"
+       class="basis-full sm:basis-auto inline-flex items-center justify-center gap-2 rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-semibold hover:bg-stone-50">
       + Add Product
     </a>
     {% endif %}
-
   </div>
 </section>
 
 
-<!-- GRID PRODUK -->
+  </div>
+</section>
+
 <section id="grid" class="relative z-0 mx-auto max-w-7xl px-6 py-8">
 <div id="productGrid" class="flex flex-wrap justify-center gap-x-10 gap-y-12">
   {% for p in page_obj.object_list %}
     <div class="w-[312px]" data-card-wrapper id="wrap-{{ p.id }}">
-      {% include "product_card.html" with p=p %}
+      {% include "catalog/product_card.html" with p=p %}
     </div>
   {% endfor %}
 </div>
-
-
 
   {% if page_obj.paginator.num_pages > 1 %}
   <div class="mt-8 flex items-center justify-center gap-1">
@@ -136,12 +130,13 @@
   {% endif %}
 </section>
 
-{% include "product_modal.html" %}
+{% block modals %}
+  {% include "catalog/product_modal.html" %}
+{% endblock %}
+
+{% endblock %}
+{% block extra_js %}
 <script defer src="{% static 'js/helpers.js' %}"></script>
 <script defer src="{% static 'js/shop.js' %}"></script>
-<script defer src="{% static 'js/admin-producst.js' %}"></script>
-
-
-
-
+<script defer src="{% static 'js/admin-producst.js' %}" defer></script>
 {% endblock %}

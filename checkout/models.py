@@ -3,22 +3,19 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from bookingkelas.models import Booking  # pastikan path app sesuai
+from bookingkelas.models import Booking  
 
-#  Checkout Produk (dari Cart) - alamat snapshot per order
 class ProductOrder(models.Model):
-    FLAT_SHIPPING = Decimal("10000.00")  # ongkir flat
+    FLAT_SHIPPING = Decimal("10000.00") 
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="product_orders"
     )
-    # trace asal keranjang 
     cart = models.ForeignKey(
         "cart.Cart", on_delete=models.SET_NULL, null=True, blank=True, related_name="orders"
     )
 
-    # snapshot kontak + alamat (diisi dari form tiap checkout)
     receiver_name = models.CharField(max_length=120)
     receiver_phone = models.CharField(max_length=30)
     address_line1 = models.CharField(max_length=200)
@@ -28,7 +25,6 @@ class ProductOrder(models.Model):
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=60, default="Indonesia")
 
-    # angka-angka
     subtotal = models.DecimalField(
         max_digits=14, decimal_places=2, default=Decimal("0"),
         validators=[MinValueValidator(Decimal("0"))]
@@ -62,10 +58,8 @@ class ProductOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name="items")
 
-    # jejak ke Product (opsional; jgn dipakai utk harga saat render)
     product = models.ForeignKey("catalog.Product", on_delete=models.SET_NULL, null=True, blank=True)
 
-    # snapshot data produk saat checkout
     product_name = models.CharField(max_length=200)
     unit_price = models.DecimalField(
         max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal("0"))]
@@ -80,7 +74,6 @@ class ProductOrderItem(models.Model):
         return f"{self.product_name} x {self.quantity}"
 
 
-#  Checkout Booking Class (tanpa ongkir)
 class BookingOrder(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
@@ -102,7 +95,7 @@ class BookingOrder(models.Model):
     def recalc_totals(self):
         s = sum(i.line_total for i in self.items.all())
         self.subtotal = s
-        self.total = s  # no shipping
+        self.total = s
 
     class Meta:
         indexes = [models.Index(fields=["user", "created_at"])]
@@ -114,10 +107,8 @@ class BookingOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(BookingOrder, on_delete=models.CASCADE, related_name="items")
 
-    # 1 booking hanya boleh masuk 1 order (anti double-charge)
     booking = models.ForeignKey(Booking, on_delete=models.PROTECT, related_name="order_items")
 
-    # snapshot data kelas
     session_title = models.CharField(max_length=200)
     occurrence_date = models.DateField(null=True, blank=True)
     occurrence_start_time = models.TimeField(null=True, blank=True)

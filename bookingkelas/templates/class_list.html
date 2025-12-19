@@ -53,33 +53,25 @@
 
 {% block scripts %}
 <style>
-  /* Container untuk form fields */
   .modal-form-fields {
-    /* Gunakan CSS Grid untuk layout 2 kolom */
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    /* Membuat 2 kolom dengan lebar yang sama */
     gap: 10px;
-    /* Jarak antar kolom dan baris */
+
   }
 
-  /* Styling untuk setiap field (dibungkus oleh <p>) */
   .modal-form-fields p {
     display: flex;
     flex-direction: column;
     gap: 2px;
-    /* Tambahkan ini jika ada field yang ingin tetap 1 kolom penuh, contoh description */
-    /* Contoh: .modal-form-fields p:has(label[for="id_description"]) { grid-column: span 2; } */
+
   }
 
-  /* Lebar untuk beberapa field agar tidak terlalu panjang */
   .modal-form-fields p:has(label[for="id_title"]),
   .modal-form-fields p:has(label[for="id_description"]) {
     grid-column: span 2;
-    /* Buat Title dan Description mengambil 2 kolom penuh */
   }
 
-  /* Styling label, input, select, textarea */
   .modal-form-fields label {
     font-weight: 600;
     font-size: 0.9rem;
@@ -101,10 +93,9 @@
     color: #6B7280;
   }
 
-  /* Merapikan layout checkbox 'Days' */
   .modal-form-fields #id_days {
     grid-column: span 2;
-    /* Pastikan 'Days' selalu 2 kolom */
+
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 4px;
@@ -130,92 +121,89 @@
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // === BAGIAN MODAL EDIT (Biarkan) ===
-    const editModal = document.getElementById('editSessionModal');
-    const editModalPanel = document.getElementById('editModalPanel');
-    const editModalBody = document.getElementById('editModalBody');
-    const editModalForm = document.getElementById('editModalForm');
-    const editModalTitle = document.getElementById('editModalTitle');
-    const editModalClose = document.getElementById('editModalClose');
-    const editModalCancel = document.getElementById('editModalCancel');
+document.addEventListener('DOMContentLoaded', () => {
+  const editModal      = document.getElementById('editSessionModal');
+  const editModalBody  = document.getElementById('editModalBody');
+  const editModalForm  = document.getElementById('editModalForm');
+  const editModalTitle = document.getElementById('editModalTitle');
+  const editModalClose = document.getElementById('editModalClose');
+  const editModalCancel= document.getElementById('editModalCancel');
 
-    const openEditModal = () => {
-      editModal.classList.remove('opacity-0', 'invisible');
-      editModalPanel.classList.remove('opacity-0', 'scale-95');
-    };
+  function openEditModal() {
+    if (!editModal) return;
+    editModal.classList.remove('hidden');
+  }
+  function closeEditModal() {
+    if (!editModal) return;
+    editModal.classList.add('hidden');
+    if (editModalBody)  editModalBody.innerHTML = '<div class="text-gray-500">Loading...</div>';
+    if (editModalForm)  editModalForm.action = "";
+    if (editModalTitle) editModalTitle.innerText = "Loading...";
+  }
 
-    const closeEditModal = () => {
-      editModal.classList.add('opacity-0');
-      editModalPanel.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => {
-        editModal.classList.add('invisible');
-        editModalBody.innerHTML = '<div class="text-gray-500">Loading...</div>';
-        editModalForm.action = "";
-        editModalTitle.innerText = "Loading...";
-      }, 300);
-    };
+  editModalClose?.addEventListener('click', closeEditModal);
+  editModalCancel?.addEventListener('click', closeEditModal);
+  editModal?.addEventListener('click', (e) => { if (e.target === editModal) closeEditModal(); });
 
-    editModalClose.addEventListener('click', closeEditModal);
-    editModalCancel.addEventListener('click', closeEditModal);
-    editModal.addEventListener('click', (e) => {
-      if (e.target === editModal) closeEditModal();
+   const deleteModal      = document.getElementById('deleteModal');
+  const deleteModalPanel = document.getElementById('deleteModalPanel');
+  const deleteModalForm  = document.getElementById('deleteModalForm');
+  const deleteModalClose = document.getElementById('deleteModalClose');
+  const deleteModalCancel= document.getElementById('deleteModalCancel');
+
+  function openDeleteModal() {
+    if (!deleteModal) return;
+    deleteModal.classList.remove('opacity-0','invisible');
+    requestAnimationFrame(() => {
+      deleteModalPanel?.classList.remove('opacity-0','scale-95');
     });
+  }
 
-    // === BAGIAN MODAL DELETE (BARU) ===
-    const deleteModal = document.getElementById('deleteModal');
-    const deleteModalPanel = document.getElementById('deleteModalPanel');
-    const deleteModalForm = document.getElementById('deleteModalForm');
-    const deleteModalClose = document.getElementById('deleteModalClose');
-    const deleteModalCancel = document.getElementById('deleteModalCancel');
+  function closeDeleteModal() {
+    if (!deleteModal) return;
+    deleteModalPanel?.classList.add('opacity-0','scale-95');
+    deleteModal.classList.add('opacity-0');
+    setTimeout(() => {
+      deleteModal.classList.add('invisible');
+      if (deleteModalForm) deleteModalForm.action = '';
+    }, 300);
+  }
 
-    const openDeleteModal = () => {
-      deleteModal.classList.remove('opacity-0', 'invisible');
-      deleteModalPanel.classList.remove('opacity-0', 'scale-95');
-    };
-
-    const closeDeleteModal = () => {
-      deleteModal.classList.add('opacity-0');
-      deleteModalPanel.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => {
-        deleteModal.classList.add('invisible');
-        deleteModalForm.action = ""; // Reset action
-      }, 300);
-    };
-
-    deleteModalClose.addEventListener('click', closeDeleteModal);
-    deleteModalCancel.addEventListener('click', closeDeleteModal);
-    deleteModal.addEventListener('click', (e) => {
-      if (e.target === deleteModal) closeDeleteModal();
-    });
-
-
-    // === EVENT DELEGATION (Modifikasi) ===
-    document.body.addEventListener('click', (e) => {
-
-      // Listener untuk tombol EDIT (Biarkan)
-      if (e.target.matches('.edit-session-btn')) {
-        const formUrl = e.target.dataset.formUrl;
-        const postUrl = e.target.dataset.postUrl;
-        editModalForm.action = postUrl;
-        openEditModal();
-        // ... (fetch dan sisa logika edit) ...
-        fetch(formUrl).then(response => response.text()).then(html => {
-          editModalBody.innerHTML = html;
-          editModalTitle.innerText = "Edit Session";
-          // ... (logika JS counter & days) ...
-        });
-      }
-
-      // Listener untuk tombol DELETE (BARU)
-      if (e.target.matches('.delete-session-btn')) {
-        const deleteUrl = e.target.dataset.deleteModalUrl;
-        // Set action form di modal delete
-        deleteModalForm.action = deleteUrl;
-        // Buka modal delete
-        openDeleteModal();
-      }
-    });
+  deleteModalClose?.addEventListener('click', closeDeleteModal);
+  deleteModalCancel?.addEventListener('click', closeDeleteModal);
+  deleteModal?.addEventListener('click', (e) => {
+    if (e.target === deleteModal) closeDeleteModal();
   });
+
+  document.body.addEventListener('click', (e) => {
+    if (e.target.matches('.edit-session-btn')) {
+      const formUrl = e.target.dataset.formUrl;
+      const postUrl = e.target.dataset.postUrl;
+      if (!formUrl || !postUrl) return;
+
+      const editModal      = document.getElementById('editSessionModal');
+      const editModalBody  = document.getElementById('editModalBody');
+      const editModalForm  = document.getElementById('editModalForm');
+      const editModalTitle = document.getElementById('editModalTitle');
+
+      editModalForm.action = postUrl;
+      editModal.classList.remove('hidden');
+
+      fetch(formUrl).then(r=>r.text()).then(html=>{
+        editModalBody.innerHTML = html;
+        editModalTitle.innerText = 'Edit Session';
+      }).catch(()=>{
+        editModalBody.innerHTML = '<div class="text-red-600">Gagal memuat form.</div>';
+      });
+    }
+
+    if (e.target.matches('.delete-session-btn')) {
+      const deleteUrl = e.target.dataset.deleteModalUrl || '';
+      if (deleteModalForm) deleteModalForm.action = deleteUrl;
+      openDeleteModal();
+    }
+  });
+});
+</script>
 </script>
 {% endblock %}

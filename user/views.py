@@ -12,8 +12,9 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 def _is_ajax(request):
     return (
@@ -32,7 +33,7 @@ def _safe_next(request, fallback_name="main:landing"):
         return reverse(fallback_name)
     return nxt
 
-@ensure_csrf_cookie
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def login_user(request):
     if request.method == "POST":
@@ -51,16 +52,22 @@ def login_user(request):
             messages.success(request, "Log in successful.")
             return redirect(target)
         else:
-            if _is_ajax(request):
-                return JsonResponse(
-                    {"ok": False, "errors": form.errors, "non_field_errors": form.non_field_errors()},
-                    status=400
-                )
+            if _is_ajax(request):   
+                errors = {k: v for k, v in form.errors.items()}
+                nfe = list(form.non_field_errors())
+                if nfe:
+                    errors["__all__"] = nfe
+                return JsonResponse({"ok": False, "errors": errors}, status=400)
+
+            return render(request, "login.html", {
+                "form": form,
+                "non_field_errors": form.non_field_errors(),
+            })
     else:
         form = AuthenticationForm(request)
     return render(request, "login.html", {"form": form})
 
-@ensure_csrf_cookie
+@csrf_exempt
 @require_http_methods(["GET", "POST"])
 def register_user(request):
     if request.method == "POST":
@@ -68,7 +75,6 @@ def register_user(request):
         if form.is_valid():
             user = form.save()
 
-            # FIX: kasih backend biar login() nggak error 403
             login(request, user, backend=settings.AUTHENTICATION_BACKENDS[0])
 
             if _is_ajax(request):
@@ -93,6 +99,7 @@ def register_user(request):
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
 
+@csrf_exempt
 def logout_user(request):
     logout(request)
     return redirect("main:landing")

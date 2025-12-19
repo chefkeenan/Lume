@@ -7,7 +7,9 @@ from django.contrib import messages
 from django.db import transaction
 from .forms import SessionsForm, AdminSessionsForm, AdminSessionEditForm
 from decimal import Decimal
-import re
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Count, Q
 
 def admin_check(u): return u.is_staff
 
@@ -86,7 +88,6 @@ def catalog(request):
     }
     return render(request, "show_class.html", context)
 
-@login_required(login_url="/user/login/")
 def sessions_json(request):
     qs = ClassSessions.objects.all().order_by("title")
     weekday_map = _weekday_map()
@@ -243,16 +244,13 @@ def class_edit(request, pk):
 @login_required
 @user_passes_test(admin_check)
 def class_delete(request, pk):
-    # Ambil objeknya dulu
     kelas = get_object_or_404(ClassSessions, pk=pk)
     
-    # [WAJIB] Hanya proses delete jika method-nya POST
     if request.method == "POST":
         kelas.delete()
         messages.success(request, "Session successfully deleted.")
         return redirect("bookingkelas:class_list")
 
-    # Jika GET request, tolak dan redirect
     messages.error(request, "Invalid request method.")
     return redirect("bookingkelas:class_list")
 
@@ -283,3 +281,188 @@ def add_session(request):
         
         messages.error(request, error_str)
         return redirect("bookingkelas:catalog")
+    
+# ==========================================
+# API FOR FLUTTER INTEGRATION
+# ==========================================
+
+@csrf_exempt
+def create_session_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            # Validasi input sederhana
+            required_fields = ['title', 'instructor', 'time', 'category', 'price', 'capacity_max']
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"status": "error", "message": f"Field {field} is required"}, status=400)
+
+            # Mapping weekday dari input (misal "Monday") ke format model (angka '0'-'6')
+            # Asumsi flutter mengirim list hari misal ["0", "2"] atau nama hari
+            # Sederhananya kita ambil raw data dulu
+            
+            new_session = ClassSessions.objects.create(
+                title=data['title'],
+                instructor=data['instructor'],
+                time=data['time'],
+                days=data.get('days', []), # Pastikan format list string, misal ["0", "2"]
+                category=data['category'],
+                description=data.get('description', ''),
+                price=Decimal(data['price']),
+                capacity_max=int(data['capacity_max']),
+                room=data.get('room', 'Studio 1'),
+            )
+            
+            return JsonResponse({
+                "status": "success", 
+                "message": "Class created successfully",
+                "id": new_session.id
+            }, status=200)
+
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=401)
+
+@csrf_exempt
+def edit_session_flutter(request, pk):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            session = ClassSessions.objects.get(pk=pk)
+
+            # Update fields if they exist in request
+            if 'title' in data: session.title = data['title']
+            if 'instructor' in data: session.instructor = data['instructor']
+            if 'time' in data: session.time = data['time']
+            if 'days' in data: session.days = data['days']
+            if 'category' in data: session.category = data['category']
+            if 'description' in data: session.description = data['description']
+            if 'price' in data: session.price = Decimal(data['price'])
+            if 'capacity_max' in data: session.capacity_max = int(data['capacity_max'])
+            if 'room' in data: session.room = data['room']
+            
+            session.save()
+
+            return JsonResponse({"status": "success", "message": "Class updated successfully"}, status=200)
+        except ClassSessions.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Class not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=401)
+
+@csrf_exempt
+def delete_session_flutter(request, pk):
+    if request.method == 'POST':
+        try:
+            session = ClassSessions.objects.get(pk=pk)
+            session.delete()
+            return JsonResponse({"status": "success", "message": "Class deleted successfully"}, status=200)
+        except ClassSessions.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Class not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=401)
+
+@csrf_exempt
+@login_required(login_url="/user/login/") 
+def book_session_flutter(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            session_id = data.get('session_id')
+            
+            if not session_id:
+                return JsonResponse({"status": "error", "message": "Session ID is required"}, status=400)
+                
+            s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) 
+
+            # 1. Cek Duplikasi Booking (sama seperti sebelumnya)
+            is_confirmed = Booking.objects.filter(
+                user=request.user, 
+                session=s_to_book, 
+                is_cancelled=False,
+                order_items__isnull=False 
+            ).exists()
+
+            if is_confirmed:
+                return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
+
+            # 2. Cek Kapasitas (Hanya cek, JANGAN tambah dulu)
+            if s_to_book.capacity_current >= s_to_book.capacity_max:
+                 return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
+
+            # 3. Create Booking (Pending Payment)
+            new_booking = Booking.objects.create(
+                user=request.user,
+                session=s_to_book,
+                day_selected=s_to_book.days[0] if s_to_book.days else "0", 
+                price_at_booking=Decimal(s_to_book.price),
+            )
+            
+            return JsonResponse({
+                "status": "success", 
+                "message": "Booking created",
+                "booking_id": new_booking.id,
+                "is_new": True
+            }, status=200)
+
+        except ClassSessions.DoesNotExist:
+            return JsonResponse({"status": "error", "message": "Session not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+            
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=401)
+
+@login_required(login_url="/user/login/")
+def my_bookings_flutter(request):
+    # Untuk melihat daftar booking user tersebut
+    bookings = Booking.objects.filter(user=request.user, is_cancelled=False).order_by('-created_at')
+    data = []
+    for b in bookings:
+        status = "Confirmed" if b.order_items.exists() else "Pending Payment"
+        data.append({
+            "booking_id": b.id,
+            "session_title": b.session.title,
+            "instructor": b.session.instructor,
+            "time": b.session.time,
+            "day": b.day_selected,
+            "price": b.price_at_booking,
+            "status": status
+        })
+    return JsonResponse({"bookings": data})
+
+
+def popular_sessions_json(request):
+
+    qs = (
+        ClassSessions.objects
+        .annotate(num_bookings=Count("bookings", filter=Q(bookings__is_cancelled=False, bookings__order_items__isnull=False)))
+        .filter(num_bookings__gt=0)
+        .order_by("-num_bookings", "-id")
+    )[:6]
+
+    weekday_map = _weekday_map()
+    data = []
+    for s in qs:
+        days = s.days or []
+        data.append({
+            "id": s.id,
+            "title": s.title,
+            "category": s.category,
+            "instructor": s.instructor,
+            "capacity_current": s.capacity_current,
+            "capacity_max": s.capacity_max,
+            "price": s.price,
+            "room": s.room,
+            "days": days,
+            "days_names": [weekday_map.get(str(d), str(d)) for d in days],
+            "time": s.time,
+            "is_full": s.is_full,
+            "num_bookings": s.num_bookings,
+            "description": s.description,
+        })
+    return JsonResponse({"sessions": data})

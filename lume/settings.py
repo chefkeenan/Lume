@@ -31,10 +31,15 @@ PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "juma-jordan-lume.pbp.cs.ui.ac.id"]
+ALLOWED_HOSTS = ["localhost","localhost:8000", "juma-jordan-lume.pbp.cs.ui.ac.id", "10.0.2.2", "127.0.0.1", "127.0.0.1:8000"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://juma-jordan-lume.pbp.cs.ui.ac.id",
+    "https://juma-jordan-lume.pbp.cs.ui.ac.id",
+    "http://localhost",
+    "http://localhost:51134",
+    "http://127.0.0.1",
+    "http://127.0.0.1:8000",
 ]
 
 
@@ -48,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django.contrib.messages',
     'django.contrib.staticfiles', 
+    'corsheaders',
     'bookingkelas',
     'catalog',
     'cart',
@@ -58,7 +64,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,7 +100,6 @@ WSGI_APPLICATION = 'lume.wsgi.application'
 
 # Database configuration
 if PRODUCTION:
-    # Production: gunakan PostgreSQL dengan kredensial dari environment variables
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -107,7 +114,6 @@ if PRODUCTION:
         }
     }
 else:
-    # Development: gunakan SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -135,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = "user.User" 
-LOGIN_URL = "user_login"
+LOGIN_URL = '/user/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -155,13 +161,29 @@ USE_TZ = True
 STATIC_URL = 'static/'
 if DEBUG:
     STATICFILES_DIRS = [
-        BASE_DIR / 'static' # merujuk ke /static root project pada mode development
+        BASE_DIR / 'static'
     ]
 else:
-    STATIC_ROOT = BASE_DIR / 'static' # merujuk ke /static root project pada mode production
+    STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+if not DEBUG:
+    # Mode Production (HTTPS)
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SAMESITE = 'None'
+else:
+    # Mode Development/Lokal (HTTP) - WAJIB AGAR FLUTTER BISA LOGIN
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
+

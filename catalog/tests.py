@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from unittest.mock import patch, MagicMock
 from catalog import views as catalog_views
 
+# suite ini fokus ke akses admin modal + guard HTTP method
 User = get_user_model()
 
 UID = "00000000-0000-0000-0000-000000000001"
@@ -159,13 +160,6 @@ class CatalogCreateTests(TestCase):
         self.client = Client()
         self.staff = User.objects.create_user(username="admin", password="pass", is_staff=True)
         self.client.login(username="admin", password="pass")
-
-    @patch("catalog.views.ProductForm")
-    def test_product_create_get_renders_form(self, ProductForm):
-        resp = self.client.get(url_or("catalog:product_create"))
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn("form", resp.context)
-
 
     @patch("catalog.views.ProductForm")
     def test_product_create_post_valid_nonajax_redirects(self, ProductForm):

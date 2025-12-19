@@ -12,10 +12,9 @@ document.addEventListener("DOMContentLoaded", function() {
   const modalPrice = document.getElementById('modalPrice');
   const modalDayOptions = document.getElementById('modalDayOptions');
   
-  // <-- BARU 1: Pilih elemen placeholder kapasitas
   const modalCapacityInfo = document.getElementById('modalCapacityInfo');
 
-  // =============== Modal Functions ===============
+  // Modal
   function showModal() { modal.classList.remove('hidden'); }
   function closeModal() {
     modal.classList.add('hidden');
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function() {
     modalPrice.textContent = 'Rp ...';
     modalDayOptions.innerHTML = '<div class="text-gray-500">Loading days...</div>';
     
-    // <-- BARU 2: Kosongkan info kapasitas saat modal ditutup
     if (modalCapacityInfo) {
       modalCapacityInfo.textContent = '';
       modalCapacityInfo.className = 'text-sm text-gray-700 h-6 mt-2 text-center font-medium'; // Reset style
@@ -36,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function() {
   modalCancel?.addEventListener('click', closeModal);
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
-  // =============== Open Modal Buttons ===============
   const openButtons = document.querySelectorAll('.btn-open-modal');
   openButtons.forEach(button => {
     button.addEventListener('click', function() {
@@ -60,7 +57,6 @@ document.addEventListener("DOMContentLoaded", function() {
               const disabled = option.is_full ? 'disabled' : '';
               const opacity = option.is_full ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer';
               
-              // <-- BARU 3: Tambahkan data- attributes ke input radio
               const label = `
                 <label class="block">
                   <input type="radio" name="session_id" value="${option.value_id}" class="sr-only peer" ${disabled}
@@ -91,20 +87,19 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // <-- BARU 4: Tambahkan event listener untuk menampilkan kapasitas
   modalDayOptions.addEventListener('change', function(e) {
     if (e.target.name === 'session_id' && modalCapacityInfo) {
       const selectedRadio = e.target;
-      const isFull = selectedRadio.dataset.isFull === 'true'; // data- attributes adalah string
+      const isFull = selectedRadio.dataset.isFull === 'true'; 
       const current = selectedRadio.dataset.current;
       const max = selectedRadio.dataset.max;
 
       if (isFull) {
         modalCapacityInfo.textContent = 'This class is full.';
-        modalCapacityInfo.className = 'text-sm text-red-600 h-6 mt-2 text-center font-semibold'; // Jadi merah
+        modalCapacityInfo.className = 'text-sm text-red-600 h-6 mt-2 text-center font-semibold'; 
       } else {
         modalCapacityInfo.textContent = `Capacity: ${current} / ${max}`;
-        modalCapacityInfo.className = 'text-sm text-gray-700 h-6 mt-2 text-center font-medium'; // Style normal
+        modalCapacityInfo.className = 'text-sm text-gray-700 h-6 mt-2 text-center font-medium'; 
       }
     }
   });
