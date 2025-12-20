@@ -254,6 +254,7 @@ def booking_details_api(request, booking_id):
 
 @csrf_exempt
 @login_required
+@transaction.atomic
 def process_booking_payment_api(request):
     if request.method == 'POST':
         try:

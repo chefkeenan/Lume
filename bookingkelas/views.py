@@ -369,6 +369,7 @@ def delete_session_flutter(request, pk):
 
 @csrf_exempt
 @login_required(login_url="/user/login/") 
+@transaction.atomic
 def book_session_flutter(request):
     if request.method == 'POST':
         try:
