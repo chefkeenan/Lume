@@ -13,7 +13,7 @@ urlpatterns = [
 
     path("confirmed/", views.order_confirmed, name="order_confirmed"),
 
-
+#tes
     path("api/cart-summary/", api.cart_summary_api, name="cart_summary_api"),
     path("api/cart-checkout/", api.cart_checkout_api, name="cart_checkout_api"),
     path("api/booking-checkout/<int:booking_id>/", api.booking_checkout_api,name="booking_checkout_api"),
