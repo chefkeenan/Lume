@@ -103,6 +103,7 @@ class BookingOrder(models.Model):
     def __str__(self):
         return f"BookingOrder #{self.pk}"
 
+#tes
 class BookingOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(BookingOrder, on_delete=models.CASCADE, related_name="items")
