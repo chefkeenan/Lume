@@ -107,7 +107,7 @@ class BookingOrderItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     order = models.ForeignKey(BookingOrder, on_delete=models.CASCADE, related_name="items")
 
-    booking = models.ForeignKey(Booking, on_delete=models.PROTECT, related_name="order_items")
+    booking = models.ForeignKey(Booking, on_delete=models.SET_NULL, null=True, blank=True, related_name="order_items")
 
     session_title = models.CharField(max_length=200)
     occurrence_date = models.DateField(null=True, blank=True)
