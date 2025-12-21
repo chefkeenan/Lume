@@ -369,6 +369,7 @@ def delete_session_flutter(request, pk):
 
 @csrf_exempt
 @login_required(login_url="/user/login/") 
+@transaction.atomic
 def book_session_flutter(request):
     if request.method == 'POST':
         try:
@@ -377,31 +378,31 @@ def book_session_flutter(request):
             
             if not session_id:
                 return JsonResponse({"status": "error", "message": "Session ID is required"}, status=400)
-                
-            s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) 
+            with transaction.atomic():    
+                s_to_book = ClassSessions.objects.select_for_update().get(id=session_id) 
 
-            # 1. Cek Duplikasi Booking (sama seperti sebelumnya)
-            is_confirmed = Booking.objects.filter(
-                user=request.user, 
-                session=s_to_book, 
-                is_cancelled=False,
-                order_items__isnull=False 
-            ).exists()
+                # 1. Cek Duplikasi Booking (sama seperti sebelumnya)
+                is_confirmed = Booking.objects.filter(
+                    user=request.user, 
+                    session=s_to_book, 
+                    is_cancelled=False,
+                    order_items__isnull=False 
+                ).exists()
 
-            if is_confirmed:
-                return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
+                if is_confirmed:
+                    return JsonResponse({"status": "error", "message": "You have already booked this class."}, status=400)
 
-            # 2. Cek Kapasitas (Hanya cek, JANGAN tambah dulu)
-            if s_to_book.capacity_current >= s_to_book.capacity_max:
-                 return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
+                # 2. Cek Kapasitas (Hanya cek, JANGAN tambah dulu)
+                if s_to_book.capacity_current >= s_to_book.capacity_max:
+                    return JsonResponse({"status": "error", "message": "Class is Full."}, status=400)
 
-            # 3. Create Booking (Pending Payment)
-            new_booking = Booking.objects.create(
-                user=request.user,
-                session=s_to_book,
-                day_selected=s_to_book.days[0] if s_to_book.days else "0", 
-                price_at_booking=Decimal(s_to_book.price),
-            )
+                # 3. Create Booking (Pending Payment)
+                new_booking = Booking.objects.create(
+                    user=request.user,
+                    session=s_to_book,
+                    day_selected=s_to_book.days[0] if s_to_book.days else "0", 
+                    price_at_booking=Decimal(s_to_book.price),
+                )
             
             return JsonResponse({
                 "status": "success", 
